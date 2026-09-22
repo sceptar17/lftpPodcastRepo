@@ -1,0 +1,13 @@
+<section class="panel sync-status" data-auto-refresh="{{ 'true' if job.status in ['queued', 'running'] else 'false' }}">
+  <div class="section-heading">
+    <div><span class="eyebrow">{{ job_eyebrow }}</span><h2>{{ job_title }}</h2></div>
+    <i class="status {{ 'ok' if job.status == 'complete' else 'warning' if job.status in ['failed', 'needs-review'] else 'neutral' }}">{{ job.status|replace('-', ' ') }}</i>
+  </div>
+  <div class="job-summary">
+    <p><strong>{{ job.stage or 'Waiting for status' }}</strong>{% if job.current_label %}<small class="job-current">{{ job.current_label }}</small>{% endif %}</p>
+    <p class="job-timing"><strong>{{ job.progress_percent }}%</strong><small>{{ job.display_elapsed|duration }} elapsed{% if job.status in ['queued', 'running'] %} · {{ job.display_remaining|duration }} remaining{% endif %}</small></p>
+    {% if job.total %}<div class="progress-track"><span style="width: {{ job.progress_percent }}%"></span></div>{% endif %}
+  </div>
+  {% if job.error %}<p class="error-box">{{ job.error }}</p>{% endif %}
+  {% if job.status in ['queued', 'running'] %}<small>This page refreshes automatically while the job is active. You may leave and return.</small>{% endif %}
+</section>

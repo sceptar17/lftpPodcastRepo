@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}LFTP Knowledge{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+  <script src="{{ url_for('static', path='/app.js') }}" defer></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -13,12 +14,15 @@
       <span><strong>Live From The Path</strong><small>Knowledge repository</small></span>
     </a>
     <nav aria-label="Primary navigation">
+      <small class="nav-label">Repository</small>
       <a class="{{ 'active' if current_path == '/' else '' }}" href="/"><span>⌂</span> Overview</a>
       <a class="{{ 'active' if current_path.startswith('/episodes') else '' }}" href="/episodes"><span>◫</span> Episodes</a>
       <a class="{{ 'active' if current_path.startswith('/topics') else '' }}" href="/topics"><span>⌁</span> Topics</a>
-      <a class="{{ 'active' if current_path.startswith('/inventory') else '' }}" href="/inventory"><span>◎</span> Archive inventory</a>
-      <a class="{{ 'active' if current_path.startswith('/catalog') else '' }}" href="/catalog"><span>≡</span> Catalog reconstruction</a>
-      <a class="{{ 'active' if current_path.startswith('/transcription-lab') else '' }}" href="/transcription-lab"><span>◉</span> Transcription lab</a>
+      <small class="nav-label">Ingestion</small>
+      <a class="{{ 'active' if current_path.startswith('/inventory') else '' }}" href="/inventory"><span>◎</span> Source inventory</a>
+      <a class="{{ 'active' if current_path.startswith('/catalog') else '' }}" href="/catalog"><span>≡</span> Master catalog</a>
+      <a class="{{ 'active' if current_path.startswith('/transcription-lab') else '' }}" href="/transcription-lab"><span>◉</span> Transcription tests</a>
+      <small class="nav-label">Configuration</small>
       <a class="{{ 'active' if current_path.startswith('/settings') else '' }}" href="/settings"><span>⚙</span> Sources & providers</a>
     </nav>
     <div class="sidebar-note">

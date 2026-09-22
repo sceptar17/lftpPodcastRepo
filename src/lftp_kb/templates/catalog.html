@@ -2,7 +2,7 @@
 {% block title %}Catalog reconstruction · LFTP Knowledge{% endblock %}
 {% block heading %}Catalog reconstruction{% endblock %}
 {% block top_action %}
-<form method="post" action="/catalog/rebuild"><button class="button" type="submit">Build reference list</button></form>
+<form method="post" action="/catalog/rebuild" data-job-form="true"><button class="button" type="submit" data-working-label="Starting catalog scan…" {{ 'disabled' if build_state and build_state.status in ['queued', 'running'] else '' }}>{{ 'Rebuild master catalog' if ledger else 'Build master catalog' }}</button></form>
 {% endblock %}
 {% block content %}
 <section class="hero catalog-hero">
@@ -17,12 +17,7 @@
 </section>
 
 {% if build_state %}
-<section class="panel sync-status">
-  <div class="section-heading"><div><span class="eyebrow">Latest scan</span><h2>{{ build_state.status|replace('-', ' ')|title }}</h2></div>
-    {% if build_state.candidate_count is defined %}<span class="badge ok">{{ build_state.candidate_count }} candidates</span>{% endif %}</div>
-  {% if build_state.error %}<p class="error-box">{{ build_state.error }}</p>{% endif %}
-  {% if build_state.status in ['queued', 'running'] %}<p class="notice">The scan is running in the background. Refresh this page in a moment.</p>{% endif %}
-</section>
+{% with job=build_state, job_eyebrow='Catalog job', job_title=('Master catalog scan' if build_state.status in ['queued', 'running'] else 'Latest catalog scan') %}{% include '_job_status.html' %}{% endwith %}
 {% endif %}
 
 {% if ledger %}
@@ -58,6 +53,6 @@
   </div>
 </section>
 {% else %}
-<section class="panel action-empty"><span class="eyebrow">Start here</span><h2>Build the first reference list</h2><p>The first scan will read your configured archive and the current RSS discovery file, then create canonical JSON and a spreadsheet-friendly CSV.</p><form method="post" action="/catalog/rebuild"><button class="button" type="submit">Build reference list</button></form></section>
+<section class="panel action-empty"><span class="eyebrow">Start here</span><h2>Build the first reference list</h2><p>The first scan will read your configured archive and the current RSS discovery file, then create canonical JSON and a spreadsheet-friendly CSV.</p><form method="post" action="/catalog/rebuild" data-job-form="true"><button class="button" type="submit" data-working-label="Starting catalog scan…">Build reference list</button></form></section>
 {% endif %}
 {% endblock %}

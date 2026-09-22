@@ -34,7 +34,9 @@ def create_sync_job(repository: Repository, archive_root: Path,
     payload = {
         "job_id": job_id, "operation": "download", "status": "queued",
         "archive_root": str(archive_root),
-        "created_at": datetime.now(UTC).isoformat(), "finished_at": None,
+        "created_at": datetime.now(UTC).isoformat(), "started_at": None,
+        "updated_at": None, "finished_at": None, "stage": "Waiting to start",
+        "current_label": None, "processed": 0,
         "total": len(episodes), "completed": 0, "skipped": 0, "failed": 0,
         "items": [
             {
@@ -55,13 +57,15 @@ def execute_sync_job(repository: Repository, job_id: str, timeout: int = 120) ->
     relative = f"state/archive-sync/{job_id}.json"
     path = repository.root / relative
     job = json.loads(path.read_text(encoding="utf-8"))
-    job["status"] = "running"
+    job.update(status="running", started_at=datetime.now(UTC).isoformat(),
+               updated_at=datetime.now(UTC).isoformat(), stage="Downloading RSS audio")
     repository.atomic_json(relative, job)
     archive_root = Path(job["archive_root"])
     try:
         archive_root.mkdir(parents=True, exist_ok=True)
         for item in job["items"]:
             item["status"] = "downloading"
+            job["current_label"] = item["title"]
             repository.atomic_json(relative, job)
             try:
                 episode = DiscoveredEpisode.model_validate(item["episode"])
@@ -79,13 +83,18 @@ def execute_sync_job(repository: Repository, job_id: str, timeout: int = 120) ->
                 item["status"] = "failed"
                 item["message"] = f"{type(error).__name__}: {error}"
                 job["failed"] += 1
+            job["processed"] += 1
+            job["updated_at"] = datetime.now(UTC).isoformat()
             repository.atomic_json(relative, job)
+        job["stage"] = "Writing archive manifest"
+        job["current_label"] = None
         _write_manifest(archive_root)
         job["status"] = "complete" if not job["failed"] else "needs-review"
     except OSError as error:
         job["status"] = "failed"
         job["error"] = f"{type(error).__name__}: {error}"
     job["finished_at"] = datetime.now(UTC).isoformat()
+    job["updated_at"] = job["finished_at"]
     repository.atomic_json(relative, job)
 
 
@@ -116,7 +125,9 @@ def create_metadata_job(repository: Repository, archive_root: Path,
     payload = {
         "job_id": job_id, "operation": "metadata", "status": "queued",
         "archive_root": str(archive_root), "created_at": datetime.now(UTC).isoformat(),
-        "finished_at": None, "total": len(matches), "completed": 0,
+        "started_at": None, "updated_at": None, "finished_at": None,
+        "stage": "Waiting to start", "current_label": None, "processed": 0,
+        "total": len(matches), "completed": 0,
         "skipped": 0, "failed": 0,
         "items": [
             {
@@ -134,11 +145,13 @@ def create_metadata_job(repository: Repository, archive_root: Path,
 def execute_metadata_job(repository: Repository, job_id: str) -> None:
     relative = f"state/archive-sync/{job_id}.json"
     job = json.loads((repository.root / relative).read_text(encoding="utf-8"))
-    job["status"] = "running"
+    job.update(status="running", started_at=datetime.now(UTC).isoformat(),
+               updated_at=datetime.now(UTC).isoformat(), stage="Writing metadata sidecars")
     repository.atomic_json(relative, job)
     archive_root = Path(job["archive_root"])
     for item in job["items"]:
         item["status"] = "writing-metadata"
+        job["current_label"] = item["title"]
         repository.atomic_json(relative, job)
         try:
             audio_path = Path(item["audio_path"])
@@ -160,14 +173,19 @@ def execute_metadata_job(repository: Repository, job_id: str) -> None:
             item["status"] = "failed"
             item["message"] = f"{type(error).__name__}: {error}"
             job["failed"] += 1
+        job["processed"] += 1
+        job["updated_at"] = datetime.now(UTC).isoformat()
         repository.atomic_json(relative, job)
     try:
+        job["stage"] = "Writing archive manifest"
+        job["current_label"] = None
         _write_manifest(archive_root)
     except OSError as error:
         job["failed"] += 1
         job["manifest_error"] = f"{type(error).__name__}: {error}"
     job["status"] = "complete" if not job["failed"] else "needs-review"
     job["finished_at"] = datetime.now(UTC).isoformat()
+    job["updated_at"] = job["finished_at"]
     repository.atomic_json(relative, job)
 
 

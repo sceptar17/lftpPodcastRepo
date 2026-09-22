@@ -7,8 +7,8 @@
     <form method="post" action="/settings" class="form-stack">
       <label>Podcast RSS URL<input type="url" name="rss_url" value="{{ overrides.rss_url or settings.rss_url }}"></label>
       <label>Local audio archive path<input type="text" name="local_audio_root" value="{{ overrides.local_audio_root or (settings.local_audio_root or '') }}" placeholder="/Volumes/archive/live-from-the-path"></label>
-      <label>Default transcription provider<select name="transcription_provider"><option>{{ overrides.transcription_provider or settings.transcription_provider }}</option>{% for provider in providers %}<option value="{{ provider.provider_id }}">{{ provider.name }}</option>{% endfor %}</select></label>
-      <label>Default analysis provider<select name="analysis_provider"><option>{{ overrides.analysis_provider or settings.analysis_provider }}</option><option value="openai">OpenAI structured analysis</option><option value="deterministic">Deterministic test rules</option></select></label>
+      {% set selected_transcription = overrides.transcription_provider or settings.transcription_provider %}<label>Default transcription provider<select name="transcription_provider">{% for provider in providers %}<option value="{{ provider.provider_id }}" {{ 'selected' if provider.provider_id == selected_transcription else '' }}>{{ provider.name }}</option>{% endfor %}</select></label>
+      {% set selected_analysis = overrides.analysis_provider or settings.analysis_provider %}<label>Default analysis provider<select name="analysis_provider"><option value="openai" {{ 'selected' if selected_analysis == 'openai' else '' }}>OpenAI structured analysis</option><option value="deterministic" {{ 'selected' if selected_analysis == 'deterministic' else '' }}>Deterministic test rules</option></select></label>
       <button class="button" type="submit">Save preferences</button>
     </form>
   </div>

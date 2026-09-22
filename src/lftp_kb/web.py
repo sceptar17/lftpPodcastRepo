@@ -27,6 +27,7 @@ from .inventory import (
     load_discovered,
     provider_profiles,
 )
+from .job_status import ACTIVE_STATUSES, duration_label, job_view
 from .models import DiscoveredEpisode, Episode, ProcessingStatus
 from .render import episode_markdown, review_report, timestamp, wordpress_html
 from .repository import Repository
@@ -41,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     templates = Jinja2Templates(directory=str(PACKAGE_ROOT / "templates"))
     templates.env.filters["timestamp"] = timestamp
     templates.env.filters["pretty_date"] = pretty_date
+    templates.env.filters["duration"] = duration_label
     app = FastAPI(title="LFTP Knowledge Repository", version="0.2.0")
     app.mount("/static", StaticFiles(directory=str(PACKAGE_ROOT / "static")), name="static")
     app.state.settings = settings
@@ -57,9 +59,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         episodes = sorted(inventory.processed, key=lambda item: item.publication_date, reverse=True)
         review = [episode for episode in episodes if episode.status == ProcessingStatus.NEEDS_REVIEW]
         states = _load_states(repository.root / "state")
+        jobs = _operation_jobs(repository)
         return templates.TemplateResponse(request, "dashboard.html", context(request,
             inventory=inventory, episodes=episodes[:6], review=review[:6], states=states,
-            providers=provider_profiles(),
+            providers=provider_profiles(), jobs=jobs,
         ))
 
     @app.get("/episodes", response_class=HTMLResponse)
@@ -128,7 +131,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def catalog_page(request: Request, year: str | None = None):
         ledger = load_ledger(repository)
         state_path = repository.root / "state" / "catalog-build.json"
-        build_state = (
+        build_state = job_view(
             json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
         )
         candidates = ledger.candidates if ledger else []
@@ -154,8 +157,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         current = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
         if current.get("status") in {"queued", "running"}:
             raise HTTPException(409, "A catalog scan is already running")
+        created = datetime.now(UTC).isoformat()
         repository.atomic_json("state/catalog-build.json", {
-            "status": "queued", "started_at": datetime.now(UTC).isoformat(),
+            "status": "queued", "stage": "Waiting to scan archive",
+            "created_at": created, "started_at": None, "updated_at": created,
+            "finished_at": None, "total": 0, "processed": 0, "current_label": None,
         })
         background_tasks.add_task(_execute_catalog_build, repository, archive_root)
         return RedirectResponse("/catalog", status_code=303)
@@ -177,22 +183,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         metadata_candidates = _metadata_candidates(snapshot)
         return templates.TemplateResponse(request, "inventory.html", context(request,
             inventory=snapshot, providers=provider_profiles(), settings=settings,
-            effective=effective, sync_job=latest_sync_job(repository),
+            effective=effective, sync_job=job_view(latest_sync_job(repository)),
+            rss_job=job_view(_load_json(repository.root / "state" / "rss-refresh.json")),
             metadata_candidate_count=len(metadata_candidates),
         ))
 
     @app.post("/inventory/refresh")
-    def refresh_inventory():
+    def refresh_inventory(background_tasks: BackgroundTasks):
         effective = _effective_inputs(repository.root, settings)
         if not effective["rss_url"]:
             raise HTTPException(400, "LFTP_RSS_URL is not configured")
-        body, episodes = fetch_rss(effective["rss_url"], settings.http_timeout_seconds)
-        repository.atomic_text("raw/rss/latest.xml", body.decode(errors="replace"))
-        repository.atomic_json("state/discovered.json", [e.model_dump(mode="json") for e in episodes])
-        return RedirectResponse("/inventory", status_code=303)
-
-    @app.post("/inventory/rescan")
-    def rescan_inventory():
+        state_path = repository.root / "state" / "rss-refresh.json"
+        current = _load_json(state_path) or {}
+        if current.get("status") in ACTIVE_STATUSES:
+            raise HTTPException(409, "An RSS refresh is already running")
+        repository.atomic_json("state/rss-refresh.json", {
+            "status": "queued", "stage": "Waiting to contact RSS feed",
+            "created_at": datetime.now(UTC).isoformat(), "started_at": None,
+            "updated_at": None, "finished_at": None, "total": 1, "processed": 0,
+        })
+        background_tasks.add_task(
+            _execute_rss_refresh, repository, effective["rss_url"], settings.http_timeout_seconds
+        )
         return RedirectResponse("/inventory", status_code=303)
 
     @app.post("/inventory/sync")
@@ -254,7 +266,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/transcription-lab", response_class=HTMLResponse)
     def transcription_lab(request: Request, run_id: str | None = None):
-        runs = load_runs(repository)
+        runs = [job_view(run) for run in load_runs(repository)]
         selected = next((run for run in runs if run["run_id"] == run_id), None)
         transcript = load_transcript(repository, selected) if selected else None
         return templates.TemplateResponse(request, "transcription_lab.html", context(request,
@@ -332,6 +344,15 @@ def _load_overrides(root: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
+def _load_json(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
 def _effective_inputs(root: Path, settings: Settings) -> dict:
     overrides = _load_overrides(root)
     local_value = overrides.get("local_audio_root")
@@ -361,23 +382,92 @@ def _metadata_candidates(
 
 def _execute_catalog_build(repository: Repository, archive_root: Path) -> None:
     started = datetime.now(UTC)
-    repository.atomic_json("state/catalog-build.json", {
-        "status": "running", "started_at": started.isoformat(),
+    relative = "state/catalog-build.json"
+    repository.atomic_json(relative, {
+        "status": "running", "stage": "Scanning local filenames",
+        "created_at": started.isoformat(), "started_at": started.isoformat(),
+        "updated_at": started.isoformat(), "finished_at": None,
+        "total": 0, "processed": 0, "current_label": None,
     })
     try:
         snapshot = build_inventory(repository, archive_root)
-        ledger = build_episode_ledger(repository, snapshot, archive_root)
-        repository.atomic_json("state/catalog-build.json", {
+        def report(processed: int, total: int, stage: str, label: str | None) -> None:
+            repository.atomic_json(relative, {
+                "status": "running", "stage": stage,
+                "created_at": started.isoformat(), "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(), "finished_at": None,
+                "total": total, "processed": processed, "current_label": label,
+            })
+
+        ledger = build_episode_ledger(repository, snapshot, archive_root, progress=report)
+        repository.atomic_json(relative, {
             "status": "complete", "started_at": started.isoformat(),
+            "created_at": started.isoformat(), "updated_at": datetime.now(UTC).isoformat(),
             "finished_at": datetime.now(UTC).isoformat(),
+            "stage": "Catalog complete", "current_label": None,
+            "total": len(snapshot.local_audio) + 3,
+            "processed": len(snapshot.local_audio) + 3,
             "candidate_count": ledger.candidate_count,
         })
     except Exception as error:  # noqa: BLE001 - state must retain background failures
-        repository.atomic_json("state/catalog-build.json", {
+        repository.atomic_json(relative, {
             "status": "failed", "started_at": started.isoformat(),
+            "created_at": started.isoformat(), "updated_at": datetime.now(UTC).isoformat(),
             "finished_at": datetime.now(UTC).isoformat(),
+            "stage": "Catalog scan failed", "total": 0, "processed": 0,
             "error": f"{type(error).__name__}: {error}",
         })
+
+
+def _execute_rss_refresh(repository: Repository, rss_url: str, timeout: int) -> None:
+    relative = "state/rss-refresh.json"
+    started = datetime.now(UTC)
+    repository.atomic_json(relative, {
+        "status": "running", "stage": "Fetching and parsing RSS feed",
+        "created_at": started.isoformat(), "started_at": started.isoformat(),
+        "updated_at": started.isoformat(), "finished_at": None,
+        "total": 1, "processed": 0,
+    })
+    try:
+        body, episodes = fetch_rss(rss_url, timeout)
+        repository.atomic_text("raw/rss/latest.xml", body.decode(errors="replace"))
+        repository.atomic_json(
+            "state/discovered.json", [episode.model_dump(mode="json") for episode in episodes]
+        )
+        repository.atomic_json(relative, {
+            "status": "complete", "stage": "RSS inventory updated",
+            "created_at": started.isoformat(), "started_at": started.isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
+            "finished_at": datetime.now(UTC).isoformat(), "total": 1, "processed": 1,
+            "episode_count": len(episodes),
+        })
+    except Exception as error:  # noqa: BLE001 - state must retain network/parser failures
+        repository.atomic_json(relative, {
+            "status": "failed", "stage": "RSS refresh failed",
+            "created_at": started.isoformat(), "started_at": started.isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
+            "finished_at": datetime.now(UTC).isoformat(), "total": 1, "processed": 0,
+            "error": f"{type(error).__name__}: {error}",
+        })
+
+
+def _operation_jobs(repository: Repository) -> list[dict]:
+    records: list[tuple[str, str, dict | None]] = [
+        ("Master catalog", "/catalog", _load_json(repository.root / "state/catalog-build.json")),
+        ("RSS inventory", "/inventory", _load_json(repository.root / "state/rss-refresh.json")),
+        ("Archive operation", "/inventory", latest_sync_job(repository)),
+    ]
+    runs = load_runs(repository)
+    if runs:
+        records.append(("Transcription test", f"/transcription-lab?run_id={runs[0]['run_id']}", runs[0]))
+    result = []
+    for name, href, record in records:
+        if record:
+            view = job_view(record)
+            view.update(name=name, href=href)
+            result.append(view)
+    return sorted(result, key=lambda item: item.get("updated_at") or item.get("created_at") or "",
+                  reverse=True)[:4]
 
 
 app = create_app()

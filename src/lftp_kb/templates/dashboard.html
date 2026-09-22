@@ -46,8 +46,17 @@
   </div>
 </section>
 
+<section class="panel activity-panel" data-auto-refresh="{{ 'true' if jobs|selectattr('status', 'in', ['queued', 'running'])|list else 'false' }}">
+  <div class="section-heading"><div><span class="eyebrow">Background work</span><h2>Recent jobs</h2></div><small>Active jobs refresh this page automatically.</small></div>
+  <div class="activity-grid">
+    {% for job in jobs %}
+    <a href="{{ job.href }}" class="job-card"><span class="stage-dot {{ 'done' if job.status == 'complete' else 'active' if job.status in ['queued', 'running'] else '' }}"></span><span><strong>{{ job.name }}</strong><small>{{ job.stage or job.status }} · {{ job.display_elapsed|duration }}</small></span><i class="status {{ 'ok' if job.status == 'complete' else 'warning' if job.status in ['failed', 'needs-review'] else 'neutral' }}">{{ job.status|replace('-', ' ') }}</i></a>
+    {% else %}<div class="empty">No background jobs have run yet.</div>{% endfor %}
+  </div>
+</section>
+
 <section class="panel activity-panel">
-  <div class="section-heading"><div><span class="eyebrow">Operational state</span><h2>Processing activity</h2></div><small>Stage checkpoints make retries visible and prevent duplicate work.</small></div>
+  <div class="section-heading"><div><span class="eyebrow">Episode processing</span><h2>Episode checkpoints</h2></div><small>Stage checkpoints make retries visible and prevent duplicate work.</small></div>
   <div class="activity-grid">
     {% for state in states %}
     <article><span class="stage-dot {{ 'done' if state.status in ['complete', 'draft-created'] else 'active' if state.status not in ['failed'] else '' }}"></span><div><strong>{{ state.episode_id }}</strong><small>{{ state.stage }} · {{ state.status }}</small></div>{% if state.status == 'failed' %}<i class="status warning">Failed</i>{% else %}<i class="status neutral">{{ state.stage }}</i>{% endif %}</article>

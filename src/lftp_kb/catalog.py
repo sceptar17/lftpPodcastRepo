@@ -5,6 +5,7 @@ import hashlib
 import io
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -21,13 +22,24 @@ from .models import (
 )
 from .repository import Repository
 
+CatalogProgress = Callable[[int, int, str, str | None], None]
+
 
 def build_episode_ledger(repository: Repository, snapshot: InventorySnapshot,
-                         archive_root: Path) -> EpisodeLedger:
-    local_observations = [
-        inspect_audio_file(Path(item.path), archive_root, item.guessed_episode_number)
-        for item in snapshot.local_audio
-    ]
+                         archive_root: Path, progress: CatalogProgress | None = None) -> EpisodeLedger:
+    total_steps = len(snapshot.local_audio) + 3
+    local_observations = []
+    if progress:
+        progress(0, total_steps, "Reading embedded audio metadata", None)
+    for index, item in enumerate(snapshot.local_audio, start=1):
+        local_observations.append(
+            inspect_audio_file(Path(item.path), archive_root, item.guessed_episode_number)
+        )
+        if progress and (index % 5 == 0 or index == len(snapshot.local_audio)):
+            progress(index, total_steps, "Reading embedded audio metadata", item.filename)
+    if progress:
+        progress(len(local_observations) + 1, total_steps,
+                 "Combining RSS and local evidence", None)
     observations_by_path = {item["relative_path"]: item for item in local_observations}
     discovered = {episode.episode_id: episode for episode in snapshot.discovered}
     local_by_rss: dict[str, list] = defaultdict(list)
@@ -53,6 +65,9 @@ def build_episode_ledger(repository: Repository, snapshot: InventorySnapshot,
             discovered.get(item.match_episode_id) if item.match_episode_id else None,
         ))
 
+    if progress:
+        progress(len(local_observations) + 2, total_steps,
+                 "Assigning provisional year sequence", None)
     _assign_provisional_sequence(candidates)
     candidates.sort(key=_candidate_sort_key)
     years = _year_summaries(candidates)
@@ -60,7 +75,11 @@ def build_episode_ledger(repository: Repository, snapshot: InventorySnapshot,
         generated_at=datetime.now(UTC), local_archive_root=archive_root.name,
         candidate_count=len(candidates), candidates=candidates, years=years,
     )
+    if progress:
+        progress(total_steps - 1, total_steps, "Writing canonical ledger", None)
     _save_catalog(repository, ledger, local_observations, snapshot.discovered)
+    if progress:
+        progress(total_steps, total_steps, "Catalog complete", None)
     return ledger
 
 

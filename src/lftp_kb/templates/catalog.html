@@ -95,7 +95,7 @@
               <small>Episode number: {{ local.annual_episode_numbers|join(', ') or 'none found' }}</small>
               <small>Embedded title: {{ local.embedded_title or 'none' }}</small>
               <small>{{ (local.size_bytes / 1048576)|round(1) }} MB{% if local.duration_seconds is not none %} · {{ local.duration_seconds|timestamp }}{% endif %}</small>
-              <audio controls preload="metadata" src="/catalog/assets/{{ proposal.asset_id }}/audio"></audio>
+              <audio controls preload="none" src="/catalog/assets/{{ proposal.asset_id }}/audio"></audio>
             </section>
             <section>
               <b>RSS episode</b>
@@ -104,7 +104,7 @@
               <small>Episode number: {{ rss.episode_number or 'none' }}</small>
               <small>RSS title: {{ rss.title }}</small>
               <small>{% if proposal.remote_size_bytes %}{{ (proposal.remote_size_bytes / 1048576)|round(1) }} MB (verified remotely){% elif rss.audio_size_bytes %}{{ (rss.audio_size_bytes / 1048576)|round(1) }} MB (RSS){% else %}size not checked{% endif %}{% if proposal.remote_duration_seconds is not none %} · {{ proposal.remote_duration_seconds|timestamp }} (measured){% elif rss.audio_duration_seconds is not none %} · {{ rss.audio_duration_seconds|timestamp }} (RSS){% endif %}</small>
-              <audio controls preload="metadata" src="{{ rss.audio_url }}"></audio>
+              <audio controls preload="none" src="{{ rss.audio_url }}"></audio>
               <a href="{{ rss.audio_url }}" target="_blank" rel="noopener">Open RSS audio</a>
             </section>
           </div>

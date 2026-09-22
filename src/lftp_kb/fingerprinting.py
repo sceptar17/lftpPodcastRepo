@@ -9,6 +9,8 @@ from pathlib import Path
 from .models import ReconstructionReport
 from .repository import Repository
 
+MAX_FINGERPRINT_VALUES = 6_000
+
 
 def verify_alternate_masters(
     report: ReconstructionReport, archive_root: Path, repository: Repository
@@ -87,10 +89,15 @@ def _fpcalc(executable: str, path: Path) -> list[int]:
     values = [int(value) for value in line.removeprefix("FINGERPRINT=").split(",") if value]
     if len(values) < 20:
         raise ValueError("fpcalc fingerprint was too short")
-    return values
+    # fpcalc versions occasionally ignore or mishandle the requested duration. The comparison is
+    # deliberately based on approximately the first ten minutes; bounding the raw values prevents
+    # a malformed or full-program fingerprint from turning the shift comparison into a runaway job.
+    return values[:MAX_FINGERPRINT_VALUES]
 
 
 def _fingerprint_similarity(left: list[int], right: list[int], max_shift: int = 40) -> float:
+    left = left[:MAX_FINGERPRINT_VALUES]
+    right = right[:MAX_FINGERPRINT_VALUES]
     best = 0.0
     for shift in range(-max_shift, max_shift + 1):
         left_start, right_start = max(0, shift), max(0, -shift)

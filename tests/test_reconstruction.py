@@ -173,3 +173,10 @@ def test_acoustic_similarity_tolerates_small_fingerprint_changes():
     adjusted = [0xAAAAAAAB] * 100
 
     assert _fingerprint_similarity(original, adjusted) > 0.95
+
+
+def test_acoustic_similarity_ignores_values_beyond_comparison_window():
+    original = [1] * 7_000
+    same_window_different_tail = [1] * 6_000 + [2] * 1_000
+
+    assert _fingerprint_similarity(original, same_window_different_tail) == 1.0

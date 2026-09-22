@@ -35,9 +35,9 @@
 
 <section class="two-column reconstruction-columns" id="reconstruction">
   <div class="panel">
-    <div class="section-heading"><div><span class="eyebrow">Question one</span><h2>Duplicate candidates</h2></div><span class="count">{{ reconstruction.duplicate_proposals|length }}</span></div>
+    <div class="section-heading"><div><span class="eyebrow">Question one</span><h2>Duplicate candidates</h2></div><div class="inline-actions"><span class="count">{{ duplicate_proposals|length }} shown</span><a class="button secondary" href="/catalog?show_reviewed={{ 'false' if show_reviewed else 'true' }}#reconstruction">{{ 'Hide reviewed' if show_reviewed else 'Show reviewed (' ~ reviewed_duplicate_count ~ ')' }}</a></div></div>
     <div class="scroll-list reconstruction-list">
-      {% for proposal in reconstruction.duplicate_proposals %}
+      {% for proposal in duplicate_proposals %}
       <article>
         <span class="episode-number">{{ '≡' if proposal.relationship == 'exact-copy' else '?' }}</span>
         <span>
@@ -63,7 +63,7 @@
         </span>
         <i class="status {{ 'ok' if proposal.relationship in ['exact-copy', 'alternate-master'] or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('confirmed' if proposal.relationship == 'exact-copy' else 'acoustic match' if proposal.acoustic_similarity and proposal.acoustic_similarity >= 0.82 else 'preferred default' if proposal.relationship == 'alternate-master' else 'choose') }}</i>
       </article>
-      {% else %}<div class="empty">No duplicate candidates found.</div>{% endfor %}
+      {% else %}<div class="empty">All duplicate candidates have been reviewed. Use “Show reviewed” to inspect or change a decision.</div>{% endfor %}
     </div>
   </div>
   <div class="panel">

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from lftp_kb.config import Settings
 from lftp_kb.models import CatalogAsset, DuplicateProposal, ReconstructionReport
 from lftp_kb.repository import Repository
-from lftp_kb.web import create_app, pretty_date
+from lftp_kb.web import _duplicate_review_queue, create_app, pretty_date
 
 PROJECT = Path(__file__).resolve().parents[1]
 
@@ -124,3 +124,10 @@ def test_duplicate_decision_records_the_file_to_keep(tmp_path):
     )
     assert response.status_code == 303
     assert decisions["decisions"]["duplicate-test"]["preferred_asset_id"] == "asset-second"
+    pending, reviewed_count = _duplicate_review_queue(
+        report, decisions["decisions"], show_reviewed=False
+    )
+    reviewed, _ = _duplicate_review_queue(report, decisions["decisions"], show_reviewed=True)
+    assert pending == []
+    assert reviewed_count == 1
+    assert len(reviewed) == 1

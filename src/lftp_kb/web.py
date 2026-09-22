@@ -28,12 +28,40 @@ from .inventory import (
     provider_profiles,
 )
 from .job_status import ACTIVE_STATUSES, duration_label, job_view
-from .models import DiscoveredEpisode, Episode, ProcessingStatus
+from .models import DiscoveredEpisode, Episode, ProcessingStatus, ReconstructionReport
 from .render import episode_markdown, review_report, timestamp, wordpress_html
 from .repository import Repository
 from .rss import fetch_rss
 
 PACKAGE_ROOT = Path(__file__).parent
+
+
+def _duplicate_review_queue(
+    reconstruction: ReconstructionReport | None, decisions: dict, show_reviewed: bool
+) -> tuple[list, int]:
+    if reconstruction is None:
+        return [], 0
+    duplicate_ids = {proposal.proposal_id for proposal in reconstruction.duplicate_proposals}
+    reviewed_ids = {
+        proposal_id
+        for proposal_id, record in decisions.items()
+        if proposal_id in duplicate_ids and record.get("decision") in {"confirmed", "rejected"}
+    }
+    reviewed_ids.update(
+        proposal.proposal_id
+        for proposal in reconstruction.duplicate_proposals
+        if proposal.relationship == "exact-copy"
+    )
+    proposals = (
+        reconstruction.duplicate_proposals
+        if show_reviewed
+        else [
+            proposal
+            for proposal in reconstruction.duplicate_proposals
+            if proposal.proposal_id not in reviewed_ids
+        ]
+    )
+    return proposals, len(reviewed_ids)
 
 
 def _recover_interrupted_catalog_job(repository: Repository) -> None:
@@ -176,12 +204,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return templates.TemplateResponse(request, "topics.html", context(request, topics=records))
 
     @app.get("/catalog", response_class=HTMLResponse)
-    def catalog_page(request: Request, year: str | None = None):
+    def catalog_page(request: Request, year: str | None = None, show_reviewed: bool = False):
         ledger = load_ledger(repository)
         reconstruction = load_reconstruction(repository)
         decision_payload = _load_json(
             repository.root / "catalog" / "reconstruction-decisions.json"
         ) or {"decisions": {}}
+        decisions = decision_payload.get("decisions", {})
+        duplicate_proposals, reviewed_duplicate_count = _duplicate_review_queue(
+            reconstruction, decisions, show_reviewed
+        )
         state_path = repository.root / "state" / "catalog-build.json"
         build_state = job_view(
             json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
@@ -207,12 +239,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 selected_year=year,
                 build_state=build_state,
                 reconstruction=reconstruction,
+                duplicate_proposals=duplicate_proposals,
+                reviewed_duplicate_count=reviewed_duplicate_count,
+                show_reviewed=show_reviewed,
                 assets=(
                     {asset.asset_id: asset for asset in reconstruction.assets}
                     if reconstruction
                     else {}
                 ),
-                decisions=decision_payload.get("decisions", {}),
+                decisions=decisions,
                 rss_records={
                     episode.episode_id: episode for episode in load_discovered(repository)
                 },

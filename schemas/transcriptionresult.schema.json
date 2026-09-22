@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "TranscriptSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "segment_id": {
+          "title": "Segment Id",
+          "type": "string"
+        },
+        "start_seconds": {
+          "minimum": 0,
+          "title": "Start Seconds",
+          "type": "number"
+        },
+        "end_seconds": {
+          "minimum": 0,
+          "title": "End Seconds",
+          "type": "number"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "speaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speaker"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "segment_id",
+        "start_seconds",
+        "end_seconds",
+        "text"
+      ],
+      "title": "TranscriptSegment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "segments": {
+      "items": {
+        "$ref": "#/$defs/TranscriptSegment"
+      },
+      "title": "Segments",
+      "type": "array"
+    },
+    "provider": {
+      "title": "Provider",
+      "type": "string"
+    },
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "provider_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provider Version"
+    },
+    "raw": {
+      "additionalProperties": true,
+      "title": "Raw",
+      "type": "object"
+    },
+    "is_complete": {
+      "default": true,
+      "title": "Is Complete",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "text",
+    "segments",
+    "provider",
+    "model",
+    "raw"
+  ],
+  "title": "TranscriptionResult",
+  "type": "object"
+}

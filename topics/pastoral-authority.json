@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "topic_id": "pastoral-authority",
+  "slug": "pastoral-authority",
+  "canonical_name": "Pastoral authority",
+  "aliases": [],
+  "description": "Canonical topic for discussions of pastoral authority.",
+  "related_topics": [],
+  "episode_sections": [
+    {
+      "episode_id": "sample-2025-on-the-couch",
+      "section_id": "section-001",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 60.0,
+          "excerpt": "The discussion asks when a pastor should know and care for people directly."
+        }
+      ]
+    },
+    {
+      "episode_id": "sample-2026-24-rage-the-elephant",
+      "section_id": "section-001",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 64.0,
+          "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+        }
+      ]
+    }
+  ],
+  "date_first_encountered": "2025-08-19",
+  "date_last_updated": "2026-09-22"
+}

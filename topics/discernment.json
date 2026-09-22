@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "topic_id": "discernment",
+  "slug": "discernment",
+  "canonical_name": "Discernment",
+  "aliases": [],
+  "description": "Canonical topic for discussions of discernment.",
+  "related_topics": [],
+  "episode_sections": [
+    {
+      "episode_id": "sample-2026-24-rage-the-elephant",
+      "section_id": "section-001",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 64.0,
+          "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+        }
+      ]
+    }
+  ],
+  "date_first_encountered": "2026-09-22",
+  "date_last_updated": "2026-09-22"
+}

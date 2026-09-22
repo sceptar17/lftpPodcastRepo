@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "topic_id": "perseverance",
+  "slug": "perseverance",
+  "canonical_name": "Perseverance",
+  "aliases": [],
+  "description": "Canonical topic for discussions of perseverance.",
+  "related_topics": [],
+  "episode_sections": [
+    {
+      "episode_id": "sample-2026-23-call-me-hoopi",
+      "section_id": "section-001",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00001"
+          ],
+          "start_seconds": 0.0,
+          "end_seconds": 20.0,
+          "excerpt": "How do you help a man who needs encouragement in perseverance?"
+        }
+      ]
+    }
+  ],
+  "date_first_encountered": "2026-09-15",
+  "date_last_updated": "2026-09-22"
+}

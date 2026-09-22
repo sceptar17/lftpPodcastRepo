@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "sample-2026-24-rage-the-elephant",
+  "title": "Rage The Elephant",
+  "episode_number": 24,
+  "publication_date": "2026-09-22T08:00:00Z",
+  "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+  "source_page_url": "https://livefromthepath.org/",
+  "audio_url": "https://example.invalid/audio/rage-the-elephant.mp3",
+  "artwork_url": null,
+  "original_rss_description": "Elephants, mouse societies, spiritual authority, discernment, Scripture and guidance from fallible humans; plus relationship and service advice.",
+  "transcript": {
+    "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed. We also consider the mouse-utopia experiments and what they can and cannot prove. Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans. In advice, we consider an office romance and the limits of serving everyone in the same way.",
+    "segments": [
+      {
+        "segment_id": "seg-00001",
+        "start_seconds": 0.0,
+        "end_seconds": 18.0,
+        "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed.",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00002",
+        "start_seconds": 18.0,
+        "end_seconds": 38.0,
+        "text": "We also consider the mouse-utopia experiments and what they can and cannot prove.",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00003",
+        "start_seconds": 38.0,
+        "end_seconds": 64.0,
+        "text": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans.",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00004",
+        "start_seconds": 64.0,
+        "end_seconds": 86.0,
+        "text": "In advice, we consider an office romance and the limits of serving everyone in the same way.",
+        "speaker": null,
+        "confidence": 0.99
+      }
+    ],
+    "provider": "fixture",
+    "model": "description-excerpt-v1",
+    "provider_version": "1",
+    "raw_output_path": "raw/provider-output/sample-2026-24-rage-the-elephant-fixture.json",
+    "is_complete": false
+  },
+  "semantic_sections": [
+    {
+      "section_id": "section-001",
+      "title": "Episode overview",
+      "start_seconds": 0.0,
+      "end_seconds": 86.0,
+      "summary": {
+        "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed. We also consider the mouse-utopia experiments and what they can and cannot prove. Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans. In advice, we consider an office romance and the limits of serving everyone in the same way.",
+        "evidence": [
+          {
+            "segment_ids": [
+              "seg-00001"
+            ],
+            "start_seconds": 0.0,
+            "end_seconds": 18.0,
+            "excerpt": "We discuss reports of young elephants killing rhinos after older elephants had been removed."
+          },
+          {
+            "segment_ids": [
+              "seg-00002"
+            ],
+            "start_seconds": 18.0,
+            "end_seconds": 38.0,
+            "excerpt": "We also consider the mouse-utopia experiments and what they can and cannot prove."
+          },
+          {
+            "segment_ids": [
+              "seg-00003"
+            ],
+            "start_seconds": 38.0,
+            "end_seconds": 64.0,
+            "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+          },
+          {
+            "segment_ids": [
+              "seg-00004"
+            ],
+            "start_seconds": 64.0,
+            "end_seconds": 86.0,
+            "excerpt": "In advice, we consider an office romance and the limits of serving everyone in the same way."
+          }
+        ],
+        "confidence": 0.65
+      },
+      "topics": [
+        {
+          "text": "Pastoral authority",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 38.0,
+              "end_seconds": 64.0,
+              "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+            }
+          ],
+          "confidence": 0.72
+        },
+        {
+          "text": "Discernment",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 38.0,
+              "end_seconds": 64.0,
+              "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+            }
+          ],
+          "confidence": 0.72
+        },
+        {
+          "text": "Relationships",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00004"
+              ],
+              "start_seconds": 64.0,
+              "end_seconds": 86.0,
+              "excerpt": "In advice, we consider an office romance and the limits of serving everyone in the same way."
+            }
+          ],
+          "confidence": 0.72
+        }
+      ],
+      "scripture_references": [],
+      "people": [],
+      "works_media": [],
+      "questions": [],
+      "claims": [
+        {
+          "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 18.0,
+              "excerpt": "We discuss reports of young elephants killing rhinos after older elephants had been removed."
+            }
+          ],
+          "confidence": 0.65
+        },
+        {
+          "text": "We also consider the mouse-utopia experiments and what they can and cannot prove.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00002"
+              ],
+              "start_seconds": 18.0,
+              "end_seconds": 38.0,
+              "excerpt": "We also consider the mouse-utopia experiments and what they can and cannot prove."
+            }
+          ],
+          "confidence": 0.65
+        },
+        {
+          "text": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 38.0,
+              "end_seconds": 64.0,
+              "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+            }
+          ],
+          "confidence": 0.65
+        },
+        {
+          "text": "In advice, we consider an office romance and the limits of serving everyone in the same way.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00004"
+              ],
+              "start_seconds": 64.0,
+              "end_seconds": 86.0,
+              "excerpt": "In advice, we consider an office romance and the limits of serving everyone in the same way."
+            }
+          ],
+          "confidence": 0.65
+        }
+      ]
+    }
+  ],
+  "episode_summary": {
+    "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed. We also consider the mouse-utopia experiments and what they can and cannot prove. Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans. In advice, we consider an office romance and the limits of serving everyone in the same way.",
+    "evidence": [
+      {
+        "segment_ids": [
+          "seg-00001"
+        ],
+        "start_seconds": 0.0,
+        "end_seconds": 18.0,
+        "excerpt": "We discuss reports of young elephants killing rhinos after older elephants had been removed."
+      },
+      {
+        "segment_ids": [
+          "seg-00002"
+        ],
+        "start_seconds": 18.0,
+        "end_seconds": 38.0,
+        "excerpt": "We also consider the mouse-utopia experiments and what they can and cannot prove."
+      },
+      {
+        "segment_ids": [
+          "seg-00003"
+        ],
+        "start_seconds": 38.0,
+        "end_seconds": 64.0,
+        "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+      },
+      {
+        "segment_ids": [
+          "seg-00004"
+        ],
+        "start_seconds": 64.0,
+        "end_seconds": 86.0,
+        "excerpt": "In advice, we consider an office romance and the limits of serving everyone in the same way."
+      }
+    ],
+    "confidence": 0.65
+  },
+  "primary_topics": [
+    {
+      "text": "Pastoral authority",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 64.0,
+          "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+        }
+      ],
+      "confidence": 0.72
+    },
+    {
+      "text": "Discernment",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 64.0,
+          "excerpt": "Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans."
+        }
+      ],
+      "confidence": 0.72
+    },
+    {
+      "text": "Relationships",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00004"
+          ],
+          "start_seconds": 64.0,
+          "end_seconds": 86.0,
+          "excerpt": "In advice, we consider an office romance and the limits of serving everyone in the same way."
+        }
+      ],
+      "confidence": 0.72
+    }
+  ],
+  "secondary_topics": [],
+  "related_episodes": [
+    {
+      "episode_id": "sample-2025-on-the-couch",
+      "score": 0.293,
+      "reasons": [
+        "Shared substantial topics: pastoral authority"
+      ],
+      "shared_topics": [
+        "pastoral authority"
+      ],
+      "shared_references": []
+    }
+  ],
+  "model_runs": [
+    {
+      "stage": "transcription",
+      "provider": "fixture",
+      "model": "description-excerpt-v1",
+      "version": "1",
+      "processed_at": "2026-09-22T08:53:21.367232Z",
+      "input_units": null,
+      "output_units": null
+    },
+    {
+      "stage": "analysis",
+      "provider": "deterministic",
+      "model": "rules-v1",
+      "version": null,
+      "processed_at": "2026-09-22T08:53:21.367173Z",
+      "input_units": null,
+      "output_units": null
+    }
+  ],
+  "processing_date": "2026-09-22T08:53:21.367235Z",
+  "qa": {
+    "status": "warning",
+    "transcription_confidence": 0.99,
+    "issues": [
+      "Deterministic fixture analysis is not a substitute for full LLM review."
+    ],
+    "low_confidence_items": [],
+    "manual_review_flags": [
+      "Transcript provider marked the transcript incomplete.",
+      "Prototype fixture contains only a description-derived excerpt, not a full audio transcript."
+    ]
+  },
+  "status": "needs-review",
+  "wordpress": {
+    "post_id": null,
+    "draft_url": null,
+    "status": "not-created",
+    "content_hash": null
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "EvidencePointer": {
+      "additionalProperties": false,
+      "properties": {
+        "segment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Segment Ids",
+          "type": "array"
+        },
+        "start_seconds": {
+          "minimum": 0,
+          "title": "Start Seconds",
+          "type": "number"
+        },
+        "end_seconds": {
+          "minimum": 0,
+          "title": "End Seconds",
+          "type": "number"
+        },
+        "excerpt": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Excerpt",
+          "type": "string"
+        }
+      },
+      "required": [
+        "segment_ids",
+        "start_seconds",
+        "end_seconds",
+        "excerpt"
+      ],
+      "title": "EvidencePointer",
+      "type": "object"
+    },
+    "TopicEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidencePointer"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "episode_id",
+        "section_id",
+        "evidence"
+      ],
+      "title": "TopicEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "topic_id": {
+      "title": "Topic Id",
+      "type": "string"
+    },
+    "slug": {
+      "title": "Slug",
+      "type": "string"
+    },
+    "canonical_name": {
+      "title": "Canonical Name",
+      "type": "string"
+    },
+    "aliases": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Aliases",
+      "type": "array"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "related_topics": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Topics",
+      "type": "array"
+    },
+    "episode_sections": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/TopicEvidence"
+      },
+      "title": "Episode Sections",
+      "type": "array"
+    },
+    "date_first_encountered": {
+      "format": "date",
+      "title": "Date First Encountered",
+      "type": "string"
+    },
+    "date_last_updated": {
+      "format": "date",
+      "title": "Date Last Updated",
+      "type": "string"
+    }
+  },
+  "required": [
+    "topic_id",
+    "slug",
+    "canonical_name",
+    "description",
+    "date_first_encountered",
+    "date_last_updated"
+  ],
+  "title": "Topic",
+  "type": "object"
+}

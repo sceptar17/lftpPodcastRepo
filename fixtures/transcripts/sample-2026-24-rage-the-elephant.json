@@ -1,0 +1,10 @@
+{
+  "text": "We discuss reports of young elephants killing rhinos after older elephants had been removed. We also consider the mouse-utopia experiments and what they can and cannot prove. Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans. In advice, we consider an office romance and the limits of serving everyone in the same way.",
+  "segments": [
+    {"segment_id":"seg-00001","start_seconds":0,"end_seconds":18,"text":"We discuss reports of young elephants killing rhinos after older elephants had been removed.","speaker":null,"confidence":0.99},
+    {"segment_id":"seg-00002","start_seconds":18,"end_seconds":38,"text":"We also consider the mouse-utopia experiments and what they can and cannot prove.","speaker":null,"confidence":0.99},
+    {"segment_id":"seg-00003","start_seconds":38,"end_seconds":64,"text":"Those stories lead into spiritual authority, discernment, Scripture, the Spirit, and guidance from fallible humans.","speaker":null,"confidence":0.99},
+    {"segment_id":"seg-00004","start_seconds":64,"end_seconds":86,"text":"In advice, we consider an office romance and the limits of serving everyone in the same way.","speaker":null,"confidence":0.99}
+  ],
+  "provider":"fixture","model":"description-excerpt-v1","provider_version":"1","raw":{"source":"user-supplied episode overview","notice":"Not a full transcript and not produced from audio."},"is_complete":false
+}

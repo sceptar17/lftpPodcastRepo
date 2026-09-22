@@ -1,0 +1,651 @@
+{
+  "$defs": {
+    "EvidencePointer": {
+      "additionalProperties": false,
+      "properties": {
+        "segment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Segment Ids",
+          "type": "array"
+        },
+        "start_seconds": {
+          "minimum": 0,
+          "title": "Start Seconds",
+          "type": "number"
+        },
+        "end_seconds": {
+          "minimum": 0,
+          "title": "End Seconds",
+          "type": "number"
+        },
+        "excerpt": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Excerpt",
+          "type": "string"
+        }
+      },
+      "required": [
+        "segment_ids",
+        "start_seconds",
+        "end_seconds",
+        "excerpt"
+      ],
+      "title": "EvidencePointer",
+      "type": "object"
+    },
+    "ModelRun": {
+      "additionalProperties": false,
+      "properties": {
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "processed_at": {
+          "format": "date-time",
+          "title": "Processed At",
+          "type": "string"
+        },
+        "input_units": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Units"
+        },
+        "output_units": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Units"
+        }
+      },
+      "required": [
+        "stage",
+        "provider",
+        "model",
+        "processed_at"
+      ],
+      "title": "ModelRun",
+      "type": "object"
+    },
+    "ProcessingStatus": {
+      "enum": [
+        "new",
+        "transcribed",
+        "analyzed",
+        "draft-created",
+        "needs-review",
+        "failed",
+        "complete"
+      ],
+      "title": "ProcessingStatus",
+      "type": "string"
+    },
+    "QAResult": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "pass",
+            "warning",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "transcription_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transcription Confidence"
+        },
+        "issues": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "low_confidence_items": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Low Confidence Items",
+          "type": "array"
+        },
+        "manual_review_flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Manual Review Flags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "QAResult",
+      "type": "object"
+    },
+    "RelatedEpisode": {
+      "additionalProperties": false,
+      "properties": {
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reasons",
+          "type": "array"
+        },
+        "shared_topics": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Shared Topics",
+          "type": "array"
+        },
+        "shared_references": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Shared References",
+          "type": "array"
+        }
+      },
+      "required": [
+        "episode_id",
+        "score",
+        "reasons"
+      ],
+      "title": "RelatedEpisode",
+      "type": "object"
+    },
+    "SemanticSection": {
+      "additionalProperties": false,
+      "properties": {
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "start_seconds": {
+          "minimum": 0,
+          "title": "Start Seconds",
+          "type": "number"
+        },
+        "end_seconds": {
+          "minimum": 0,
+          "title": "End Seconds",
+          "type": "number"
+        },
+        "summary": {
+          "$ref": "#/$defs/SupportedText"
+        },
+        "topics": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "Topics",
+          "type": "array"
+        },
+        "scripture_references": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "Scripture References",
+          "type": "array"
+        },
+        "people": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "People",
+          "type": "array"
+        },
+        "works_media": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "Works Media",
+          "type": "array"
+        },
+        "questions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "Questions",
+          "type": "array"
+        },
+        "claims": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupportedText"
+          },
+          "title": "Claims",
+          "type": "array"
+        }
+      },
+      "required": [
+        "section_id",
+        "title",
+        "start_seconds",
+        "end_seconds",
+        "summary"
+      ],
+      "title": "SemanticSection",
+      "type": "object"
+    },
+    "SupportedText": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidencePointer"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "required": [
+        "text",
+        "evidence",
+        "confidence"
+      ],
+      "title": "SupportedText",
+      "type": "object"
+    },
+    "Transcript": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/TranscriptSegment"
+          },
+          "title": "Segments",
+          "type": "array"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "provider_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Version"
+        },
+        "raw_output_path": {
+          "title": "Raw Output Path",
+          "type": "string"
+        },
+        "is_complete": {
+          "default": true,
+          "title": "Is Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "segments",
+        "provider",
+        "model",
+        "raw_output_path"
+      ],
+      "title": "Transcript",
+      "type": "object"
+    },
+    "TranscriptSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "segment_id": {
+          "title": "Segment Id",
+          "type": "string"
+        },
+        "start_seconds": {
+          "minimum": 0,
+          "title": "Start Seconds",
+          "type": "number"
+        },
+        "end_seconds": {
+          "minimum": 0,
+          "title": "End Seconds",
+          "type": "number"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "speaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speaker"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "segment_id",
+        "start_seconds",
+        "end_seconds",
+        "text"
+      ],
+      "title": "TranscriptSegment",
+      "type": "object"
+    },
+    "WordPressRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "post_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Post Id"
+        },
+        "draft_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Draft Url"
+        },
+        "status": {
+          "default": "not-created",
+          "enum": [
+            "not-created",
+            "draft"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Hash"
+        }
+      },
+      "title": "WordPressRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "episode_id": {
+      "title": "Episode Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "episode_number": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Episode Number"
+    },
+    "publication_date": {
+      "format": "date-time",
+      "title": "Publication Date",
+      "type": "string"
+    },
+    "source_rss_url": {
+      "title": "Source Rss Url",
+      "type": "string"
+    },
+    "source_page_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Page Url"
+    },
+    "audio_url": {
+      "title": "Audio Url",
+      "type": "string"
+    },
+    "artwork_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artwork Url"
+    },
+    "original_rss_description": {
+      "title": "Original Rss Description",
+      "type": "string"
+    },
+    "transcript": {
+      "$ref": "#/$defs/Transcript"
+    },
+    "semantic_sections": {
+      "items": {
+        "$ref": "#/$defs/SemanticSection"
+      },
+      "title": "Semantic Sections",
+      "type": "array"
+    },
+    "episode_summary": {
+      "$ref": "#/$defs/SupportedText"
+    },
+    "primary_topics": {
+      "items": {
+        "$ref": "#/$defs/SupportedText"
+      },
+      "title": "Primary Topics",
+      "type": "array"
+    },
+    "secondary_topics": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/SupportedText"
+      },
+      "title": "Secondary Topics",
+      "type": "array"
+    },
+    "related_episodes": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RelatedEpisode"
+      },
+      "title": "Related Episodes",
+      "type": "array"
+    },
+    "model_runs": {
+      "items": {
+        "$ref": "#/$defs/ModelRun"
+      },
+      "title": "Model Runs",
+      "type": "array"
+    },
+    "processing_date": {
+      "format": "date-time",
+      "title": "Processing Date",
+      "type": "string"
+    },
+    "qa": {
+      "$ref": "#/$defs/QAResult"
+    },
+    "status": {
+      "$ref": "#/$defs/ProcessingStatus"
+    },
+    "wordpress": {
+      "$ref": "#/$defs/WordPressRecord",
+      "default": {
+        "post_id": null,
+        "draft_url": null,
+        "status": "not-created",
+        "content_hash": null
+      }
+    }
+  },
+  "required": [
+    "episode_id",
+    "title",
+    "publication_date",
+    "source_rss_url",
+    "audio_url",
+    "original_rss_description",
+    "transcript",
+    "semantic_sections",
+    "episode_summary",
+    "primary_topics",
+    "model_runs",
+    "processing_date",
+    "qa",
+    "status"
+  ],
+  "title": "Episode",
+  "type": "object"
+}

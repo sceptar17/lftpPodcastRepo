@@ -1,0 +1,289 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "sample-2025-on-the-couch",
+  "title": "On the Couch",
+  "episode_number": null,
+  "publication_date": "2025-08-19T08:00:00Z",
+  "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+  "source_page_url": "https://livefromthepath.org/",
+  "audio_url": "https://example.invalid/audio/on-the-couch.mp3",
+  "artwork_url": null,
+  "original_rss_description": "Things people misunderstand about the church, what to do when church hurt exists, and when pastoral care matters.",
+  "transcript": {
+    "text": "We discuss things people misunderstand about the church. What should someone do when church hurt exists? The discussion asks when a pastor should know and care for people directly.",
+    "segments": [
+      {
+        "segment_id": "seg-00001",
+        "start_seconds": 0.0,
+        "end_seconds": 18.0,
+        "text": "We discuss things people misunderstand about the church.",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00002",
+        "start_seconds": 18.0,
+        "end_seconds": 38.0,
+        "text": "What should someone do when church hurt exists?",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00003",
+        "start_seconds": 38.0,
+        "end_seconds": 60.0,
+        "text": "The discussion asks when a pastor should know and care for people directly.",
+        "speaker": null,
+        "confidence": 0.99
+      }
+    ],
+    "provider": "fixture",
+    "model": "description-excerpt-v1",
+    "provider_version": "1",
+    "raw_output_path": "raw/provider-output/sample-2025-on-the-couch-fixture.json",
+    "is_complete": false
+  },
+  "semantic_sections": [
+    {
+      "section_id": "section-001",
+      "title": "Episode overview",
+      "start_seconds": 0.0,
+      "end_seconds": 60.0,
+      "summary": {
+        "text": "We discuss things people misunderstand about the church. What should someone do when church hurt exists? The discussion asks when a pastor should know and care for people directly.",
+        "evidence": [
+          {
+            "segment_ids": [
+              "seg-00001"
+            ],
+            "start_seconds": 0.0,
+            "end_seconds": 18.0,
+            "excerpt": "We discuss things people misunderstand about the church."
+          },
+          {
+            "segment_ids": [
+              "seg-00002"
+            ],
+            "start_seconds": 18.0,
+            "end_seconds": 38.0,
+            "excerpt": "What should someone do when church hurt exists?"
+          },
+          {
+            "segment_ids": [
+              "seg-00003"
+            ],
+            "start_seconds": 38.0,
+            "end_seconds": 60.0,
+            "excerpt": "The discussion asks when a pastor should know and care for people directly."
+          }
+        ],
+        "confidence": 0.65
+      },
+      "topics": [
+        {
+          "text": "Church community",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 18.0,
+              "excerpt": "We discuss things people misunderstand about the church."
+            }
+          ],
+          "confidence": 0.72
+        },
+        {
+          "text": "Pastoral authority",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 38.0,
+              "end_seconds": 60.0,
+              "excerpt": "The discussion asks when a pastor should know and care for people directly."
+            }
+          ],
+          "confidence": 0.72
+        }
+      ],
+      "scripture_references": [],
+      "people": [],
+      "works_media": [],
+      "questions": [
+        {
+          "text": "What should someone do when church hurt exists?",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00002"
+              ],
+              "start_seconds": 18.0,
+              "end_seconds": 38.0,
+              "excerpt": "What should someone do when church hurt exists?"
+            }
+          ],
+          "confidence": 0.65
+        }
+      ],
+      "claims": [
+        {
+          "text": "We discuss things people misunderstand about the church.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 18.0,
+              "excerpt": "We discuss things people misunderstand about the church."
+            }
+          ],
+          "confidence": 0.65
+        },
+        {
+          "text": "The discussion asks when a pastor should know and care for people directly.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 38.0,
+              "end_seconds": 60.0,
+              "excerpt": "The discussion asks when a pastor should know and care for people directly."
+            }
+          ],
+          "confidence": 0.65
+        }
+      ]
+    }
+  ],
+  "episode_summary": {
+    "text": "We discuss things people misunderstand about the church. What should someone do when church hurt exists? The discussion asks when a pastor should know and care for people directly.",
+    "evidence": [
+      {
+        "segment_ids": [
+          "seg-00001"
+        ],
+        "start_seconds": 0.0,
+        "end_seconds": 18.0,
+        "excerpt": "We discuss things people misunderstand about the church."
+      },
+      {
+        "segment_ids": [
+          "seg-00002"
+        ],
+        "start_seconds": 18.0,
+        "end_seconds": 38.0,
+        "excerpt": "What should someone do when church hurt exists?"
+      },
+      {
+        "segment_ids": [
+          "seg-00003"
+        ],
+        "start_seconds": 38.0,
+        "end_seconds": 60.0,
+        "excerpt": "The discussion asks when a pastor should know and care for people directly."
+      }
+    ],
+    "confidence": 0.65
+  },
+  "primary_topics": [
+    {
+      "text": "Church community",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00001"
+          ],
+          "start_seconds": 0.0,
+          "end_seconds": 18.0,
+          "excerpt": "We discuss things people misunderstand about the church."
+        }
+      ],
+      "confidence": 0.72
+    },
+    {
+      "text": "Pastoral authority",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00003"
+          ],
+          "start_seconds": 38.0,
+          "end_seconds": 60.0,
+          "excerpt": "The discussion asks when a pastor should know and care for people directly."
+        }
+      ],
+      "confidence": 0.72
+    }
+  ],
+  "secondary_topics": [],
+  "related_episodes": [
+    {
+      "episode_id": "sample-2026-23-call-me-hoopi",
+      "score": 0.345,
+      "reasons": [
+        "Shared substantial topics: church community",
+        "Transcript/topic semantic overlap (0.24)"
+      ],
+      "shared_topics": [
+        "church community"
+      ],
+      "shared_references": []
+    },
+    {
+      "episode_id": "sample-2026-24-rage-the-elephant",
+      "score": 0.293,
+      "reasons": [
+        "Shared substantial topics: pastoral authority"
+      ],
+      "shared_topics": [
+        "pastoral authority"
+      ],
+      "shared_references": []
+    }
+  ],
+  "model_runs": [
+    {
+      "stage": "transcription",
+      "provider": "fixture",
+      "model": "description-excerpt-v1",
+      "version": "1",
+      "processed_at": "2026-09-22T08:53:21.373964Z",
+      "input_units": null,
+      "output_units": null
+    },
+    {
+      "stage": "analysis",
+      "provider": "deterministic",
+      "model": "rules-v1",
+      "version": null,
+      "processed_at": "2026-09-22T08:53:21.373940Z",
+      "input_units": null,
+      "output_units": null
+    }
+  ],
+  "processing_date": "2026-09-22T08:53:21.373967Z",
+  "qa": {
+    "status": "warning",
+    "transcription_confidence": 0.99,
+    "issues": [
+      "Deterministic fixture analysis is not a substitute for full LLM review."
+    ],
+    "low_confidence_items": [],
+    "manual_review_flags": [
+      "Transcript provider marked the transcript incomplete.",
+      "Prototype fixture contains only a description-derived excerpt, not a full audio transcript."
+    ]
+  },
+  "status": "needs-review",
+  "wordpress": {
+    "post_id": null,
+    "draft_url": null,
+    "status": "not-created",
+    "content_hash": null
+  }
+}

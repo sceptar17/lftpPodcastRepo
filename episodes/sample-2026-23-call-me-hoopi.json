@@ -1,0 +1,278 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "sample-2026-23-call-me-hoopi",
+  "title": "Call Me Hoopi",
+  "episode_number": 23,
+  "publication_date": "2026-09-15T08:00:00Z",
+  "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+  "source_page_url": "https://livefromthepath.org/call-me-hoopi/",
+  "audio_url": "https://example.invalid/audio/call-me-hoopi.mp3",
+  "artwork_url": null,
+  "original_rss_description": "How to help a man who needs encouragement in perseverance when he feels like he is the only person continuing.",
+  "transcript": {
+    "text": "How do you help a man who needs encouragement in perseverance? He feels like he is the only person continuing. The conversation considers encouragement and endurance within church community.",
+    "segments": [
+      {
+        "segment_id": "seg-00001",
+        "start_seconds": 0.0,
+        "end_seconds": 20.0,
+        "text": "How do you help a man who needs encouragement in perseverance?",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00002",
+        "start_seconds": 20.0,
+        "end_seconds": 40.0,
+        "text": "He feels like he is the only person continuing.",
+        "speaker": null,
+        "confidence": 0.99
+      },
+      {
+        "segment_id": "seg-00003",
+        "start_seconds": 40.0,
+        "end_seconds": 62.0,
+        "text": "The conversation considers encouragement and endurance within church community.",
+        "speaker": null,
+        "confidence": 0.99
+      }
+    ],
+    "provider": "fixture",
+    "model": "description-excerpt-v1",
+    "provider_version": "1",
+    "raw_output_path": "raw/provider-output/sample-2026-23-call-me-hoopi-fixture.json",
+    "is_complete": false
+  },
+  "semantic_sections": [
+    {
+      "section_id": "section-001",
+      "title": "Episode overview",
+      "start_seconds": 0.0,
+      "end_seconds": 62.0,
+      "summary": {
+        "text": "How do you help a man who needs encouragement in perseverance? He feels like he is the only person continuing. The conversation considers encouragement and endurance within church community.",
+        "evidence": [
+          {
+            "segment_ids": [
+              "seg-00001"
+            ],
+            "start_seconds": 0.0,
+            "end_seconds": 20.0,
+            "excerpt": "How do you help a man who needs encouragement in perseverance?"
+          },
+          {
+            "segment_ids": [
+              "seg-00002"
+            ],
+            "start_seconds": 20.0,
+            "end_seconds": 40.0,
+            "excerpt": "He feels like he is the only person continuing."
+          },
+          {
+            "segment_ids": [
+              "seg-00003"
+            ],
+            "start_seconds": 40.0,
+            "end_seconds": 62.0,
+            "excerpt": "The conversation considers encouragement and endurance within church community."
+          }
+        ],
+        "confidence": 0.65
+      },
+      "topics": [
+        {
+          "text": "Church community",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 20.0,
+              "excerpt": "How do you help a man who needs encouragement in perseverance?"
+            }
+          ],
+          "confidence": 0.72
+        },
+        {
+          "text": "Perseverance",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 20.0,
+              "excerpt": "How do you help a man who needs encouragement in perseverance?"
+            }
+          ],
+          "confidence": 0.72
+        }
+      ],
+      "scripture_references": [],
+      "people": [],
+      "works_media": [],
+      "questions": [
+        {
+          "text": "How do you help a man who needs encouragement in perseverance?",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00001"
+              ],
+              "start_seconds": 0.0,
+              "end_seconds": 20.0,
+              "excerpt": "How do you help a man who needs encouragement in perseverance?"
+            }
+          ],
+          "confidence": 0.65
+        }
+      ],
+      "claims": [
+        {
+          "text": "He feels like he is the only person continuing.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00002"
+              ],
+              "start_seconds": 20.0,
+              "end_seconds": 40.0,
+              "excerpt": "He feels like he is the only person continuing."
+            }
+          ],
+          "confidence": 0.65
+        },
+        {
+          "text": "The conversation considers encouragement and endurance within church community.",
+          "evidence": [
+            {
+              "segment_ids": [
+                "seg-00003"
+              ],
+              "start_seconds": 40.0,
+              "end_seconds": 62.0,
+              "excerpt": "The conversation considers encouragement and endurance within church community."
+            }
+          ],
+          "confidence": 0.65
+        }
+      ]
+    }
+  ],
+  "episode_summary": {
+    "text": "How do you help a man who needs encouragement in perseverance? He feels like he is the only person continuing. The conversation considers encouragement and endurance within church community.",
+    "evidence": [
+      {
+        "segment_ids": [
+          "seg-00001"
+        ],
+        "start_seconds": 0.0,
+        "end_seconds": 20.0,
+        "excerpt": "How do you help a man who needs encouragement in perseverance?"
+      },
+      {
+        "segment_ids": [
+          "seg-00002"
+        ],
+        "start_seconds": 20.0,
+        "end_seconds": 40.0,
+        "excerpt": "He feels like he is the only person continuing."
+      },
+      {
+        "segment_ids": [
+          "seg-00003"
+        ],
+        "start_seconds": 40.0,
+        "end_seconds": 62.0,
+        "excerpt": "The conversation considers encouragement and endurance within church community."
+      }
+    ],
+    "confidence": 0.65
+  },
+  "primary_topics": [
+    {
+      "text": "Church community",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00001"
+          ],
+          "start_seconds": 0.0,
+          "end_seconds": 20.0,
+          "excerpt": "How do you help a man who needs encouragement in perseverance?"
+        }
+      ],
+      "confidence": 0.72
+    },
+    {
+      "text": "Perseverance",
+      "evidence": [
+        {
+          "segment_ids": [
+            "seg-00001"
+          ],
+          "start_seconds": 0.0,
+          "end_seconds": 20.0,
+          "excerpt": "How do you help a man who needs encouragement in perseverance?"
+        }
+      ],
+      "confidence": 0.72
+    }
+  ],
+  "secondary_topics": [],
+  "related_episodes": [
+    {
+      "episode_id": "sample-2025-on-the-couch",
+      "score": 0.345,
+      "reasons": [
+        "Shared substantial topics: church community",
+        "Transcript/topic semantic overlap (0.24)"
+      ],
+      "shared_topics": [
+        "church community"
+      ],
+      "shared_references": []
+    }
+  ],
+  "model_runs": [
+    {
+      "stage": "transcription",
+      "provider": "fixture",
+      "model": "description-excerpt-v1",
+      "version": "1",
+      "processed_at": "2026-09-22T08:53:21.371104Z",
+      "input_units": null,
+      "output_units": null
+    },
+    {
+      "stage": "analysis",
+      "provider": "deterministic",
+      "model": "rules-v1",
+      "version": null,
+      "processed_at": "2026-09-22T08:53:21.371049Z",
+      "input_units": null,
+      "output_units": null
+    }
+  ],
+  "processing_date": "2026-09-22T08:53:21.371108Z",
+  "qa": {
+    "status": "warning",
+    "transcription_confidence": 0.99,
+    "issues": [
+      "Deterministic fixture analysis is not a substitute for full LLM review."
+    ],
+    "low_confidence_items": [],
+    "manual_review_flags": [
+      "Transcript provider marked the transcript incomplete.",
+      "Prototype fixture contains only a description-derived excerpt, not a full audio transcript."
+    ]
+  },
+  "status": "needs-review",
+  "wordpress": {
+    "post_id": null,
+    "draft_url": null,
+    "status": "not-created",
+    "content_hash": null
+  }
+}

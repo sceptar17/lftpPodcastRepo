@@ -1,0 +1,38 @@
+[
+  {
+    "episode_id": "sample-2026-24-rage-the-elephant",
+    "guid": "prototype:2026:24",
+    "title": "Rage The Elephant",
+    "episode_number": 24,
+    "publication_date": "2026-09-22T08:00:00Z",
+    "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+    "source_page_url": "https://livefromthepath.org/",
+    "audio_url": "https://example.invalid/audio/rage-the-elephant.mp3",
+    "artwork_url": null,
+    "description": "Elephants, mouse societies, spiritual authority, discernment, Scripture and guidance from fallible humans; plus relationship and service advice."
+  },
+  {
+    "episode_id": "sample-2026-23-call-me-hoopi",
+    "guid": "prototype:2026:23",
+    "title": "Call Me Hoopi",
+    "episode_number": 23,
+    "publication_date": "2026-09-15T08:00:00Z",
+    "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+    "source_page_url": "https://livefromthepath.org/call-me-hoopi/",
+    "audio_url": "https://example.invalid/audio/call-me-hoopi.mp3",
+    "artwork_url": null,
+    "description": "How to help a man who needs encouragement in perseverance when he feels like he is the only person continuing."
+  },
+  {
+    "episode_id": "sample-2025-on-the-couch",
+    "guid": "prototype:2025:on-the-couch",
+    "title": "On the Couch",
+    "episode_number": null,
+    "publication_date": "2025-08-19T08:00:00Z",
+    "source_rss_url": "https://example.invalid/live-from-the-path-feed",
+    "source_page_url": "https://livefromthepath.org/",
+    "audio_url": "https://example.invalid/audio/on-the-couch.mp3",
+    "artwork_url": null,
+    "description": "Things people misunderstand about the church, what to do when church hurt exists, and when pastoral care matters."
+  }
+]

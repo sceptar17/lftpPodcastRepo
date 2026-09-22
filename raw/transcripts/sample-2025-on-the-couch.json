@@ -1,0 +1,37 @@
+{
+  "text": "We discuss things people misunderstand about the church. What should someone do when church hurt exists? The discussion asks when a pastor should know and care for people directly.",
+  "segments": [
+    {
+      "segment_id": "seg-00001",
+      "start_seconds": 0.0,
+      "end_seconds": 18.0,
+      "text": "We discuss things people misunderstand about the church.",
+      "speaker": null,
+      "confidence": 0.99
+    },
+    {
+      "segment_id": "seg-00002",
+      "start_seconds": 18.0,
+      "end_seconds": 38.0,
+      "text": "What should someone do when church hurt exists?",
+      "speaker": null,
+      "confidence": 0.99
+    },
+    {
+      "segment_id": "seg-00003",
+      "start_seconds": 38.0,
+      "end_seconds": 60.0,
+      "text": "The discussion asks when a pastor should know and care for people directly.",
+      "speaker": null,
+      "confidence": 0.99
+    }
+  ],
+  "provider": "fixture",
+  "model": "description-excerpt-v1",
+  "provider_version": "1",
+  "raw": {
+    "source": "public episode description",
+    "notice": "Not a full transcript and not produced from audio."
+  },
+  "is_complete": false
+}

@@ -29,9 +29,9 @@ def test_local_audio_scan_matches_episode_number(tmp_path):
 def test_inventory_loads_feed_snapshot(tmp_path):
     repository = Repository(tmp_path)
     (tmp_path / "state" / "discovered.json").write_text(
-        json.dumps([discovered().model_dump(mode="json")])
+        json.dumps([discovered().model_dump(mode="json")]),
+        encoding="utf-8",
     )
     snapshot = build_inventory(repository, None)
     assert len(snapshot.discovered) == 1
     assert len(snapshot.missing_from_repository) == 1
-

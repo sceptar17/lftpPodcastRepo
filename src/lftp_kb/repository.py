@@ -65,11 +65,11 @@ class Repository:
 
     def load_episode(self, episode_id: str) -> Episode | None:
         path = self.root / "episodes" / f"{episode_id}.json"
-        return Episode.model_validate_json(path.read_text()) if path.exists() else None
+        return Episode.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None
 
     def episodes(self) -> Iterable[Episode]:
         for path in sorted((self.root / "episodes").glob("*.json")):
-            yield Episode.model_validate_json(path.read_text())
+            yield Episode.model_validate_json(path.read_text(encoding="utf-8"))
 
     def log(self, event: ProcessingEvent) -> None:
         path = self.root / "logs" / "processing.jsonl"

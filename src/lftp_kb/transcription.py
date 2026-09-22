@@ -17,7 +17,9 @@ class FixtureTranscriptionProvider(TranscriptionProvider):
         self.fixture_dir = fixture_dir
 
     def transcribe(self, audio_path: Path, episode_id: str) -> TranscriptionResult:
-        payload = json.loads((self.fixture_dir / f"{episode_id}.json").read_text())
+        payload = json.loads(
+            (self.fixture_dir / f"{episode_id}.json").read_text(encoding="utf-8")
+        )
         return TranscriptionResult.model_validate(payload)
 
 
@@ -47,4 +49,3 @@ class OpenAITranscriptionProvider(TranscriptionProvider):
             text=raw.get("text", ""), segments=segments, provider="openai",
             model=self.model, provider_version=None, raw=raw, is_complete=True,
         )
-

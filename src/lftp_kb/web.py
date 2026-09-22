@@ -57,7 +57,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def episode_detail(request: Request, episode_id: str):
         episode = _episode_or_404(repository, episode_id)
         note_path = repository.root / "state" / "review-notes" / f"{episode_id}.json"
-        notes = json.loads(note_path.read_text()).get("notes", "") if note_path.exists() else ""
+        notes = (
+            json.loads(note_path.read_text(encoding="utf-8")).get("notes", "")
+            if note_path.exists()
+            else ""
+        )
         return templates.TemplateResponse(request, "episode.html", context(request,
             episode=episode, notes=notes,
         ))
@@ -99,7 +103,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def topics(request: Request):
         records = []
         for path in sorted((repository.root / "topics").glob("*.json")):
-            records.append(json.loads(path.read_text()))
+            records.append(json.loads(path.read_text(encoding="utf-8")))
         return templates.TemplateResponse(request, "topics.html", context(request, topics=records))
 
     @app.get("/inventory", response_class=HTMLResponse)
@@ -170,7 +174,7 @@ def _load_states(path: Path) -> list[dict]:
         if item.name in {"discovered.json", "app-settings.json"}:
             continue
         try:
-            value = json.loads(item.read_text())
+            value = json.loads(item.read_text(encoding="utf-8"))
             if "episode_id" in value:
                 result.append(value)
         except json.JSONDecodeError:
@@ -180,7 +184,7 @@ def _load_states(path: Path) -> list[dict]:
 
 def _load_overrides(root: Path) -> dict:
     path = root / "state" / "app-settings.json"
-    return json.loads(path.read_text()) if path.exists() else {}
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 app = create_app()
@@ -190,4 +194,3 @@ def run() -> None:
     import uvicorn
     uvicorn.run("lftp_kb.web:app", host=os.getenv("LFTP_WEB_HOST", "127.0.0.1"),
                 port=int(os.getenv("LFTP_WEB_PORT", "8080")), reload=False)
-

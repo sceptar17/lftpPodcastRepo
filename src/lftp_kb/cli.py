@@ -56,7 +56,9 @@ def main(argv: list[str] | None = None) -> int:
                                     settings.wordpress_application_password, settings.http_timeout_seconds)
     pipeline = Pipeline(repo, transcriber, analyzer, wordpress)
     if args.command == "sample":
-        manifest = json.loads((fixture_dir.parent / "sample-episodes.json").read_text())
+        manifest = json.loads(
+            (fixture_dir.parent / "sample-episodes.json").read_text(encoding="utf-8")
+        )
         selected = [DiscoveredEpisode.model_validate(item) for item in manifest]
     else:
         _, selected = fetch_rss(settings.rss_url, settings.http_timeout_seconds)
@@ -73,4 +75,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

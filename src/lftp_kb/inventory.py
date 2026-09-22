@@ -49,7 +49,10 @@ def load_discovered(repository: Repository) -> list[DiscoveredEpisode]:
     path = repository.root / "state" / "discovered.json"
     if not path.exists():
         return []
-    return [DiscoveredEpisode.model_validate(item) for item in json.loads(path.read_text())]
+    return [
+        DiscoveredEpisode.model_validate(item)
+        for item in json.loads(path.read_text(encoding="utf-8"))
+    ]
 
 
 def provider_profiles() -> list[ProviderProfile]:
@@ -125,4 +128,3 @@ def build_inventory(repository: Repository, local_root: Path | None) -> Inventor
         local_audio=local_audio, unmatched_local_audio=unmatched,
         local_root_configured=local_root is not None,
     )
-

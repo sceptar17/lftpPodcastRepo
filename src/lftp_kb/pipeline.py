@@ -44,7 +44,9 @@ class Pipeline:
         try:
             normalized_path = self.repo.root / "raw" / "transcripts" / f"{metadata.episode_id}.json"
             if normalized_path.exists() and not force:
-                result = TranscriptionResult.model_validate_json(normalized_path.read_text())
+                result = TranscriptionResult.model_validate_json(
+                    normalized_path.read_text(encoding="utf-8")
+                )
                 self.repo.log(ProcessingEvent(episode_id=metadata.episode_id, stage="transcription",
                                               status="skipped", message="using normalized checkpoint"))
             else:

@@ -13,7 +13,7 @@ def _words(value: str) -> list[str]:
 def compare_files(paths: list[Path]) -> dict:
     documents = []
     for path in paths:
-        payload = json.loads(path.read_text())
+        payload = json.loads(path.read_text(encoding="utf-8"))
         documents.append({"path": str(path), "provider": payload.get("provider"),
                           "model": payload.get("model"), "text": payload.get("text", "")})
     pairs = []
@@ -25,4 +25,3 @@ def compare_files(paths: list[Path]) -> dict:
                           "left_word_count": len(_words(left["text"])),
                           "right_word_count": len(_words(right["text"]))})
     return {"documents": [{k: v for k, v in d.items() if k != "text"} for d in documents], "pairs": pairs}
-

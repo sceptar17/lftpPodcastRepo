@@ -303,6 +303,7 @@ class CatalogAsset(StrictModel):
     relative_path: str
     filename: str
     size_bytes: int
+    modified_at: datetime | None = None
     duration_seconds: float | None = None
     sha256: str | None = None
     hash_status: Literal["complete", "not-required", "failed"] = "not-required"
@@ -316,15 +317,23 @@ class CatalogAsset(StrictModel):
     overall_episode_numbers: list[int] = []
     claims: list[AssetClaim] = []
     metadata_issues: list[str] = []
+    acoustic_fingerprint_status: Literal["not-requested", "unavailable", "complete", "failed"] = (
+        "not-requested"
+    )
+    acoustic_fingerprint_path: str | None = None
 
 
 class DuplicateProposal(StrictModel):
     proposal_id: str
-    relationship: Literal["exact-copy", "likely-same-recording"]
+    relationship: Literal["exact-copy", "likely-same-recording", "alternate-master"]
     asset_ids: list[str] = Field(min_length=2)
     confidence: Annotated[float, Field(ge=0, le=1)]
     reasons: list[str] = Field(min_length=1)
     requires_listening: bool
+    preferred_asset_id: str | None = None
+    preference_reasons: list[str] = []
+    acoustic_similarity: Annotated[float | None, Field(ge=0, le=1)] = None
+    acoustic_status: Literal["not-requested", "unavailable", "complete", "failed"] = "not-requested"
 
 
 class EpisodeMatchProposal(StrictModel):

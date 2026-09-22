@@ -137,6 +137,7 @@ def _asset_from_observation(item: dict) -> CatalogAsset:
         relative_path=relative,
         filename=item["filename"],
         size_bytes=item["size_bytes"],
+        modified_at=item.get("modified_at"),
         duration_seconds=item.get("duration_seconds"),
         sha256=item["sha256"],
         hash_status=item.get("hash_status", "not-required"),
@@ -187,6 +188,25 @@ def _duplicate_proposals(assets: list[CatalogAsset]) -> list[DuplicateProposal]:
                 if frozenset((left.asset_id, right.asset_id)) in exact_pairs:
                     continue
                 reasons = _near_duplicate_reasons(left, right)
+                alternate_master = _alternate_master_evidence(left, right)
+                if alternate_master and any(reason.startswith("Duration") for reason in reasons):
+                    preferred, preference_reasons = _preferred_master(left, right)
+                    token = hashlib.sha256(
+                        f"{left.asset_id}:{right.asset_id}".encode()
+                    ).hexdigest()[:12]
+                    result.append(
+                        DuplicateProposal(
+                            proposal_id=f"duplicate-master-{token}",
+                            relationship="alternate-master",
+                            asset_ids=[left.asset_id, right.asset_id],
+                            confidence=0.9,
+                            reasons=[*reasons, alternate_master],
+                            requires_listening=True,
+                            preferred_asset_id=preferred.asset_id,
+                            preference_reasons=preference_reasons,
+                        )
+                    )
+                    continue
                 if len(reasons) < 2 or not any(reason.startswith("Duration") for reason in reasons):
                     continue
                 confidence = min(0.97, 0.62 + 0.11 * len(reasons))
@@ -222,6 +242,50 @@ def _near_duplicate_reasons(left: CatalogAsset, right: CatalogAsset) -> list[str
     if left.size_bytes == right.size_bytes:
         reasons.append("File sizes are identical despite different byte hashes.")
     return reasons
+
+
+def _alternate_master_evidence(left: CatalogAsset, right: CatalogAsset) -> str | None:
+    left_base, _, left_label = _versioned_stem(left.filename)
+    right_base, _, right_label = _versioned_stem(right.filename)
+    if left_base != right_base or not (left_label or right_label):
+        return None
+    labels = " and ".join(label for label in (left_label, right_label) if label)
+    return f"Filenames share the same base with version suffix evidence ({labels})."
+
+
+def _preferred_master(left: CatalogAsset, right: CatalogAsset) -> tuple[CatalogAsset, list[str]]:
+    _, left_rank, left_label = _versioned_stem(left.filename)
+    _, right_rank, right_label = _versioned_stem(right.filename)
+    if left_rank != right_rank:
+        preferred = left if left_rank > right_rank else right
+        label = left_label if preferred is left else right_label
+        return preferred, [f"The appended version marker {label!r} has the higher version rank."]
+    if left.modified_at and right.modified_at and left.modified_at != right.modified_at:
+        preferred = left if left.modified_at > right.modified_at else right
+        return preferred, ["File modified time is later; this is a fallback preference, not proof."]
+    preferred = max((left, right), key=lambda asset: asset.filename.lower())
+    return preferred, ["Filename sorts later; this is a fallback preference, not proof."]
+
+
+def _versioned_stem(filename: str) -> tuple[str, int, str | None]:
+    stem = Path(filename).stem.strip()
+    patterns = (
+        (r"(?i)[\s._-]+(?:version|ver|v)[\s._-]*(\d+)$", 100),
+        (r"(?i)[\s._-]+(final|remastered?|edited|edit|master|mix)[\s._-]*(\d*)$", 200),
+        (r"(?:[\s._-]*)([A-Z])$", 10),
+    )
+    for pattern, base_rank in patterns:
+        match = re.search(pattern, stem)
+        if not match:
+            continue
+        label = match.group(0).strip(" ._-")
+        suffix_number = next(
+            (int(group) for group in match.groups() if group and group.isdigit()), 0
+        )
+        letter_rank = ord(label[-1]) - ord("A") + 1 if len(label) == 1 and label.isupper() else 0
+        base = _normalize(stem[: match.start()])
+        return base, base_rank + suffix_number + letter_rank, label
+    return _normalize(stem), 0, None
 
 
 def _match_proposals(

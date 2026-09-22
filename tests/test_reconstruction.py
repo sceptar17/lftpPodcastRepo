@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from lftp_kb.fingerprinting import _fingerprint_similarity
 from lftp_kb.models import DiscoveredEpisode
 from lftp_kb.reconstruction import build_reconstruction_report
 
@@ -115,3 +116,26 @@ def test_broadcast_setup_title_is_not_used_for_matching():
 
     assert report.match_proposals == []
     assert "default recording/setup tag" in report.assets[0].metadata_issues[0]
+
+
+def test_appended_version_is_an_alternate_master_and_preferred():
+    report = build_reconstruction_report(
+        [
+            _observation("2014/20140303 Show.mp3", "1" * 64, duration=3600),
+            _observation("2014/20140303 Show A.mp3", "2" * 64, duration=3600),
+        ],
+        [],
+    )
+
+    proposal = report.duplicate_proposals[0]
+    assets = {asset.asset_id: asset for asset in report.assets}
+    assert proposal.relationship == "alternate-master"
+    assert assets[proposal.preferred_asset_id].filename == "20140303 Show A.mp3"
+    assert "version marker" in proposal.preference_reasons[0]
+
+
+def test_acoustic_similarity_tolerates_small_fingerprint_changes():
+    original = [0xAAAAAAAA] * 100
+    adjusted = [0xAAAAAAAB] * 100
+
+    assert _fingerprint_similarity(original, adjusted) > 0.95

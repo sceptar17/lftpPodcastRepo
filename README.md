@@ -167,6 +167,12 @@ for listening rather than merged. Annual episode numbers, overall-series numbers
 numbers remain separate evidence claims. Strong RSS links require multiple independent signals and
 a clear margin over the next candidate; ambiguous links stay in review.
 
+Filename variants such as `A`, `B`, `v2`, `final`, and `remaster` are modeled as alternate masters of
+one recording when their duration also agrees. The appended/higher version is retained as the default
+preferred asset without deleting the other file. If Chromaprint's `fpcalc` is on `PATH` (or configured
+with `LFTP_FPCALC_PATH`), the catalog also compares acoustic fingerprints and stores the raw fingerprint
+evidence under `catalog/fingerprints/`.
+
 ## Run 3 live episodes
 
 ```bash

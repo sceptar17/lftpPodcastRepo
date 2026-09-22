@@ -12,6 +12,7 @@ from pathlib import Path
 
 from mutagen import File as MutagenFile
 
+from .fingerprinting import verify_alternate_masters
 from .inventory import InventorySnapshot
 from .models import (
     CatalogAsset,
@@ -73,6 +74,7 @@ def build_episode_ledger(
             None,
         )
     reconstruction = build_reconstruction_report(local_observations, snapshot.discovered)
+    verify_alternate_masters(reconstruction, archive_root, repository)
     decisions = _load_reconstruction_decisions(repository)
     observations_by_path = {item["relative_path"]: item for item in local_observations}
     discovered = {episode.episode_id: episode for episode in snapshot.discovered}
@@ -101,6 +103,16 @@ def build_episode_ledger(
             local_by_rss[proposal.rss_episode_id].add(relative)
             assigned[relative] = proposal.rss_episode_id
     duplicate_components = _duplicate_components(reconstruction, decisions)
+    preferred_asset_ids = {
+        proposal.preferred_asset_id
+        for proposal in reconstruction.duplicate_proposals
+        if proposal.preferred_asset_id
+        and (
+            proposal.relationship == "alternate-master"
+            or decisions.get(proposal.proposal_id, {}).get("decision") == "confirmed"
+        )
+        and decisions.get(proposal.proposal_id, {}).get("decision") != "rejected"
+    }
     for component in duplicate_components:
         targets = {assigned.get(assets[asset_id].relative_path) for asset_id in component}
         targets.discard(None)
@@ -136,6 +148,15 @@ def build_episode_ledger(
         primary = max(
             observations,
             key=lambda value: (
+                next(
+                    (
+                        asset.asset_id
+                        for asset in reconstruction.assets
+                        if asset.relative_path == value["relative_path"]
+                    ),
+                    None,
+                )
+                in preferred_asset_ids,
                 value.get("title") is not None,
                 value.get("date") is not None,
                 value["size_bytes"],
@@ -197,9 +218,12 @@ def inspect_audio_file(
     relative = path.relative_to(archive_root).as_posix()
     file_errors = []
     try:
-        size_bytes = path.stat().st_size
+        stat_result = path.stat()
+        size_bytes = stat_result.st_size
+        modified_at = datetime.fromtimestamp(stat_result.st_mtime, UTC).isoformat()
     except OSError as error:
         size_bytes = 0
+        modified_at = None
         file_errors.append(f"File stat failed: {type(error).__name__}: {error}")
     digest = None
     hash_status = "not-required"
@@ -215,6 +239,7 @@ def inspect_audio_file(
         "relative_path": relative,
         "filename": path.name,
         "size_bytes": size_bytes,
+        "modified_at": modified_at,
         "format": path.suffix.lower().lstrip("."),
         "duration_seconds": None,
         "title": None,
@@ -630,7 +655,9 @@ def _duplicate_components(reconstruction: ReconstructionReport, decisions: dict)
     graph: dict[str, set[str]] = defaultdict(set)
     for proposal in reconstruction.duplicate_proposals:
         decision = decisions.get(proposal.proposal_id, {}).get("decision")
-        accepted = proposal.relationship == "exact-copy" or decision == "confirmed"
+        accepted = (
+            proposal.relationship in {"exact-copy", "alternate-master"} or decision == "confirmed"
+        )
         if not accepted or decision == "rejected":
             continue
         for left in proposal.asset_ids:

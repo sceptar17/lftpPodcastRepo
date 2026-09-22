@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
+import urllib.parse
 from collections import defaultdict
 from datetime import UTC, date, datetime
 from difflib import SequenceMatcher
@@ -303,7 +304,9 @@ def _match_proposals(
             continue
         score, reasons, episode = ranked[0]
         runner_up = ranked[1][0] if len(ranked) > 1 else None
-        recommendation = "auto-link" if score >= 0.9 else "review"
+        recommendation = (
+            "auto-link" if score >= 0.9 and (runner_up is None or score > runner_up) else "review"
+        )
         token = hashlib.sha256(f"{asset.asset_id}:{episode.episode_id}".encode()).hexdigest()[:12]
         proposals.append(
             EpisodeMatchProposal(
@@ -325,6 +328,10 @@ def _match_score(
 ) -> tuple[float, list[str], DiscoveredEpisode]:
     score = 0.0
     reasons = []
+    rss_audio_name = Path(urllib.parse.unquote(urllib.parse.urlparse(episode.audio_url).path)).name
+    if rss_audio_name and rss_audio_name.casefold() == asset.filename.casefold():
+        score += 1.0
+        reasons.append("Local filename exactly matches the RSS audio enclosure filename.")
     unreliable_title = any(issue.startswith("Embedded title") for issue in asset.metadata_issues)
     title = "" if unreliable_title else _normalize(asset.embedded_title)
     rss_title = _normalize(episode.title)

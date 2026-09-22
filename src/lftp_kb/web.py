@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.parse
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -78,7 +79,7 @@ def _match_review_queue(
     completed_ids.update(
         proposal.proposal_id
         for proposal in reconstruction.match_proposals
-        if proposal.confidence >= 0.9
+        if proposal.recommendation == "auto-link"
     )
     proposals = (
         reconstruction.match_proposals
@@ -289,6 +290,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 decisions=decisions,
                 rss_records={
                     episode.episode_id: episode for episode in load_discovered(repository)
+                },
+                rss_audio_names={
+                    episode.episode_id: Path(
+                        urllib.parse.unquote(urllib.parse.urlparse(episode.audio_url).path)
+                    ).name
+                    for episode in load_discovered(repository)
                 },
             ),
         )

@@ -93,6 +93,25 @@ def test_independent_number_and_date_signals_create_strong_rss_link():
     assert proposal.confidence == 1
 
 
+def test_exact_rss_enclosure_filename_is_a_deterministic_link():
+    episode = DiscoveredEpisode(
+        episode_id="filename-match",
+        guid="filename-guid",
+        title="A title unavailable in local metadata",
+        publication_date=datetime(2023, 1, 25, tzinfo=UTC),
+        source_rss_url="https://example.com/feed",
+        audio_url="https://media.example.com/20230123_E02.mp3?download=1",
+    )
+    report = build_reconstruction_report(
+        [_observation("2023/20230123_E02.mp3", "9" * 64)], [episode]
+    )
+
+    proposal = report.match_proposals[0]
+    assert proposal.confidence == 1
+    assert proposal.recommendation == "auto-link"
+    assert "exactly matches" in proposal.reasons[0]
+
+
 def test_import_timestamp_is_not_treated_as_recording_date():
     report = build_reconstruction_report(
         [_observation("2013/20130415 (2016_10_07 00_26_59 UTC).mp3", "d" * 64)], []

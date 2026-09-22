@@ -213,6 +213,11 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .proposal-choice-form { display: grid; gap: 10px; margin: 9px 0; }
 .asset-choice { display: grid; gap: 5px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
 .asset-choice .button { justify-self: start; padding: 6px 9px; font-size: 11px; }
+.source-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+.source-comparison section { display: grid; gap: 4px; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+.source-comparison audio { width: 100%; }
+.source-comparison a { font-size: 11px; }
+.match-evidence { display: grid; gap: 3px; padding: 9px 0; }
 @media (max-width: 1050px) {
   .provider-strip, .reconcile-steps, .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -228,6 +233,7 @@ textarea { resize: vertical; margin-bottom: 10px; }
   .main { margin: 0; padding: 0 15px 38px; }
   .topbar { min-height: 88px; }
   .hero, .two-column, .review-layout, .episode-meta { display: block; }
+  .source-comparison { grid-template-columns: 1fr; }
   .pipeline-mini, .coverage-ring { margin-top: 20px; }
   .stat-grid, .stat-grid.three, .provider-strip, .topic-grid, .reconcile-steps, .output-grid, .activity-grid { grid-template-columns: 1fr; }
   .panel { padding: 18px; }

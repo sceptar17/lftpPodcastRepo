@@ -27,6 +27,22 @@ def _plain(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+def _duration_seconds(value: str) -> float | None:
+    if not value:
+        return None
+    try:
+        parts = [float(part) for part in value.strip().split(":")]
+    except ValueError:
+        return None
+    if len(parts) == 1:
+        return parts[0]
+    if len(parts) == 2:
+        return parts[0] * 60 + parts[1]
+    if len(parts) == 3:
+        return parts[0] * 3600 + parts[1] * 60 + parts[2]
+    return None
+
+
 def stable_episode_id(guid: str, title: str, published: str, episode_number: int | None) -> str:
     if episode_number is not None:
         prefix = f"ep-{episode_number:03d}"
@@ -41,7 +57,9 @@ def parse_rss(xml: bytes | str, source_url: str) -> list[DiscoveredEpisode]:
     items = root.findall("./channel/item")
     result: list[DiscoveredEpisode] = []
     channel_image = root.find("./channel/image/url")
-    channel_art = channel_image.text.strip() if channel_image is not None and channel_image.text else None
+    channel_art = (
+        channel_image.text.strip() if channel_image is not None and channel_image.text else None
+    )
     itunes_channel_image = root.find(f"./channel/{ITUNES}image")
     if itunes_channel_image is not None:
         channel_art = itunes_channel_image.attrib.get("href", channel_art)
@@ -63,12 +81,23 @@ def parse_rss(xml: bytes | str, source_url: str) -> list[DiscoveredEpisode]:
         if image is not None:
             artwork = image.attrib.get("href", artwork)
         description = _text(item, "description", f"{CONTENT}encoded", f"{ITUNES}summary")
-        result.append(DiscoveredEpisode(
-            episode_id=stable_episode_id(guid, title, pub_raw, number), guid=guid, title=title,
-            episode_number=number, publication_date=published, source_rss_url=source_url,
-            source_page_url=_text(item, "link") or None, audio_url=audio_url,
-            artwork_url=artwork, description=_plain(description),
-        ))
+        enclosure_length = enclosure.attrib.get("length", "") if enclosure is not None else ""
+        result.append(
+            DiscoveredEpisode(
+                episode_id=stable_episode_id(guid, title, pub_raw, number),
+                guid=guid,
+                title=title,
+                episode_number=number,
+                publication_date=published,
+                source_rss_url=source_url,
+                source_page_url=_text(item, "link") or None,
+                audio_url=audio_url,
+                audio_size_bytes=(int(enclosure_length) if enclosure_length.isdigit() else None),
+                audio_duration_seconds=_duration_seconds(_text(item, f"{ITUNES}duration")),
+                artwork_url=artwork,
+                description=_plain(description),
+            )
+        )
     return result
 
 
@@ -77,4 +106,3 @@ def fetch_rss(url: str, timeout: int = 60) -> tuple[bytes, list[DiscoveredEpisod
     with urllib.request.urlopen(request, timeout=timeout) as response:
         body = response.read()
     return body, parse_rss(body, url)
-

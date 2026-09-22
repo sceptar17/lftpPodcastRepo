@@ -206,6 +206,8 @@ class DiscoveredEpisode(StrictModel):
     source_rss_url: str
     source_page_url: str | None = None
     audio_url: str
+    audio_size_bytes: int | None = None
+    audio_duration_seconds: float | None = None
     artwork_url: str | None = None
     description: str = ""
 

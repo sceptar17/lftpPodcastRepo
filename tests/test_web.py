@@ -5,9 +5,14 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from lftp_kb.config import Settings
-from lftp_kb.models import CatalogAsset, DuplicateProposal, ReconstructionReport
+from lftp_kb.models import (
+    CatalogAsset,
+    DuplicateProposal,
+    EpisodeMatchProposal,
+    ReconstructionReport,
+)
 from lftp_kb.repository import Repository
-from lftp_kb.web import _duplicate_review_queue, create_app, pretty_date
+from lftp_kb.web import _duplicate_review_queue, _match_review_queue, create_app, pretty_date
 
 PROJECT = Path(__file__).resolve().parents[1]
 
@@ -131,3 +136,39 @@ def test_duplicate_decision_records_the_file_to_keep(tmp_path):
     assert pending == []
     assert reviewed_count == 1
     assert len(reviewed) == 1
+
+
+def test_identity_queue_hides_automatic_and_completed_links():
+    report = ReconstructionReport(
+        generated_at=datetime.now(UTC),
+        assets=[],
+        duplicate_proposals=[],
+        match_proposals=[
+            EpisodeMatchProposal(
+                proposal_id="automatic",
+                asset_id="a",
+                rss_episode_id="rss-a",
+                confidence=0.9,
+                reasons=["Enough evidence"],
+                recommendation="auto-link",
+            ),
+            EpisodeMatchProposal(
+                proposal_id="manual",
+                asset_id="b",
+                rss_episode_id="rss-b",
+                confidence=0.89,
+                reasons=["Review"],
+                recommendation="review",
+            ),
+        ],
+    )
+
+    pending, completed_count = _match_review_queue(report, {}, show_reviewed=False)
+    assert [proposal.proposal_id for proposal in pending] == ["manual"]
+    assert completed_count == 1
+
+    pending, completed_count = _match_review_queue(
+        report, {"manual": {"decision": "confirmed"}}, show_reviewed=False
+    )
+    assert pending == []
+    assert completed_count == 2

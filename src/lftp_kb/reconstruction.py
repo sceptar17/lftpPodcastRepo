@@ -303,8 +303,7 @@ def _match_proposals(
             continue
         score, reasons, episode = ranked[0]
         runner_up = ranked[1][0] if len(ranked) > 1 else None
-        margin = score - (runner_up or 0)
-        recommendation = "auto-link" if score >= 0.8 and margin >= 0.15 else "review"
+        recommendation = "auto-link" if score >= 0.9 else "review"
         token = hashlib.sha256(f"{asset.asset_id}:{episode.episode_id}".encode()).hexdigest()[:12]
         proposals.append(
             EpisodeMatchProposal(

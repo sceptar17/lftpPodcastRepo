@@ -64,6 +64,34 @@ def _duplicate_review_queue(
     return proposals, len(reviewed_ids)
 
 
+def _match_review_queue(
+    reconstruction: ReconstructionReport | None, decisions: dict, show_reviewed: bool
+) -> tuple[list, int]:
+    if reconstruction is None:
+        return [], 0
+    match_ids = {proposal.proposal_id for proposal in reconstruction.match_proposals}
+    completed_ids = {
+        proposal_id
+        for proposal_id, record in decisions.items()
+        if proposal_id in match_ids and record.get("decision") in {"confirmed", "rejected"}
+    }
+    completed_ids.update(
+        proposal.proposal_id
+        for proposal in reconstruction.match_proposals
+        if proposal.confidence >= 0.9
+    )
+    proposals = (
+        reconstruction.match_proposals
+        if show_reviewed
+        else [
+            proposal
+            for proposal in reconstruction.match_proposals
+            if proposal.proposal_id not in completed_ids
+        ]
+    )
+    return proposals, len(completed_ids)
+
+
 def _recover_interrupted_catalog_job(repository: Repository) -> None:
     path = repository.root / "state" / "catalog-build.json"
     if not path.exists():
@@ -204,7 +232,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return templates.TemplateResponse(request, "topics.html", context(request, topics=records))
 
     @app.get("/catalog", response_class=HTMLResponse)
-    def catalog_page(request: Request, year: str | None = None, show_reviewed: bool = False):
+    def catalog_page(
+        request: Request,
+        year: str | None = None,
+        show_reviewed: bool = False,
+        show_reviewed_links: bool = False,
+    ):
         ledger = load_ledger(repository)
         reconstruction = load_reconstruction(repository)
         decision_payload = _load_json(
@@ -213,6 +246,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         decisions = decision_payload.get("decisions", {})
         duplicate_proposals, reviewed_duplicate_count = _duplicate_review_queue(
             reconstruction, decisions, show_reviewed
+        )
+        match_proposals, reviewed_match_count = _match_review_queue(
+            reconstruction, decisions, show_reviewed_links
         )
         state_path = repository.root / "state" / "catalog-build.json"
         build_state = job_view(
@@ -242,6 +278,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 duplicate_proposals=duplicate_proposals,
                 reviewed_duplicate_count=reviewed_duplicate_count,
                 show_reviewed=show_reviewed,
+                match_proposals=match_proposals,
+                reviewed_match_count=reviewed_match_count,
+                show_reviewed_links=show_reviewed_links,
                 assets=(
                     {asset.asset_id: asset for asset in reconstruction.assets}
                     if reconstruction

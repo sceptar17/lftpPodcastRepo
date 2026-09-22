@@ -169,6 +169,7 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .select-row strong, .select-row small { display: block; }
 .sync-actions { margin-top: 14px; }
 .sync-status { margin: 18px 0; }
+.metadata-panel { margin: 18px 0; }
 .progress-track { height: 9px; overflow: hidden; background: #e9e5dc; border-radius: 999px; }
 .progress-track span { display: block; height: 100%; background: var(--forest-2); transition: width .2s; }
 .lab-columns { grid-template-columns: 1.15fr .85fr; }

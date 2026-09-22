@@ -138,6 +138,12 @@ files, retain resumable `.part` files after interruption, and record progress un
 titles; duration and audio fingerprints remain a hardening step before creating episodes from
 archive-only files.
 
+New RSS downloads use `<archive>/<publication-year>/<date>__<episode>__<title>.<ext>`. Every new
+download receives a neighboring `.rss.json` sidecar containing the complete discovered RSS record,
+portable relative path, byte size, and SHA-256 checksum. The inventory screen can create equivalent
+sidecars for confidently matched existing files without moving or renaming them. Sidecars regenerate
+the root `archive-manifest.json`; the manifest is an index, while the sidecars preserve source metadata.
+
 ## Run 3 live episodes
 
 ```bash

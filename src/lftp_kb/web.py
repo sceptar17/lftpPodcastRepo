@@ -9,11 +9,23 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .archive_sync import create_sync_job, execute_sync_job, latest_sync_job
+from .archive_sync import (
+    create_metadata_job,
+    create_sync_job,
+    execute_metadata_job,
+    execute_sync_job,
+    latest_sync_job,
+)
 from .benchmark import create_run, execute_run, load_runs, load_transcript
 from .config import Settings
-from .inventory import AUDIO_EXTENSIONS, build_inventory, load_discovered, provider_profiles
-from .models import Episode, ProcessingStatus
+from .inventory import (
+    AUDIO_EXTENSIONS,
+    InventorySnapshot,
+    build_inventory,
+    load_discovered,
+    provider_profiles,
+)
+from .models import DiscoveredEpisode, Episode, ProcessingStatus
 from .render import episode_markdown, review_report, timestamp, wordpress_html
 from .repository import Repository
 from .rss import fetch_rss
@@ -114,9 +126,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def inventory(request: Request):
         effective = _effective_inputs(repository.root, settings)
         snapshot = build_inventory(repository, effective["local_audio_root"])
+        metadata_candidates = _metadata_candidates(snapshot)
         return templates.TemplateResponse(request, "inventory.html", context(request,
             inventory=snapshot, providers=provider_profiles(), settings=settings,
             effective=effective, sync_job=latest_sync_job(repository),
+            metadata_candidate_count=len(metadata_candidates),
         ))
 
     @app.post("/inventory/refresh")
@@ -154,6 +168,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         background_tasks.add_task(
             execute_sync_job, repository, job["job_id"], settings.http_timeout_seconds
         )
+        return RedirectResponse("/inventory", status_code=303)
+
+    @app.post("/inventory/sidecars")
+    def generate_archive_sidecars(background_tasks: BackgroundTasks):
+        effective = _effective_inputs(repository.root, settings)
+        archive_root = effective["local_audio_root"]
+        if archive_root is None or not archive_root.exists() or not archive_root.is_dir():
+            raise HTTPException(400, "Configure an existing local archive folder first")
+        current = latest_sync_job(repository)
+        if current and current.get("status") in {"queued", "running"}:
+            raise HTTPException(409, "An archive job is already running")
+        candidates = _metadata_candidates(build_inventory(repository, archive_root))
+        if not candidates:
+            raise HTTPException(400, "No confidently matched files need metadata")
+        job = create_metadata_job(repository, archive_root, candidates)
+        background_tasks.add_task(execute_metadata_job, repository, job["job_id"])
         return RedirectResponse("/inventory", status_code=303)
 
     @app.get("/settings", response_class=HTMLResponse)
@@ -262,6 +292,23 @@ def _effective_inputs(root: Path, settings: Settings) -> dict:
         "rss_url": overrides.get("rss_url") or settings.rss_url,
         "local_audio_root": local_root,
     }
+
+
+def _metadata_candidates(
+    snapshot: InventorySnapshot,
+) -> list[tuple[Path, DiscoveredEpisode, str]]:
+    discovered = {episode.episode_id: episode for episode in snapshot.discovered}
+    candidates = []
+    for item in snapshot.local_audio:
+        if item.match_status != "matched" or not item.match_episode_id:
+            continue
+        path = Path(item.path)
+        if path.with_suffix(".rss.json").exists():
+            continue
+        episode = discovered.get(item.match_episode_id)
+        if episode:
+            candidates.append((path, episode, item.match_reason or "High-confidence match"))
+    return candidates
 
 
 app = create_app()

@@ -240,6 +240,8 @@ class CatalogEvidence(StrictModel):
 
 class CatalogSources(StrictModel):
     local_files: list[str] = []
+    preferred_local_file: str | None = None
+    superseded_local_files: list[str] = []
     rss_guid: str | None = None
     rss_episode_id: str | None = None
     r2_object_key: str | None = None

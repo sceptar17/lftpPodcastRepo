@@ -37,7 +37,33 @@
   <div class="panel">
     <div class="section-heading"><div><span class="eyebrow">Question one</span><h2>Duplicate candidates</h2></div><span class="count">{{ reconstruction.duplicate_proposals|length }}</span></div>
     <div class="scroll-list reconstruction-list">
-      {% for proposal in reconstruction.duplicate_proposals %}<article><span class="episode-number">{{ '≡' if proposal.relationship == 'exact-copy' else '?' }}</span><span><strong>{{ proposal.relationship|replace('-', ' ')|title }} · {{ (proposal.confidence * 100)|round|int }}%</strong>{% for asset_id in proposal.asset_ids %}<small>{{ assets[asset_id].relative_path }}{% if proposal.preferred_asset_id == asset_id %} · preferred{% endif %}</small>{% if proposal.relationship != 'exact-copy' %}<audio controls preload="none" src="/catalog/assets/{{ asset_id }}/audio"></audio>{% endif %}{% endfor %}<small>{{ proposal.reasons|join(' ') }}</small>{% if proposal.preference_reasons %}<small>Preference: {{ proposal.preference_reasons|join(' ') }}</small>{% endif %}{% if proposal.relationship != 'exact-copy' %}<form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions"><button class="button" name="action" value="confirmed">Same recording</button><button class="button secondary" name="action" value="rejected">Different recordings</button>{% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}</form>{% endif %}</span><i class="status {{ 'ok' if proposal.relationship in ['exact-copy', 'alternate-master'] or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('confirmed' if proposal.relationship == 'exact-copy' else 'acoustic match' if proposal.acoustic_similarity and proposal.acoustic_similarity >= 0.82 else 'preferred default' if proposal.relationship == 'alternate-master' else 'listen') }}</i></article>{% else %}<div class="empty">No duplicate candidates found.</div>{% endfor %}
+      {% for proposal in reconstruction.duplicate_proposals %}
+      <article>
+        <span class="episode-number">{{ '≡' if proposal.relationship == 'exact-copy' else '?' }}</span>
+        <span>
+          <strong>{{ proposal.relationship|replace('-', ' ')|title }} · {{ (proposal.confidence * 100)|round|int }}%</strong>
+          <form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="proposal-choice-form">
+            <input type="hidden" name="action" value="confirmed">
+            {% for asset_id in proposal.asset_ids %}
+            <div class="asset-choice">
+              <small>{{ assets[asset_id].relative_path }}{% if decisions.get(proposal.proposal_id, {}).get('preferred_asset_id') == asset_id or (not decisions.get(proposal.proposal_id, {}).get('preferred_asset_id') and proposal.preferred_asset_id == asset_id) %} · preferred{% endif %}</small>
+              {% if proposal.relationship != 'exact-copy' %}<audio controls preload="none" src="/catalog/assets/{{ asset_id }}/audio"></audio>{% endif %}
+              {% if proposal.relationship != 'exact-copy' %}<button class="button" name="preferred_asset_id" value="{{ asset_id }}">Same episode — keep this file</button>{% endif %}
+            </div>
+            {% endfor %}
+          </form>
+          <small>{{ proposal.reasons|join(' ') }}</small>
+          {% if proposal.preference_reasons %}<small>Default preference: {{ proposal.preference_reasons|join(' ') }}</small>{% endif %}
+          {% if proposal.relationship != 'exact-copy' %}
+          <form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions">
+            <button class="button secondary" name="action" value="rejected">Different episodes</button>
+            {% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}
+          </form>
+          {% endif %}
+        </span>
+        <i class="status {{ 'ok' if proposal.relationship in ['exact-copy', 'alternate-master'] or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('confirmed' if proposal.relationship == 'exact-copy' else 'acoustic match' if proposal.acoustic_similarity and proposal.acoustic_similarity >= 0.82 else 'preferred default' if proposal.relationship == 'alternate-master' else 'choose') }}</i>
+      </article>
+      {% else %}<div class="empty">No duplicate candidates found.</div>{% endfor %}
     </div>
   </div>
   <div class="panel">
@@ -73,7 +99,7 @@
       <span><b>{{ item.known_sequence_in_year or '—' }}</b><small>provisional</small></span>
       <span><b>{{ item.episode_number or '—' }}</b><small>annual · {{ item.episode_number_confidence }}{% if item.overall_episode_number %} · overall #{{ item.overall_episode_number }}{% endif %}</small></span>
       <span><b>{{ item.publication_date or 'Unknown' }}</b><small>{{ item.date_precision }} precision</small></span>
-      <span><strong>{{ item.title or (item.sources.local_files[0] if item.sources.local_files else 'Untitled candidate') }}</strong><small>{% if item.sources.rss_episode_id %}RSS{% endif %}{% if item.sources.rss_episode_id and item.sources.local_files %} + {% endif %}{% if item.sources.local_files %}{{ item.sources.local_files|length }} local file{% if item.sources.local_files|length != 1 %}s{% endif %}{% endif %}</small>{% for conflict in item.conflicts %}<em class="ledger-warning">{{ conflict }}</em>{% endfor %}</span>
+      <span><strong>{{ item.title or item.sources.preferred_local_file or (item.sources.local_files[0] if item.sources.local_files else 'Untitled candidate') }}</strong><small>{% if item.sources.rss_episode_id %}RSS{% endif %}{% if item.sources.rss_episode_id and item.sources.local_files %} + {% endif %}{% if item.sources.local_files %}{{ item.sources.local_files|length }} local file{% if item.sources.local_files|length != 1 %}s{% endif %}{% endif %}{% if item.sources.superseded_local_files %} · {{ item.sources.superseded_local_files|length }} superseded{% endif %}</small>{% for conflict in item.conflicts %}<em class="ledger-warning">{{ conflict }}</em>{% endfor %}</span>
       <span><span class="badge {{ 'warning' if item.status in ['uncertain', 'conflict'] else 'ok' }}">{{ item.status }}</span></span>
       <span><b>{{ item.evidence|length }}</b><small>{{ item.overall_confidence }} confidence</small></span>
     </article>

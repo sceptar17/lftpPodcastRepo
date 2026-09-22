@@ -268,10 +268,11 @@ def _preferred_master(left: CatalogAsset, right: CatalogAsset) -> tuple[CatalogA
 
 
 def _versioned_stem(filename: str) -> tuple[str, int, str | None]:
-    stem = Path(filename).stem.strip()
+    stem = re.sub(r"\s+-\s+\d{1,2}$", "", Path(filename).stem.strip())
     patterns = (
         (r"(?i)[\s._-]+(?:version|ver|v)[\s._-]*(\d+)$", 100),
         (r"(?i)[\s._-]+(final|remastered?|edited|edit|master|mix)[\s._-]*(\d*)$", 200),
+        (r"[\s._-]+(\d+)$", 100),
         (r"(?:[\s._-]*)([A-Z])$", 10),
     )
     for pattern, base_rank in patterns:

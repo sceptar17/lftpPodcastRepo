@@ -104,9 +104,13 @@ def build_episode_ledger(
             assigned[relative] = proposal.rss_episode_id
     duplicate_components = _duplicate_components(reconstruction, decisions)
     preferred_asset_ids = {
-        proposal.preferred_asset_id
+        decisions.get(proposal.proposal_id, {}).get("preferred_asset_id")
+        or proposal.preferred_asset_id
         for proposal in reconstruction.duplicate_proposals
-        if proposal.preferred_asset_id
+        if (
+            decisions.get(proposal.proposal_id, {}).get("preferred_asset_id")
+            or proposal.preferred_asset_id
+        )
         and (
             proposal.relationship == "alternate-master"
             or decisions.get(proposal.proposal_id, {}).get("decision") == "confirmed"
@@ -188,6 +192,8 @@ def build_episode_ledger(
                 )
             )
         candidates.append(candidate)
+
+    _apply_asset_dispositions(candidates, reconstruction, decisions)
 
     if progress:
         progress(total_steps - 1, total_steps, "Assigning provisional year sequence", None)
@@ -545,6 +551,8 @@ def _ledger_csv(ledger: EpisodeLedger) -> str:
             "status",
             "confidence",
             "local_files",
+            "preferred_local_file",
+            "superseded_local_files",
             "rss_episode_id",
             "conflicts",
             "review_flags",
@@ -566,6 +574,8 @@ def _ledger_csv(ledger: EpisodeLedger) -> str:
                 item.status,
                 item.overall_confidence,
                 " | ".join(item.sources.local_files),
+                item.sources.preferred_local_file,
+                " | ".join(item.sources.superseded_local_files),
                 item.sources.rss_episode_id,
                 " | ".join(item.conflicts),
                 " | ".join(item.manual_review_flags),
@@ -675,3 +685,41 @@ def _duplicate_components(reconstruction: ReconstructionReport, decisions: dict)
             unseen.difference_update(additions)
         components.append(component)
     return components
+
+
+def _apply_asset_dispositions(
+    candidates: list[EpisodeCandidate], reconstruction: ReconstructionReport, decisions: dict
+) -> None:
+    assets = {asset.asset_id: asset for asset in reconstruction.assets}
+    asset_id_by_path = {asset.relative_path: asset.asset_id for asset in reconstruction.assets}
+    proposals = sorted(
+        reconstruction.duplicate_proposals,
+        key=lambda proposal: (
+            decisions.get(proposal.proposal_id, {}).get("decision") == "confirmed",
+            proposal.acoustic_similarity or 0,
+            proposal.confidence,
+        ),
+        reverse=True,
+    )
+    for candidate in candidates:
+        local_files = candidate.sources.local_files
+        if len(local_files) == 1:
+            candidate.sources.preferred_local_file = local_files[0]
+            continue
+        candidate_asset_ids = {
+            asset_id_by_path[path] for path in local_files if path in asset_id_by_path
+        }
+        for proposal in proposals:
+            decision = decisions.get(proposal.proposal_id, {})
+            if decision.get("decision") == "rejected":
+                continue
+            if not set(proposal.asset_ids).issubset(candidate_asset_ids):
+                continue
+            preferred_id = decision.get("preferred_asset_id") or proposal.preferred_asset_id
+            if preferred_id and preferred_id in assets:
+                preferred_path = assets[preferred_id].relative_path
+                candidate.sources.preferred_local_file = preferred_path
+                candidate.sources.superseded_local_files = sorted(
+                    path for path in local_files if path != preferred_path
+                )
+                break

@@ -210,6 +210,9 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .reconstruction-list audio { height: 34px; margin: 7px 0; }
 .proposal-actions { margin-top: 9px; }
 .proposal-actions .button { padding: 6px 9px; font-size: 11px; }
+.proposal-choice-form { display: grid; gap: 10px; margin: 9px 0; }
+.asset-choice { display: grid; gap: 5px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+.asset-choice .button { justify-self: start; padding: 6px 9px; font-size: 11px; }
 @media (max-width: 1050px) {
   .provider-strip, .reconcile-steps, .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }

@@ -276,17 +276,38 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(target)
 
     @app.post("/catalog/proposals/{proposal_id}")
-    def decide_catalog_proposal(proposal_id: str, action: str = Form(...), notes: str = Form("")):
+    def decide_catalog_proposal(
+        proposal_id: str,
+        action: str = Form(...),
+        notes: str = Form(""),
+        preferred_asset_id: str = Form(""),
+    ):
         reconstruction = load_reconstruction(repository)
-        valid_ids = (
-            (
-                {item.proposal_id for item in reconstruction.duplicate_proposals}
-                | {item.proposal_id for item in reconstruction.match_proposals}
+        duplicate = (
+            next(
+                (
+                    item
+                    for item in reconstruction.duplicate_proposals
+                    if item.proposal_id == proposal_id
+                ),
+                None,
             )
             if reconstruction
-            else set()
+            else None
         )
-        if proposal_id not in valid_ids:
+        match = (
+            next(
+                (
+                    item
+                    for item in reconstruction.match_proposals
+                    if item.proposal_id == proposal_id
+                ),
+                None,
+            )
+            if reconstruction
+            else None
+        )
+        if duplicate is None and match is None:
             raise HTTPException(404, "Reconstruction proposal not found")
         if action not in {"confirmed", "rejected", "clear"}:
             raise HTTPException(400, "Unknown decision")
@@ -295,9 +316,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if action == "clear":
             payload["decisions"].pop(proposal_id, None)
         else:
+            if preferred_asset_id and (
+                duplicate is None or preferred_asset_id not in duplicate.asset_ids
+            ):
+                raise HTTPException(400, "Preferred asset is not part of this proposal")
             payload["decisions"][proposal_id] = {
                 "decision": action,
                 "notes": notes.strip(),
+                "preferred_asset_id": preferred_asset_id or None,
                 "decided_at": datetime.now(UTC).isoformat(),
             }
         payload["updated_at"] = datetime.now(UTC).isoformat()

@@ -134,6 +134,21 @@ def test_appended_version_is_an_alternate_master_and_preferred():
     assert "version marker" in proposal.preference_reasons[0]
 
 
+def test_copy_increment_before_shared_export_track_is_preferred():
+    report = build_reconstruction_report(
+        [
+            _observation("2023/LFTP_2023_Episode9 - 10.mp3", "3" * 64, duration=3600),
+            _observation("2023/LFTP_2023_Episode9_2 - 10.mp3", "4" * 64, duration=3600),
+        ],
+        [],
+    )
+
+    proposal = report.duplicate_proposals[0]
+    assets = {asset.asset_id: asset for asset in report.assets}
+    assert proposal.relationship == "alternate-master"
+    assert assets[proposal.preferred_asset_id].filename == "LFTP_2023_Episode9_2 - 10.mp3"
+
+
 def test_acoustic_similarity_tolerates_small_fingerprint_changes():
     original = [0xAAAAAAAA] * 100
     adjusted = [0xAAAAAAAB] * 100

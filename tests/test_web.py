@@ -1,9 +1,12 @@
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from lftp_kb.config import Settings
+from lftp_kb.models import CatalogAsset, DuplicateProposal, ReconstructionReport
+from lftp_kb.repository import Repository
 from lftp_kb.web import create_app, pretty_date
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -59,7 +62,65 @@ def test_date_format_is_cross_platform():
 
 
 def test_benchmark_rejects_missing_audio():
-    response = client().post("/transcription-lab/run", data={
-        "audio_path": "Z:/not-here.mp3", "model": "small.en", "sample_minutes": "10",
-    })
+    response = client().post(
+        "/transcription-lab/run",
+        data={
+            "audio_path": "Z:/not-here.mp3",
+            "model": "small.en",
+            "sample_minutes": "10",
+        },
+    )
     assert response.status_code == 400
+
+
+def test_duplicate_decision_records_the_file_to_keep(tmp_path):
+    repository = Repository(tmp_path)
+    assets = [
+        CatalogAsset(
+            asset_id="asset-first",
+            relative_path="2023/show.mp3",
+            filename="show.mp3",
+            size_bytes=100,
+            format="mp3",
+        ),
+        CatalogAsset(
+            asset_id="asset-second",
+            relative_path="2023/show_2.mp3",
+            filename="show_2.mp3",
+            size_bytes=101,
+            format="mp3",
+        ),
+    ]
+    report = ReconstructionReport(
+        generated_at=datetime.now(UTC),
+        assets=assets,
+        duplicate_proposals=[
+            DuplicateProposal(
+                proposal_id="duplicate-test",
+                relationship="alternate-master",
+                asset_ids=["asset-first", "asset-second"],
+                confidence=0.9,
+                reasons=["Version suffix"],
+                requires_listening=True,
+                preferred_asset_id="asset-second",
+            )
+        ],
+        match_proposals=[],
+    )
+    repository.atomic_json("catalog/reconstruction-report.json", report.model_dump(mode="json"))
+    web = TestClient(create_app(Settings(root=tmp_path, rss_url="https://example.com/feed")))
+
+    response = web.post(
+        "/catalog/proposals/duplicate-test",
+        data={
+            "action": "confirmed",
+            "preferred_asset_id": "asset-second",
+        },
+        follow_redirects=False,
+    )
+
+    decisions = json.loads(
+        (tmp_path / "catalog" / "reconstruction-decisions.json").read_text(encoding="utf-8")
+    )
+    assert response.status_code == 303
+    assert decisions["decisions"]["duplicate-test"]["preferred_asset_id"] == "asset-second"

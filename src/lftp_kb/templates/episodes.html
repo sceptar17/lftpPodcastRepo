@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Episodes · LFTP Knowledge{% endblock %}
+{% block heading %}Episodes{% endblock %}
+{% block top_action %}<a class="button" href="/inventory">Find missing episodes</a>{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="toolbar">
+    <div class="filter-links">
+      <a class="{{ 'selected' if not selected_status else '' }}" href="/episodes">All</a>
+      <a class="{{ 'selected' if selected_status == 'needs-review' else '' }}" href="/episodes?status=needs-review">Needs review</a>
+      <a class="{{ 'selected' if selected_status == 'complete' else '' }}" href="/episodes?status=complete">Complete</a>
+      <a class="{{ 'selected' if selected_status == 'draft-created' else '' }}" href="/episodes?status=draft-created">WordPress draft</a>
+    </div>
+    <span class="count">{{ episodes|length }} records</span>
+  </div>
+  <div class="data-table">
+    <div class="table-row table-head"><span>Episode</span><span>Published</span><span>Topics</span><span>Status</span><span></span></div>
+    {% for episode in episodes %}
+    <div class="table-row">
+      <span class="title-cell"><b>{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</b><span><strong>{{ episode.title }}</strong><small>{{ episode.episode_id }}</small></span></span>
+      <span>{{ episode.publication_date.strftime('%b %-d, %Y') }}</span>
+      <span>{{ episode.primary_topics|map(attribute='text')|join(', ') or '—' }}</span>
+      <span><i class="status {{ 'warning' if episode.status.value == 'needs-review' else 'ok' }}">{{ episode.status.value }}</i></span>
+      <span><a href="/episodes/{{ episode.episode_id }}">Review →</a></span>
+    </div>
+    {% else %}<div class="empty">No canonical episodes yet.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

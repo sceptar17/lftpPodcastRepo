@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Topics · LFTP Knowledge{% endblock %}
+{% block heading %}Canonical topics{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="section-heading"><div><span class="eyebrow">Controlled vocabulary</span><h2>{{ topics|length }} topics</h2></div><small>Corpus synthesis remains disabled during the prototype.</small></div>
+  <div class="topic-grid">
+    {% for topic in topics %}<article><span class="eyebrow">{{ topic.episode_sections|length }} supporting sections</span><h3>{{ topic.canonical_name }}</h3><p>{{ topic.description }}</p><div class="tags">{% for alias in topic.aliases %}<span>{{ alias }}</span>{% else %}<span>No aliases yet</span>{% endfor %}</div><small>Updated {{ topic.date_last_updated }}</small></article>{% endfor %}
+  </div>
+</section>
+{% endblock %}

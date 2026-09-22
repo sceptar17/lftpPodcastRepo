@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ episode.title }} · LFTP Knowledge{% endblock %}
+{% block heading %}{{ episode.title }}{% endblock %}
+{% block top_action %}<a class="button secondary" href="/episodes">← Episodes</a>{% endblock %}
+{% block content %}
+<section class="episode-meta panel compact">
+  <div><span class="episode-number large">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span></div>
+  <div><span class="eyebrow">{{ episode.publication_date.strftime('%B %-d, %Y') }}</span><p>{{ episode.original_rss_description }}</p></div>
+  <div><span class="status {{ 'warning' if episode.status.value == 'needs-review' else 'ok' }}">{{ episode.status.value }}</span><small>{{ episode.transcript.provider }} · {{ episode.transcript.model }}</small></div>
+</section>
+
+<nav class="subnav"><a href="#interpretation">Interpretation</a><a href="#transcript">Transcript</a><a href="#review">Review</a><a href="#outputs">Outputs</a></nav>
+
+<section id="interpretation" class="review-layout">
+  <div class="panel interpretation">
+    <span class="eyebrow">Episode-level interpretation</span>
+    <h2>Synopsis</h2>
+    <p class="lead">{{ episode.episode_summary.text }}</p>
+    <div class="tags">{% for topic in episode.primary_topics %}<span>{{ topic.text }}</span>{% endfor %}</div>
+    {% for section in episode.semantic_sections %}
+      <article class="semantic-section">
+        <div><span class="timecode">{{ section.start_seconds|timestamp }}–{{ section.end_seconds|timestamp }}</span><h3>{{ section.title }}</h3></div>
+        <p>{{ section.summary.text }}</p>
+        {% if section.scripture_references %}<p class="references"><strong>Scripture:</strong> {{ section.scripture_references|map(attribute='text')|join(', ') }}</p>{% endif %}
+      </article>
+    {% endfor %}
+  </div>
+  <aside class="panel evidence-panel">
+    <span class="eyebrow">Evidence control</span><h2>Claims</h2>
+    {% for section in episode.semantic_sections %}{% for claim in section.claims %}
+      <article class="claim"><p>{{ claim.text }}</p><small>{{ claim.confidence|round(2) }} confidence</small>
+      {% for pointer in claim.evidence %}<a href="#{{ pointer.segment_ids[0] }}">{{ pointer.start_seconds|timestamp }}–{{ pointer.end_seconds|timestamp }} · {{ pointer.excerpt }}</a>{% endfor %}</article>
+    {% endfor %}{% endfor %}
+    {% if not episode.semantic_sections|map(attribute='claims')|list %}<div class="empty">No extracted claims.</div>{% endif %}
+  </aside>
+</section>
+
+<section id="transcript" class="panel">
+  <div class="section-heading"><div><span class="eyebrow">Source layer</span><h2>Timestamped transcript</h2></div>
+    {% if not episode.transcript.is_complete %}<span class="status warning">Excerpt only</span>{% endif %}
+  </div>
+  <audio controls preload="none" src="{{ episode.audio_url }}"></audio>
+  <div class="transcript">
+    {% for segment in episode.transcript.segments %}
+    <article id="{{ segment.segment_id }}"><a class="timecode" href="{{ episode.audio_url }}#t={{ segment.start_seconds|int }}">{{ segment.start_seconds|timestamp }}</a><p>{% if segment.speaker %}<strong>{{ segment.speaker }}:</strong> {% endif %}{{ segment.text }}</p><small>{{ segment.segment_id }}</small></article>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="review" class="two-column review-actions">
+  <div class="panel">
+    <span class="eyebrow">Quality control</span><h2>Review flags</h2>
+    <ul class="flag-list">{% for flag in episode.qa.manual_review_flags %}<li>{{ flag }}</li>{% else %}<li class="clear">No manual-review flags.</li>{% endfor %}</ul>
+    <form method="post" action="/episodes/{{ episode.episode_id }}/review-status" class="inline-actions">
+      <button class="button" name="action" value="approve">Approve episode</button>
+      <button class="button secondary" name="action" value="needs-review">Keep in review</button>
+    </form>
+  </div>
+  <div class="panel">
+    <span class="eyebrow">Editorial memory</span><h2>Review notes</h2>
+    <form method="post" action="/episodes/{{ episode.episode_id }}/notes">
+      <textarea name="notes" rows="6" placeholder="Corrections, names to verify, section changes…">{{ notes }}</textarea>
+      <button class="button" type="submit">Save notes</button>
+    </form>
+  </div>
+</section>
+
+<section id="outputs" class="panel">
+  <div class="section-heading"><div><span class="eyebrow">Portable outputs</span><h2>Generated artifacts</h2></div>
+    <form method="post" action="/episodes/{{ episode.episode_id }}/render"><button class="button secondary">Regenerate outputs</button></form>
+  </div>
+  <div class="output-grid">
+    <a href="/outputs/{{ episode.episode_id }}/json"><strong>Canonical JSON</strong><small>Source of truth</small></a>
+    <a href="/outputs/{{ episode.episode_id }}/markdown"><strong>Markdown</strong><small>Readable and portable</small></a>
+    <a href="/outputs/{{ episode.episode_id }}/report"><strong>Review report</strong><small>QA and evidence</small></a>
+    <a href="/outputs/{{ episode.episode_id }}/wordpress"><strong>WordPress preview</strong><small>Draft-ready HTML</small></a>
+  </div>
+</section>
+{% endblock %}

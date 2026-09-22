@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Archive inventory · LFTP Knowledge{% endblock %}
+{% block heading %}Archive inventory{% endblock %}
+{% block top_action %}<form method="post" action="/inventory/refresh"><button class="button">Refresh RSS inventory</button></form>{% endblock %}
+{% block content %}
+<section class="hero panel archive-hero"><div><span class="eyebrow">Full-stock reconciliation</span><h2>Find what exists outside WordPress.</h2><p>This workspace will compare the public feed, canonical repository, and your local recordings. Local files are read-only during discovery; nothing moves or uploads automatically.</p></div><div class="coverage-ring"><strong>{{ inventory.processed|length }}</strong><span>of {{ inventory.discovered|length }} feed items<br>canonical</span></div></section>
+<section class="stat-grid three">
+  <article class="stat"><span>RSS / WordPress</span><strong>{{ inventory.discovered|length }}</strong><small>public feed records</small></article>
+  <article class="stat accent"><span>Local recordings</span><strong>{{ inventory.local_audio|length if inventory.local_root_configured else '—' }}</strong><small>{{ 'files scanned' if inventory.local_root_configured else 'path not configured' }}</small></article>
+  <article class="stat warning"><span>Unmatched local</span><strong>{{ inventory.unmatched_local_audio|length if inventory.local_root_configured else '—' }}</strong><small>potential missing episodes</small></article>
+</section>
+<section class="two-column inventory-columns">
+  <div class="panel"><div class="section-heading"><div><span class="eyebrow">Repository coverage</span><h2>Not processed yet</h2></div><span class="count">{{ inventory.missing_from_repository|length }}</span></div>
+    <div class="scroll-list">{% for episode in inventory.missing_from_repository[:40] %}<article><span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span><span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date.strftime('%b %-d, %Y') }}</small></span><i class="status neutral">RSS only</i></article>{% endfor %}</div>
+  </div>
+  <div class="panel"><div class="section-heading"><div><span class="eyebrow">Local-file scan</span><h2>Potential missing stock</h2></div></div>
+    {% if not inventory.local_root_configured %}<div class="empty action-empty"><strong>No local archive path configured</strong><p>Add a read-only folder path under Sources & providers. The future matcher will use episode numbers, titles, dates, duration, and audio fingerprints—never filename alone.</p><a class="button secondary" href="/settings">Configure archive path</a></div>
+    {% elif inventory.unmatched_local_audio %}<div class="scroll-list">{% for item in inventory.unmatched_local_audio[:40] %}<article><span class="episode-number">{{ item.guessed_episode_number or '?' }}</span><span><strong>{{ item.filename }}</strong><small>{{ item.size_mb }} MB</small></span><i class="status warning">Unmatched</i></article>{% endfor %}</div>
+    {% else %}<div class="empty">No unmatched local recordings found.</div>{% endif %}
+  </div>
+</section>
+<section class="panel"><div class="section-heading"><div><span class="eyebrow">Planned matching logic</span><h2>How reconciliation will work</h2></div></div>
+  <div class="reconcile-steps"><article><b>1</b><strong>Scan read-only</strong><p>Inventory audio filenames, sizes, duration, and technical metadata.</p></article><article><b>2</b><strong>Candidate matching</strong><p>Compare episode number, normalized title, dates, duration, and optional fingerprints.</p></article><article><b>3</b><strong>Human confirmation</strong><p>Review uncertain matches before creating any new canonical episode.</p></article><article><b>4</b><strong>Fill the public gap</strong><p>Transcribe, analyze, review, and create WordPress drafts for truly missing stock.</p></article></div>
+</section>
+{% endblock %}

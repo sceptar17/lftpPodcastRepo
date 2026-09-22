@@ -80,6 +80,29 @@ lftp-kb sample
 This produces three episode JSON/Markdown pairs, topic records, raw audit records, processing logs,
 and review reports. All three are flagged because they are excerpt fixtures.
 
+## Run the web application
+
+```bash
+export LFTP_REPOSITORY_ROOT="$PWD"
+lftp-kb-web
+```
+
+Open `http://127.0.0.1:8080`. The initial application includes:
+
+- repository dashboard and processing orientation;
+- episode list and three-pane evidence/review workspace;
+- review notes, guarded approval, and deterministic output regeneration;
+- canonical topic browser;
+- RSS/repository/local-audio inventory reconciliation;
+- transcription-provider capability and cost-planning matrix;
+- non-secret source preferences and connection-status checks;
+- direct access to canonical JSON, Markdown, QA reports, and WordPress-ready HTML.
+
+Set `LFTP_LOCAL_AUDIO_ROOT` to a read-only audio folder to inventory local recordings. The current
+matcher uses episode numbers only and deliberately labels matches as provisional. Production
+reconciliation should also compare normalized titles, dates, duration, and audio fingerprints before
+creating missing episodes.
+
 ## Run 3 live episodes
 
 ```bash

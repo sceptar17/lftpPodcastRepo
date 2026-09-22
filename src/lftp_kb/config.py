@@ -9,6 +9,7 @@ from pathlib import Path
 class Settings:
     root: Path
     rss_url: str
+    local_audio_root: Path | None = None
     transcription_provider: str = "openai"
     analysis_provider: str = "openai"
     openai_transcription_model: str = "whisper-1"
@@ -24,6 +25,8 @@ class Settings:
         return cls(
             root=Path(os.getenv("LFTP_REPOSITORY_ROOT", ".")).resolve(),
             rss_url=os.getenv("LFTP_RSS_URL", ""),
+            local_audio_root=(Path(value).expanduser().resolve()
+                              if (value := os.getenv("LFTP_LOCAL_AUDIO_ROOT", "")) else None),
             transcription_provider=os.getenv("LFTP_TRANSCRIPTION_PROVIDER", "openai"),
             analysis_provider=os.getenv("LFTP_ANALYSIS_PROVIDER", "openai"),
             openai_transcription_model=os.getenv("OPENAI_TRANSCRIPTION_MODEL", "whisper-1"),
@@ -34,4 +37,3 @@ class Settings:
             create_wordpress_drafts=os.getenv("LFTP_CREATE_WORDPRESS_DRAFTS", "false").lower() == "true",
             http_timeout_seconds=int(os.getenv("LFTP_HTTP_TIMEOUT_SECONDS", "60")),
         )
-

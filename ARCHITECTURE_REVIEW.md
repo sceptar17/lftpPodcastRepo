@@ -6,6 +6,11 @@ The architecture is ready for a three-episode **live accuracy trial**, not an ar
 mechanical contract is strong: JSON is canonical, provider data is retained, evidence is validated,
 WordPress is a draft-only projection, and reruns reuse normalized transcription checkpoints.
 
+The web application now provides an operational and editorial orientation layer without changing
+the source-of-truth hierarchy. It exposes feed coverage, processing checkpoints, evidence-linked
+episode review, topics, outputs, provider readiness, and the future local-archive reconciliation
+workflow.
+
 ## What worked
 
 - Three representative fixture episodes completed end to end.
@@ -88,3 +93,17 @@ but keeps one paid analysis call until prompt behavior is observed.
 6. Review all three reports manually; set thresholds from observed errors.
 7. Only then process a 10-episode pilot. Re-review cost, error rates, topic duplication, and related
    links before authorizing the archive.
+
+## Archive and provider strategy held open
+
+Not every historical episode is expected to exist in the RSS feed or WordPress. The application now
+has a read-only local-audio inventory seam and presents unmatched files as candidates, but it will
+not create episodes from filename guesses. Production matching should combine episode number,
+normalized title, recording/publication dates, duration, and optional audio fingerprints, followed
+by human confirmation.
+
+Transcription remains an adapter choice. The UI carries placeholders for Muse, OpenAI diarized
+transcription, faster-whisper, and whisper.cpp alongside the implemented timestamped OpenAI adapter.
+Before committing roughly 500 episodes to any provider, run the same representative audio excerpts
+through viable cloud and local options and compare total cost, word/name/reference accuracy,
+timestamp drift, diarization, turnaround time, and operational complexity.

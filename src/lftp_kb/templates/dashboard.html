@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Overview · LFTP Knowledge{% endblock %}
+{% block heading %}Repository overview{% endblock %}
+{% block content %}
+<section class="hero panel">
+  <div>
+    <span class="eyebrow">Editorial command center</span>
+    <h2>Know what exists. See what the AI did. Decide what goes live.</h2>
+    <p>The repository separates original transcript evidence, episode interpretation, and future corpus synthesis so each layer can be reviewed on its own terms.</p>
+  </div>
+  <div class="pipeline-mini" aria-label="Processing pipeline">
+    <span>RSS / files</span><i>→</i><span>Transcript</span><i>→</i><span>Analysis</span><i>→</i><span>Review</span><i>→</i><span>WordPress</span>
+  </div>
+</section>
+
+<section class="stat-grid">
+  <article class="stat"><span>Feed inventory</span><strong>{{ inventory.discovered|length }}</strong><small>episodes discovered</small></article>
+  <article class="stat"><span>Canonical records</span><strong>{{ inventory.processed|length }}</strong><small>JSON episode records</small></article>
+  <article class="stat warning"><span>Review queue</span><strong>{{ review|length }}</strong><small>currently need judgment</small></article>
+  <article class="stat accent"><span>Archive gap</span><strong>{{ inventory.missing_from_repository|length }}</strong><small>feed items not processed</small></article>
+</section>
+
+<section class="two-column">
+  <div class="panel">
+    <div class="section-heading"><div><span class="eyebrow">Editorial work</span><h2>Needs review</h2></div><a href="/episodes?status=needs-review">View all</a></div>
+    {% if review %}
+      <div class="episode-list">
+      {% for episode in review %}
+        <a class="episode-row" href="/episodes/{{ episode.episode_id }}">
+          <span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span>
+          <span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date.strftime('%b %-d, %Y') }} · {{ episode.qa.manual_review_flags|length }} flags</small></span>
+          <span class="status warning">Needs review</span>
+        </a>
+      {% endfor %}
+      </div>
+    {% else %}<div class="empty">Nothing is waiting for review.</div>{% endif %}
+  </div>
+  <div class="panel">
+    <div class="section-heading"><div><span class="eyebrow">Pipeline</span><h2>Current state</h2></div></div>
+    <ol class="stage-list">
+      <li><span class="stage-dot done"></span><div><strong>Source inventory</strong><small>{{ inventory.discovered|length }} RSS records indexed</small></div></li>
+      <li><span class="stage-dot {{ 'done' if inventory.processed else '' }}"></span><div><strong>Canonical records</strong><small>{{ inventory.processed|length }} prototype episodes built</small></div></li>
+      <li><span class="stage-dot active"></span><div><strong>Human verification</strong><small>Accuracy trial is the next gate</small></div></li>
+      <li><span class="stage-dot"></span><div><strong>WordPress drafts</strong><small>Held until credentials and approval</small></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="panel activity-panel">
+  <div class="section-heading"><div><span class="eyebrow">Operational state</span><h2>Processing activity</h2></div><small>Stage checkpoints make retries visible and prevent duplicate work.</small></div>
+  <div class="activity-grid">
+    {% for state in states %}
+    <article><span class="stage-dot {{ 'done' if state.status in ['complete', 'draft-created'] else 'active' if state.status not in ['failed'] else '' }}"></span><div><strong>{{ state.episode_id }}</strong><small>{{ state.stage }} · {{ state.status }}</small></div>{% if state.status == 'failed' %}<i class="status warning">Failed</i>{% else %}<i class="status neutral">{{ state.stage }}</i>{% endif %}</article>
+    {% else %}<div class="empty">No processing checkpoints yet.</div>{% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <div class="section-heading"><div><span class="eyebrow">Provider readiness</span><h2>Transcription options</h2></div><a href="/settings">Manage providers</a></div>
+  <div class="provider-strip">
+    {% for provider in providers %}
+    <article><span class="status {{ 'ok' if provider.adapter_status == 'Implemented' else 'neutral' }}">{{ provider.adapter_status }}</span><strong>{{ provider.name }}</strong><small>{{ provider.cost_note }}</small></article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

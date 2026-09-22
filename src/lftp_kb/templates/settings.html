@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Sources & providers · LFTP Knowledge{% endblock %}
+{% block heading %}Sources & providers{% endblock %}
+{% block content %}
+<section class="two-column settings-columns">
+  <div class="panel"><span class="eyebrow">Non-secret inputs</span><h2>Repository sources</h2><p class="muted">Saved here as preferences. Environment variables remain authoritative when the app starts.</p>
+    <form method="post" action="/settings" class="form-stack">
+      <label>Podcast RSS URL<input type="url" name="rss_url" value="{{ overrides.rss_url or settings.rss_url }}"></label>
+      <label>Local audio archive path<input type="text" name="local_audio_root" value="{{ overrides.local_audio_root or (settings.local_audio_root or '') }}" placeholder="/Volumes/archive/live-from-the-path"></label>
+      <label>Default transcription provider<select name="transcription_provider"><option>{{ overrides.transcription_provider or settings.transcription_provider }}</option>{% for provider in providers %}<option value="{{ provider.provider_id }}">{{ provider.name }}</option>{% endfor %}</select></label>
+      <label>Default analysis provider<select name="analysis_provider"><option>{{ overrides.analysis_provider or settings.analysis_provider }}</option><option value="openai">OpenAI structured analysis</option><option value="deterministic">Deterministic test rules</option></select></label>
+      <button class="button" type="submit">Save preferences</button>
+    </form>
+  </div>
+  <div class="panel"><span class="eyebrow">Secrets</span><h2>Connection status</h2><p class="muted">Keys and passwords are accepted only through environment variables and are never displayed here.</p>
+    <div class="connection-list"><article><span class="stage-dot {{ 'done' if providers[0].configured else '' }}"></span><div><strong>OpenAI API</strong><small>{{ 'Configured' if providers[0].configured else 'OPENAI_API_KEY missing' }}</small></div></article><article><span class="stage-dot {{ 'done' if settings.wordpress_application_password else '' }}"></span><div><strong>WordPress</strong><small>{{ 'Configured for drafts' if settings.wordpress_application_password else 'Application password missing' }}</small></div></article><article><span class="stage-dot {{ 'done' if providers[2].configured else '' }}"></span><div><strong>Muse</strong><small>{{ 'Credential detected' if providers[2].configured else 'Adapter research pending' }}</small></div></article></div>
+  </div>
+</section>
+<section class="panel"><div class="section-heading"><div><span class="eyebrow">Swappable transcription</span><h2>Provider capability matrix</h2></div><small>Benchmark quality and cost on the same audio excerpt before choosing the archive provider.</small></div>
+  <div class="provider-table"><div class="provider-row head"><span>Provider</span><span>Timestamps</span><span>Speakers</span><span>Cost posture</span><span>Adapter</span></div>{% for provider in providers %}<div class="provider-row"><span><strong>{{ provider.name }}</strong><small>{{ provider.kind }}</small></span><span>{{ provider.timestamp_support }}</span><span>{{ provider.speaker_support }}</span><span>{{ provider.cost_note }}</span><span><i class="status {{ 'ok' if provider.adapter_status == 'Implemented' else 'neutral' }}">{{ provider.adapter_status }}</i></span></div>{% endfor %}</div>
+</section>
+{% endblock %}

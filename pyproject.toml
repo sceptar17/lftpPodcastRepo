@@ -4,13 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lftp-knowledge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Auditable podcast-to-knowledge-base pipeline for Live From The Path"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "fastapi>=0.115,<1",
+  "jinja2>=3.1,<4",
   "pydantic>=2.9,<3",
+  "python-multipart>=0.0.12,<1",
   "openai>=2,<3",
+  "uvicorn>=0.34,<1",
 ]
 
 [project.optional-dependencies]
@@ -18,10 +22,10 @@ dev = ["pytest>=8", "ruff>=0.8"]
 
 [project.scripts]
 lftp-kb = "lftp_kb.cli:main"
+lftp-kb-web = "lftp_kb.web:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.ruff]
 line-length = 100
-

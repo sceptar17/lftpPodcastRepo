@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}LFTP Knowledge{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <span class="brand-mark">LP</span>
+      <span><strong>Live From The Path</strong><small>Knowledge repository</small></span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a class="{{ 'active' if current_path == '/' else '' }}" href="/"><span>⌂</span> Overview</a>
+      <a class="{{ 'active' if current_path.startswith('/episodes') else '' }}" href="/episodes"><span>◫</span> Episodes</a>
+      <a class="{{ 'active' if current_path.startswith('/topics') else '' }}" href="/topics"><span>⌁</span> Topics</a>
+      <a class="{{ 'active' if current_path.startswith('/inventory') else '' }}" href="/inventory"><span>◎</span> Archive inventory</a>
+      <a class="{{ 'active' if current_path.startswith('/settings') else '' }}" href="/settings"><span>⚙</span> Sources & providers</a>
+    </nav>
+    <div class="sidebar-note">
+      <span class="eyebrow">Prototype mode</span>
+      <p>Canonical JSON stays authoritative. Nothing publishes automatically.</p>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Live From The Path</span>
+        <h1>{% block heading %}Knowledge repository{% endblock %}</h1>
+      </div>
+      {% block top_action %}<a class="button secondary" href="/inventory">Review archive</a>{% endblock %}
+    </header>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

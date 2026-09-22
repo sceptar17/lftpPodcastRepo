@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import tempfile
+import time
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -12,9 +13,17 @@ from .models import Episode, ProcessingEvent, Topic
 
 class Repository:
     DIRECTORIES = (
-        "episodes", "topics", "raw/transcripts", "raw/provider-output",
-        "raw/rss", "logs", "reports", "audio-cache", "state",
-        "catalog/observations", "catalog/candidates",
+        "episodes",
+        "topics",
+        "raw/transcripts",
+        "raw/provider-output",
+        "raw/rss",
+        "logs",
+        "reports",
+        "audio-cache",
+        "state",
+        "catalog/observations",
+        "catalog/candidates",
     )
 
     def __init__(self, root: Path):
@@ -32,7 +41,7 @@ class Repository:
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
-            os.replace(temporary, target)
+            _replace_with_retry(temporary, target)
         finally:
             if os.path.exists(temporary):
                 os.unlink(temporary)
@@ -47,26 +56,36 @@ class Repository:
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
-            os.replace(temporary, target)
+            _replace_with_retry(temporary, target)
         finally:
             if os.path.exists(temporary):
                 os.unlink(temporary)
         return target
 
     def save_episode(self, episode: Episode) -> Path:
-        return self.atomic_json(f"episodes/{episode.episode_id}.json", episode.model_dump(mode="json"))
+        return self.atomic_json(
+            f"episodes/{episode.episode_id}.json", episode.model_dump(mode="json")
+        )
 
     def save_topic(self, topic: Topic) -> Path:
         return self.atomic_json(f"topics/{topic.slug}.json", topic.model_dump(mode="json"))
 
     def save_state(self, episode_id: str, status: str, stage: str, message: str = "") -> Path:
-        return self.atomic_json(f"state/{episode_id}.json", {
-            "episode_id": episode_id, "status": status, "stage": stage, "message": message,
-        })
+        return self.atomic_json(
+            f"state/{episode_id}.json",
+            {
+                "episode_id": episode_id,
+                "status": status,
+                "stage": stage,
+                "message": message,
+            },
+        )
 
     def load_episode(self, episode_id: str) -> Episode | None:
         path = self.root / "episodes" / f"{episode_id}.json"
-        return Episode.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None
+        return (
+            Episode.model_validate_json(path.read_text(encoding="utf-8")) if path.exists() else None
+        )
 
     def episodes(self) -> Iterable[Episode]:
         for path in sorted((self.root / "episodes").glob("*.json")):
@@ -81,3 +100,15 @@ class Repository:
     def sha256(content: str | bytes) -> str:
         raw = content.encode() if isinstance(content, str) else content
         return hashlib.sha256(raw).hexdigest()
+
+
+def _replace_with_retry(source: str, target: Path, attempts: int = 8) -> None:
+    """Tolerate short Windows sharing locks while retaining atomic replacement."""
+    for attempt in range(attempts):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(0.05 * (2**attempt))

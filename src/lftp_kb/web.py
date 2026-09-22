@@ -18,7 +18,7 @@ from .archive_sync import (
     latest_sync_job,
 )
 from .benchmark import create_run, execute_run, load_runs, load_transcript
-from .catalog import build_episode_ledger, load_ledger
+from .catalog import build_episode_ledger, load_ledger, load_reconstruction
 from .config import Settings
 from .inventory import (
     AUDIO_EXTENSIONS,
@@ -130,6 +130,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/catalog", response_class=HTMLResponse)
     def catalog_page(request: Request, year: str | None = None):
         ledger = load_ledger(repository)
+        reconstruction = load_reconstruction(repository)
+        decision_payload = _load_json(
+            repository.root / "catalog" / "reconstruction-decisions.json"
+        ) or {"decisions": {}}
         state_path = repository.root / "state" / "catalog-build.json"
         build_state = job_view(
             json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
@@ -144,7 +148,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             candidates = [item for item in candidates if not item.publication_date]
         return templates.TemplateResponse(request, "catalog.html", context(request,
             ledger=ledger, candidates=candidates, selected_year=year,
-            build_state=build_state,
+            build_state=build_state, reconstruction=reconstruction,
+            assets=({asset.asset_id: asset for asset in reconstruction.assets}
+                    if reconstruction else {}),
+            decisions=decision_payload.get("decisions", {}),
+            rss_records={episode.episode_id: episode for episode in load_discovered(repository)},
         ))
 
     @app.post("/catalog/rebuild")
@@ -171,10 +179,48 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         choices = {
             "json": repository.root / "catalog" / "master-ledger.json",
             "csv": repository.root / "catalog" / "master-ledger.csv",
+            "reconstruction": repository.root / "catalog" / "reconstruction-report.json",
         }
         if kind not in choices or not choices[kind].exists():
             raise HTTPException(404, "Catalog output not found")
         return FileResponse(choices[kind])
+
+    @app.get("/catalog/assets/{asset_id}/audio")
+    def catalog_asset_audio(asset_id: str):
+        reconstruction = load_reconstruction(repository)
+        effective = _effective_inputs(repository.root, settings)
+        archive_root = effective["local_audio_root"]
+        asset = next((item for item in reconstruction.assets if item.asset_id == asset_id), None) \
+            if reconstruction else None
+        if asset is None or archive_root is None:
+            raise HTTPException(404, "Audio asset not found")
+        target = (archive_root / asset.relative_path).resolve()
+        if not target.is_relative_to(archive_root.resolve()) or not target.is_file():
+            raise HTTPException(404, "Audio asset not found")
+        return FileResponse(target)
+
+    @app.post("/catalog/proposals/{proposal_id}")
+    def decide_catalog_proposal(proposal_id: str, action: str = Form(...), notes: str = Form("")):
+        reconstruction = load_reconstruction(repository)
+        valid_ids = ({item.proposal_id for item in reconstruction.duplicate_proposals} |
+                     {item.proposal_id for item in reconstruction.match_proposals}) \
+            if reconstruction else set()
+        if proposal_id not in valid_ids:
+            raise HTTPException(404, "Reconstruction proposal not found")
+        if action not in {"confirmed", "rejected", "clear"}:
+            raise HTTPException(400, "Unknown decision")
+        path = repository.root / "catalog" / "reconstruction-decisions.json"
+        payload = _load_json(path) or {"schema_version": "1.0.0", "decisions": {}}
+        if action == "clear":
+            payload["decisions"].pop(proposal_id, None)
+        else:
+            payload["decisions"][proposal_id] = {
+                "decision": action, "notes": notes.strip(),
+                "decided_at": datetime.now(UTC).isoformat(),
+            }
+        payload["updated_at"] = datetime.now(UTC).isoformat()
+        repository.atomic_json("catalog/reconstruction-decisions.json", payload)
+        return RedirectResponse("/catalog#reconstruction", status_code=303)
 
     @app.get("/inventory", response_class=HTMLResponse)
     def inventory(request: Request):

@@ -204,6 +204,12 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .ledger-row { min-width: 1040px; display: grid; grid-template-columns: .55fr .7fr 1fr 2.6fr .9fr .8fr; gap: 14px; align-items: center; padding: 13px 5px; border-top: 1px solid #e8e3d9; }
 .ledger-row.table-head { border-top: 0; }
 .ledger-warning { display: block; margin-top: 5px; color: #8a5416; font-size: 11px; font-style: normal; }
+.reconstruction-columns { grid-template-columns: 1fr 1fr; }
+.reconstruction-list article { grid-template-columns: 38px 1fr auto; align-items: start; }
+.reconstruction-list small { overflow-wrap: anywhere; }
+.reconstruction-list audio { height: 34px; margin: 7px 0; }
+.proposal-actions { margin-top: 9px; }
+.proposal-actions .button { padding: 6px 9px; font-size: 11px; }
 @media (max-width: 1050px) {
   .provider-strip, .reconcile-steps, .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }

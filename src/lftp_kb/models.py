@@ -162,7 +162,9 @@ class Episode(StrictModel):
                 source = " ".join(s.text for s in selected)
                 normalize = lambda value: " ".join(value.lower().split())
                 if normalize(pointer.excerpt) not in normalize(source):
-                    raise ValueError("evidence excerpt is not present in referenced transcript segments")
+                    raise ValueError(
+                        "evidence excerpt is not present in referenced transcript segments"
+                    )
         return self
 
 
@@ -250,6 +252,10 @@ class EpisodeCandidate(StrictModel):
     title: str | None = None
     episode_number: int | None = None
     episode_number_confidence: Literal["confirmed", "high", "medium", "low", "unknown"] = "unknown"
+    overall_episode_number: int | None = None
+    overall_episode_number_confidence: Literal["confirmed", "high", "medium", "low", "unknown"] = (
+        "unknown"
+    )
     publication_date: str | None = None
     date_precision: Literal["day", "month", "year", "unknown"] = "unknown"
     known_sequence_in_year: int | None = None
@@ -282,3 +288,58 @@ class EpisodeLedger(StrictModel):
     candidate_count: int
     candidates: list[EpisodeCandidate]
     years: list[CatalogYearSummary]
+
+
+class AssetClaim(StrictModel):
+    field: str
+    value: str
+    source: str
+    confidence: Annotated[float, Field(ge=0, le=1)]
+    reason: str
+
+
+class CatalogAsset(StrictModel):
+    asset_id: str
+    relative_path: str
+    filename: str
+    size_bytes: int
+    duration_seconds: float | None = None
+    sha256: str
+    format: str
+    embedded_title: str | None = None
+    embedded_track_number: int | None = None
+    embedded_date: str | None = None
+    folder_year: int | None = None
+    path_dates: list[str] = []
+    annual_episode_numbers: list[int] = []
+    overall_episode_numbers: list[int] = []
+    claims: list[AssetClaim] = []
+    metadata_issues: list[str] = []
+
+
+class DuplicateProposal(StrictModel):
+    proposal_id: str
+    relationship: Literal["exact-copy", "likely-same-recording"]
+    asset_ids: list[str] = Field(min_length=2)
+    confidence: Annotated[float, Field(ge=0, le=1)]
+    reasons: list[str] = Field(min_length=1)
+    requires_listening: bool
+
+
+class EpisodeMatchProposal(StrictModel):
+    proposal_id: str
+    asset_id: str
+    rss_episode_id: str
+    confidence: Annotated[float, Field(ge=0, le=1)]
+    reasons: list[str] = Field(min_length=1)
+    competing_confidence: Annotated[float | None, Field(ge=0, le=1)] = None
+    competing_rss_episode_id: str | None = None
+    recommendation: Literal["auto-link", "review", "insufficient"]
+
+
+class ReconstructionReport(StrictModel):
+    schema_version: str = "1.0.0"
+    generated_at: datetime
+    assets: list[CatalogAsset]
+    duplicate_proposals: list[DuplicateProposal]
+    match_proposals: list[EpisodeMatchProposal]

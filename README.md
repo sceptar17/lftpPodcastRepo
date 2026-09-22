@@ -158,6 +158,14 @@ Canonical results are written to `catalog/master-ledger.json`, with a generated
 `catalog/observations/`, and each candidate also has an individual JSON record. A four-digit year
 folder is used only as medium-confidence year evidence when an audio file has no embedded date.
 
+The reconstruction pass begins with audio assets rather than assuming every file is an episode. It
+records complete SHA-256 hashes, file size, duration, full-path dates and episode notation, embedded
+tags, and conflicts in `catalog/reconstruction-report.json`. Exact byte copies are consolidated
+automatically. Similar-duration files with corroborating dates, numbers, titles, or sizes are queued
+for listening rather than merged. Annual episode numbers, overall-series numbers, and embedded track
+numbers remain separate evidence claims. Strong RSS links require multiple independent signals and
+a clear margin over the next candidate; ambiguous links stay in review.
+
 ## Run 3 live episodes
 
 ```bash

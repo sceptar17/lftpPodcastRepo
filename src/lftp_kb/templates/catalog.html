@@ -21,6 +21,33 @@
 {% endif %}
 
 {% if ledger %}
+{% if reconstruction %}
+{% set exact_copies = reconstruction.duplicate_proposals|selectattr('relationship', 'equalto', 'exact-copy')|list %}
+{% set likely_duplicates = reconstruction.duplicate_proposals|selectattr('relationship', 'equalto', 'likely-same-recording')|list %}
+{% set auto_links = reconstruction.match_proposals|selectattr('recommendation', 'equalto', 'auto-link')|list %}
+<section class="stat-grid">
+  <article class="stat"><span>Audio assets</span><strong>{{ reconstruction.assets|length }}</strong><small>files examined independently</small></article>
+  <article class="stat"><span>Exact-copy groups</span><strong>{{ exact_copies|length }}</strong><small>same complete content hash</small></article>
+  <article class="stat warning"><span>Listen and compare</span><strong>{{ likely_duplicates|length }}</strong><small>possible duplicate recordings</small></article>
+  <article class="stat accent"><span>Strong identity links</span><strong>{{ auto_links|length }}</strong><small>independent signals agree</small></article>
+</section>
+
+<section class="two-column reconstruction-columns" id="reconstruction">
+  <div class="panel">
+    <div class="section-heading"><div><span class="eyebrow">Question one</span><h2>Duplicate candidates</h2></div><span class="count">{{ reconstruction.duplicate_proposals|length }}</span></div>
+    <div class="scroll-list reconstruction-list">
+      {% for proposal in reconstruction.duplicate_proposals %}<article><span class="episode-number">{{ '≡' if proposal.relationship == 'exact-copy' else '?' }}</span><span><strong>{{ proposal.relationship|replace('-', ' ')|title }} · {{ (proposal.confidence * 100)|round|int }}%</strong>{% for asset_id in proposal.asset_ids %}<small>{{ assets[asset_id].relative_path }}</small>{% if proposal.requires_listening %}<audio controls preload="none" src="/catalog/assets/{{ asset_id }}/audio"></audio>{% endif %}{% endfor %}<small>{{ proposal.reasons|join(' ') }}</small>{% if proposal.requires_listening %}<form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions"><button class="button" name="action" value="confirmed">Same recording</button><button class="button secondary" name="action" value="rejected">Different recordings</button>{% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}</form>{% endif %}</span><i class="status {{ 'ok' if proposal.relationship == 'exact-copy' or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('confirmed' if not proposal.requires_listening else 'listen') }}</i></article>{% else %}<div class="empty">No duplicate candidates found.</div>{% endfor %}
+    </div>
+  </div>
+  <div class="panel">
+    <div class="section-heading"><div><span class="eyebrow">Questions two and three</span><h2>Episode identity proposals</h2></div><span class="count">{{ reconstruction.match_proposals|length }}</span></div>
+    <div class="scroll-list reconstruction-list">
+      {% for proposal in reconstruction.match_proposals %}<article><span class="episode-number">{{ (proposal.confidence * 100)|round|int }}</span><span><strong>{{ rss_records[proposal.rss_episode_id].title }}</strong><small>{{ assets[proposal.asset_id].relative_path }}</small>{% if proposal.competing_rss_episode_id %}<small>Next candidate: {{ rss_records[proposal.competing_rss_episode_id].title }} ({{ (proposal.competing_confidence * 100)|round|int }}%)</small>{% endif %}<audio controls preload="none" src="/catalog/assets/{{ proposal.asset_id }}/audio"></audio><small>{{ proposal.reasons|join(' ') }}</small><form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions"><button class="button" name="action" value="confirmed">Confirm link</button><button class="button secondary" name="action" value="rejected">Reject link</button>{% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}</form></span><i class="status {{ 'ok' if decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' or (proposal.recommendation == 'auto-link' and decisions.get(proposal.proposal_id, {}).get('decision') != 'rejected') else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or proposal.recommendation }}</i></article>{% else %}<div class="empty">No identity proposals found.</div>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="panel compact"><div class="section-heading"><div><span class="eyebrow">Audit output</span><h2>Full reconstruction evidence</h2></div><a class="button secondary" href="/catalog/output/reconstruction">Download JSON</a></div><p class="muted">Every file retains its byte hash, size, duration, path-derived facts, embedded metadata claims, conflicts, and proposed relationships. No tag is treated as authoritative without corroboration. Confirmed review decisions are preserved and applied the next time the master catalog is rebuilt.</p></section>
+{% endif %}
 <section class="panel year-summary-panel">
   <div class="section-heading">
     <div><span class="eyebrow">Coverage by year</span><h2>{{ ledger.candidate_count }} episode candidates</h2></div>
@@ -39,11 +66,11 @@
 <section class="panel ledger-panel">
   <div class="section-heading"><div><span class="eyebrow">Master episode ledger</span><h2>{% if selected_year %}{{ selected_year|replace('unknown', 'Unknown year') }}{% else %}All known candidates{% endif %}</h2></div><span class="count">{{ candidates|length }} rows</span></div>
   <div class="ledger-table">
-    <div class="ledger-row table-head"><span>Order</span><span>Historical #</span><span>Date</span><span>Episode candidate</span><span>Status</span><span>Evidence</span></div>
+    <div class="ledger-row table-head"><span>Order</span><span>Episode #</span><span>Date</span><span>Episode candidate</span><span>Status</span><span>Evidence</span></div>
     {% for item in candidates %}
     <article class="ledger-row">
       <span><b>{{ item.known_sequence_in_year or '—' }}</b><small>provisional</small></span>
-      <span><b>{{ item.episode_number or '—' }}</b><small>{{ item.episode_number_confidence }}</small></span>
+      <span><b>{{ item.episode_number or '—' }}</b><small>annual · {{ item.episode_number_confidence }}{% if item.overall_episode_number %} · overall #{{ item.overall_episode_number }}{% endif %}</small></span>
       <span><b>{{ item.publication_date or 'Unknown' }}</b><small>{{ item.date_precision }} precision</small></span>
       <span><strong>{{ item.title or (item.sources.local_files[0] if item.sources.local_files else 'Untitled candidate') }}</strong><small>{% if item.sources.rss_episode_id %}RSS{% endif %}{% if item.sources.rss_episode_id and item.sources.local_files %} + {% endif %}{% if item.sources.local_files %}{{ item.sources.local_files|length }} local file{% if item.sources.local_files|length != 1 %}s{% endif %}{% endif %}</small>{% for conflict in item.conflicts %}<em class="ledger-warning">{{ conflict }}</em>{% endfor %}</span>
       <span><span class="badge {{ 'warning' if item.status in ['uncertain', 'conflict'] else 'ok' }}">{{ item.status }}</span></span>

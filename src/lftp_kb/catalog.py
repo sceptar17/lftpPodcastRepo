@@ -25,6 +25,7 @@ from .models import (
     ReconstructionReport,
 )
 from .reconstruction import build_reconstruction_report
+from .remote_audio import apply_cached_verification
 from .repository import Repository
 
 CatalogProgress = Callable[[int, int, str, str | None], None]
@@ -74,6 +75,7 @@ def build_episode_ledger(
             None,
         )
     reconstruction = build_reconstruction_report(local_observations, snapshot.discovered)
+    apply_cached_verification(repository, reconstruction)
     verify_alternate_masters(reconstruction, archive_root, repository)
     decisions = _load_reconstruction_decisions(repository)
     observations_by_path = {item["relative_path"]: item for item in local_observations}
@@ -97,7 +99,11 @@ def build_episode_ledger(
         relative = assets[proposal.asset_id].relative_path
         decision = decisions.get(proposal.proposal_id, {}).get("decision")
         should_link = decision == "confirmed" or (
-            proposal.recommendation == "auto-link" and decision != "rejected"
+            (
+                proposal.recommendation == "auto-link"
+                or proposal.verification_status in {"exact-file", "same-recording"}
+            )
+            and decision != "rejected"
         )
         if should_link and relative not in assigned:
             local_by_rss[proposal.rss_episode_id].add(relative)

@@ -160,15 +160,24 @@ def test_identity_queue_hides_automatic_and_completed_links():
                 reasons=["Review"],
                 recommendation="review",
             ),
+            EpisodeMatchProposal(
+                proposal_id="verified-different",
+                asset_id="c",
+                rss_episode_id="rss-c",
+                confidence=0.8,
+                reasons=["Candidate rejected by audio"],
+                recommendation="review",
+                verification_status="different-recording",
+            ),
         ],
     )
 
     pending, completed_count = _match_review_queue(report, {}, show_reviewed=False)
     assert [proposal.proposal_id for proposal in pending] == ["manual"]
-    assert completed_count == 1
+    assert completed_count == 2
 
     pending, completed_count = _match_review_queue(
         report, {"manual": {"decision": "confirmed"}}, show_reviewed=False
     )
     assert pending == []
-    assert completed_count == 2
+    assert completed_count == 3

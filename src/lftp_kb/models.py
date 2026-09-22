@@ -349,6 +349,36 @@ class EpisodeMatchProposal(StrictModel):
     competing_confidence: Annotated[float | None, Field(ge=0, le=1)] = None
     competing_rss_episode_id: str | None = None
     recommendation: Literal["auto-link", "review", "insufficient"]
+    verification_status: Literal[
+        "not-checked",
+        "exact-file",
+        "same-recording",
+        "different-recording",
+        "metadata-only",
+        "unavailable",
+        "failed",
+    ] = "not-checked"
+    verification_method: str | None = None
+    verification_details: list[str] = []
+    remote_size_bytes: int | None = None
+    remote_duration_seconds: float | None = None
+    acoustic_similarity: Annotated[float | None, Field(ge=0, le=1)] = None
+    verified_at: datetime | None = None
+
+
+class RemoteAudioObservation(StrictModel):
+    episode_id: str
+    audio_url: str
+    filename: str
+    probed_at: datetime
+    status: Literal["available", "unavailable", "failed"]
+    content_length: int | None = None
+    etag: str | None = None
+    last_modified: str | None = None
+    accept_ranges: str | None = None
+    content_type: str | None = None
+    error: str | None = None
+    sha256: str | None = None
 
 
 class ReconstructionReport(StrictModel):

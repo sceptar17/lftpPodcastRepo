@@ -30,6 +30,7 @@ from .inventory import (
 )
 from .job_status import ACTIVE_STATUSES, duration_label, job_view
 from .models import DiscoveredEpisode, Episode, ProcessingStatus, ReconstructionReport
+from .remote_audio import verify_remote_audio
 from .render import episode_markdown, review_report, timestamp, wordpress_html
 from .repository import Repository
 from .rss import fetch_rss
@@ -80,6 +81,7 @@ def _match_review_queue(
         proposal.proposal_id
         for proposal in reconstruction.match_proposals
         if proposal.recommendation == "auto-link"
+        or proposal.verification_status in {"exact-file", "same-recording", "different-recording"}
     )
     proposals = (
         reconstruction.match_proposals
@@ -94,24 +96,29 @@ def _match_review_queue(
 
 
 def _recover_interrupted_catalog_job(repository: Repository) -> None:
-    path = repository.root / "state" / "catalog-build.json"
-    if not path.exists():
-        return
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return
-    if payload.get("status") not in ACTIVE_STATUSES:
-        return
-    now = datetime.now(UTC).isoformat()
-    payload.update(
-        status="interrupted",
-        stage="Previous catalog scan was interrupted",
-        updated_at=now,
-        finished_at=now,
-        error="The app stopped before this catalog scan completed. It is safe to rebuild.",
-    )
-    repository.atomic_json("state/catalog-build.json", payload)
+    jobs = {
+        "catalog-build.json": ("catalog scan", "rebuild"),
+        "audio-verification.json": ("audio verification", "run verification again"),
+    }
+    for filename, (label, retry) in jobs.items():
+        path = repository.root / "state" / filename
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        if payload.get("status") not in ACTIVE_STATUSES:
+            continue
+        now = datetime.now(UTC).isoformat()
+        payload.update(
+            status="interrupted",
+            stage=f"Previous {label} was interrupted",
+            updated_at=now,
+            finished_at=now,
+            error=f"The app stopped before this job completed. It is safe to {retry}.",
+        )
+        repository.atomic_json(f"state/{filename}", payload)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -255,6 +262,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         build_state = job_view(
             json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
         )
+        verification_state = job_view(
+            _load_json(repository.root / "state" / "audio-verification.json")
+        )
         candidates = ledger.candidates if ledger else []
         selected_year = int(year) if year and year.isdigit() else None
         show_unknown = year == "unknown"
@@ -275,6 +285,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 candidates=candidates,
                 selected_year=year,
                 build_state=build_state,
+                verification_state=verification_state,
                 reconstruction=reconstruction,
                 duplicate_proposals=duplicate_proposals,
                 reviewed_duplicate_count=reviewed_duplicate_count,
@@ -327,6 +338,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         background_tasks.add_task(_execute_catalog_build, repository, archive_root)
         return RedirectResponse("/catalog", status_code=303)
+
+    @app.post("/catalog/verify-audio")
+    def verify_catalog_audio(background_tasks: BackgroundTasks):
+        effective = _effective_inputs(repository.root, settings)
+        archive_root = effective["local_audio_root"]
+        reconstruction = load_reconstruction(repository)
+        if archive_root is None or not archive_root.exists() or not archive_root.is_dir():
+            raise HTTPException(400, "Configure an existing local archive folder first")
+        if reconstruction is None:
+            raise HTTPException(400, "Build the catalog before verifying audio")
+        state_path = repository.root / "state" / "audio-verification.json"
+        current = _load_json(state_path) or {}
+        if current.get("status") in ACTIVE_STATUSES:
+            raise HTTPException(409, "Audio verification is already running")
+        created = datetime.now(UTC).isoformat()
+        repository.atomic_json(
+            "state/audio-verification.json",
+            {
+                "status": "queued",
+                "stage": "Waiting to verify RSS audio",
+                "created_at": created,
+                "started_at": None,
+                "updated_at": created,
+                "finished_at": None,
+                "total": 0,
+                "processed": 0,
+                "current_label": None,
+            },
+        )
+        background_tasks.add_task(_execute_audio_verification, repository, archive_root)
+        return RedirectResponse("/catalog#reconstruction", status_code=303)
 
     @app.get("/catalog/output/{kind}")
     def catalog_output(kind: str):
@@ -736,6 +778,80 @@ def _execute_catalog_build(repository: Repository, archive_root: Path) -> None:
         )
 
 
+def _execute_audio_verification(repository: Repository, archive_root: Path) -> None:
+    started = datetime.now(UTC)
+    relative = "state/audio-verification.json"
+    last_progress = {"total": 0, "processed": 0, "current_label": None}
+
+    def report(processed: int, total: int, stage: str, label: str | None) -> None:
+        last_progress.update(total=total, processed=processed, current_label=label)
+        repository.atomic_json(
+            relative,
+            {
+                "status": "running",
+                "stage": stage,
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": None,
+                "total": total,
+                "processed": processed,
+                "current_label": label,
+            },
+        )
+
+    try:
+        report(0, 0, "Loading unresolved audio comparisons", None)
+        reconstruction = load_reconstruction(repository)
+        if reconstruction is None:
+            raise ValueError("Catalog reconstruction report is missing")
+        decisions = _load_json(repository.root / "catalog" / "reconstruction-decisions.json") or {
+            "decisions": {}
+        }
+        verify_remote_audio(
+            repository,
+            archive_root,
+            reconstruction,
+            load_discovered(repository),
+            decisions.get("decisions", {}),
+            progress=report,
+        )
+        counts: dict[str, int] = {}
+        for proposal in reconstruction.match_proposals:
+            counts[proposal.verification_status] = counts.get(proposal.verification_status, 0) + 1
+        repository.atomic_json(
+            relative,
+            {
+                "status": "complete",
+                "stage": "RSS audio verification complete",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": last_progress["total"],
+                "processed": last_progress["total"],
+                "current_label": None,
+                "verification_counts": counts,
+            },
+        )
+    except Exception as error:  # noqa: BLE001 - background failure must remain visible
+        repository.atomic_json(
+            relative,
+            {
+                "status": "failed",
+                "stage": "RSS audio verification failed",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": last_progress["total"],
+                "processed": last_progress["processed"],
+                "current_label": last_progress["current_label"],
+                "error": f"{type(error).__name__}: {error}",
+            },
+        )
+
+
 def _execute_rss_refresh(repository: Repository, rss_url: str, timeout: int) -> None:
     relative = "state/rss-refresh.json"
     started = datetime.now(UTC)
@@ -792,6 +908,11 @@ def _execute_rss_refresh(repository: Repository, rss_url: str, timeout: int) -> 
 def _operation_jobs(repository: Repository) -> list[dict]:
     records: list[tuple[str, str, dict | None]] = [
         ("Master catalog", "/catalog", _load_json(repository.root / "state/catalog-build.json")),
+        (
+            "RSS audio verification",
+            "/catalog",
+            _load_json(repository.root / "state/audio-verification.json"),
+        ),
         ("RSS inventory", "/inventory", _load_json(repository.root / "state/rss-refresh.json")),
         ("Archive operation", "/inventory", latest_sync_job(repository)),
     ]

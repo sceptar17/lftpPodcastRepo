@@ -173,6 +173,16 @@ preferred asset without deleting the other file. If Chromaprint's `fpcalc` is on
 with `LFTP_FPCALC_PATH`), the catalog also compares acoustic fingerprints and stores the raw fingerprint
 evidence under `catalog/fingerprints/`.
 
+For local-to-RSS reconciliation, choose **Verify unresolved audio** on the catalog page. The job caches
+remote HTTP observations in `catalog/observations/remote-audio.json`, downloads each unresolved RSS
+file to temporary storage, measures its media duration, and compares complete SHA-256 hashes whenever
+the byte sizes agree. A hash match is the only condition labeled `exact-file`. When hashes differ,
+optional Chromaprint comparison
+can establish that two differently encoded or mastered files contain the same recording. Remote audio
+is deleted after each comparison; the evidence and result remain in `catalog/audio-verification.json`.
+Failures are isolated to one proposal and can be retried safely. Rebuild the catalog after verification
+to apply verified links to the master ledger.
+
 ## Run 3 live episodes
 
 ```bash

@@ -20,6 +20,10 @@
 {% with job=build_state, job_eyebrow='Catalog job', job_title=('Master catalog scan' if build_state.status in ['queued', 'running'] else 'Latest catalog scan') %}{% include '_job_status.html' %}{% endwith %}
 {% endif %}
 
+{% if verification_state %}
+{% with job=verification_state, job_eyebrow='Remote evidence job', job_title='RSS audio verification' %}{% include '_job_status.html' %}{% endwith %}
+{% endif %}
+
 {% if ledger %}
 {% if reconstruction %}
 {% set exact_copies = reconstruction.duplicate_proposals|selectattr('relationship', 'equalto', 'exact-copy')|list %}
@@ -68,6 +72,14 @@
   </div>
   <div class="panel">
     <div class="section-heading"><div><span class="eyebrow">Questions two and three</span><h2>Episode identity proposals</h2></div><div class="inline-actions"><span class="count">{{ match_proposals|length }} shown</span><a class="button secondary" href="/catalog?show_reviewed_links={{ 'false' if show_reviewed_links else 'true' }}#reconstruction">{{ 'Hide reviewed' if show_reviewed_links else 'Show reviewed/automatic (' ~ reviewed_match_count ~ ')' }}</a></div></div>
+    <div class="match-evidence">
+      <b>Verify the files before reviewing names</b>
+      <small>This reads remote size and headers, then downloads only unresolved RSS audio to a temporary file. Equal SHA-256 hashes prove an exact copy. If Chromaprint is installed, acoustic fingerprints can identify the same recording after encoding or mastering changes.</small>
+      <form method="post" action="/catalog/verify-audio" data-job-form="true" class="inline-actions">
+        <button class="button" type="submit" data-working-label="Starting verification…" {{ 'disabled' if verification_state and verification_state.status in ['queued', 'running'] else '' }}>Verify unresolved audio</button>
+      </form>
+      {% if verification_state and verification_state.status == 'complete' %}<small>Verified links are saved now. Rebuild the master catalog once to apply them to the ledger.</small>{% endif %}
+    </div>
     <div class="scroll-list reconstruction-list">
       {% for proposal in match_proposals %}
       {% set local = assets[proposal.asset_id] %}{% set rss = rss_records[proposal.rss_episode_id] %}
@@ -91,15 +103,16 @@
               <small>Published: {{ rss.publication_date|pretty_date }}</small>
               <small>Episode number: {{ rss.episode_number or 'none' }}</small>
               <small>RSS title: {{ rss.title }}</small>
-              <small>{% if rss.audio_size_bytes %}{{ (rss.audio_size_bytes / 1048576)|round(1) }} MB{% else %}size unavailable{% endif %}{% if rss.audio_duration_seconds is not none %} · {{ rss.audio_duration_seconds|timestamp }}{% endif %}</small>
+              <small>{% if proposal.remote_size_bytes %}{{ (proposal.remote_size_bytes / 1048576)|round(1) }} MB (verified remotely){% elif rss.audio_size_bytes %}{{ (rss.audio_size_bytes / 1048576)|round(1) }} MB (RSS){% else %}size not checked{% endif %}{% if proposal.remote_duration_seconds is not none %} · {{ proposal.remote_duration_seconds|timestamp }} (measured){% elif rss.audio_duration_seconds is not none %} · {{ rss.audio_duration_seconds|timestamp }} (RSS){% endif %}</small>
               <audio controls preload="metadata" src="{{ rss.audio_url }}"></audio>
               <a href="{{ rss.audio_url }}" target="_blank" rel="noopener">Open RSS audio</a>
             </section>
           </div>
           <div class="match-evidence"><b>Why this was proposed</b><small>Evidence score: {{ (proposal.confidence * 100)|round|int }} — not a calibrated probability.</small><small>{{ proposal.reasons|join(' ') }}</small>{% if proposal.competing_rss_episode_id %}<small>Runner-up: {{ rss_records[proposal.competing_rss_episode_id].title }} ({{ (proposal.competing_confidence * 100)|round|int }})</small>{% endif %}</div>
+          {% if proposal.verification_status != 'not-checked' %}<div class="match-evidence"><b>Audio verification: {{ proposal.verification_status|replace('-', ' ')|title }}</b>{% for detail in proposal.verification_details %}<small>{{ detail }}</small>{% endfor %}</div>{% endif %}
           {% if proposal.recommendation != 'auto-link' or show_reviewed_links %}<form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions"><button class="button" name="action" value="confirmed">Same episode — link</button><button class="button secondary" name="action" value="rejected">Not the same episode</button>{% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}</form>{% endif %}
         </span>
-        <i class="status {{ 'ok' if proposal.recommendation == 'auto-link' or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('auto-linked' if proposal.recommendation == 'auto-link' else 'review') }}</i>
+        <i class="status {{ 'ok' if proposal.recommendation == 'auto-link' or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('exact file' if proposal.verification_status == 'exact-file' else 'same recording' if proposal.verification_status == 'same-recording' else 'different recording' if proposal.verification_status == 'different-recording' else 'auto-linked' if proposal.recommendation == 'auto-link' else 'review') }}</i>
       </article>
       {% else %}<div class="empty">All identity proposals have been linked or reviewed. Use “Show reviewed/automatic” to inspect them.</div>{% endfor %}
     </div>

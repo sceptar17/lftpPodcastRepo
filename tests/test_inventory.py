@@ -35,3 +35,35 @@ def test_inventory_loads_feed_snapshot(tmp_path):
     snapshot = build_inventory(repository, None)
     assert len(snapshot.discovered) == 1
     assert len(snapshot.missing_from_repository) == 1
+
+
+def test_local_audio_scan_matches_normalized_title(tmp_path):
+    audio = tmp_path / "2026-09-22 Rage The Elephant.mp3"
+    audio.write_bytes(b"audio")
+    episode = discovered("rage", None).model_copy(update={"title": "Rage the Elephant"})
+    item = scan_local_audio(tmp_path, [episode])[0]
+    assert item.match_episode_id == "rage"
+    assert item.match_status == "matched"
+
+
+def test_feed_only_audio_is_reported(tmp_path):
+    repository = Repository(tmp_path)
+    (tmp_path / "state" / "discovered.json").write_text(
+        json.dumps([discovered().model_dump(mode="json")]), encoding="utf-8"
+    )
+    archive = tmp_path / "archive"
+    archive.mkdir()
+    snapshot = build_inventory(repository, archive)
+    assert [episode.episode_id for episode in snapshot.feed_only_audio] == ["ep-007-x"]
+
+
+def test_local_audio_scan_matches_unique_publication_date(tmp_path):
+    audio = tmp_path / "show recording 2026-09-22.mp3"
+    audio.write_bytes(b"audio")
+    episode = discovered("dated", None).model_copy(update={
+        "title": "Completely Different Title",
+        "publication_date": datetime(2026, 9, 22, tzinfo=UTC),
+    })
+    item = scan_local_audio(tmp_path, [episode])[0]
+    assert item.match_episode_id == "dated"
+    assert item.match_reason == "Unique publication date in filename"

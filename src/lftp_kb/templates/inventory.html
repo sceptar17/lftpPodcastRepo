@@ -1,25 +1,33 @@
 {% extends "base.html" %}
 {% block title %}Archive inventory · LFTP Knowledge{% endblock %}
-{% block heading %}Archive inventory{% endblock %}
-{% block top_action %}<form method="post" action="/inventory/refresh"><button class="button">Refresh RSS inventory</button></form>{% endblock %}
+{% block heading %}Archive reconciliation{% endblock %}
+{% block top_action %}<div class="inline-actions"><form method="post" action="/inventory/refresh"><button class="button">Refresh RSS</button></form><form method="post" action="/inventory/rescan"><button class="button secondary">Rescan archive</button></form></div>{% endblock %}
 {% block content %}
-<section class="hero panel archive-hero"><div><span class="eyebrow">Full-stock reconciliation</span><h2>Find what exists outside WordPress.</h2><p>This workspace will compare the public feed, canonical repository, and your local recordings. Local files are read-only during discovery; nothing moves or uploads automatically.</p></div><div class="coverage-ring"><strong>{{ inventory.processed|length }}</strong><span>of {{ inventory.discovered|length }} feed items<br>canonical</span></div></section>
-<section class="stat-grid three">
-  <article class="stat"><span>RSS / WordPress</span><strong>{{ inventory.discovered|length }}</strong><small>public feed records</small></article>
-  <article class="stat accent"><span>Local recordings</span><strong>{{ inventory.local_audio|length if inventory.local_root_configured else '—' }}</strong><small>{{ 'files scanned' if inventory.local_root_configured else 'path not configured' }}</small></article>
-  <article class="stat warning"><span>Unmatched local</span><strong>{{ inventory.unmatched_local_audio|length if inventory.local_root_configured else '—' }}</strong><small>potential missing episodes</small></article>
+<section class="hero panel archive-hero"><div><span class="eyebrow">Full-stock reconciliation</span><h2>Bring the archive current, then find what WordPress is missing.</h2><p>RSS audio can be copied into the local archive after preview. Existing files are never overwritten; partial downloads can resume. Archive-only recordings remain separate candidates for later reconstruction.</p><small class="hero-path">Archive: {{ effective.local_audio_root or 'not configured' }}</small></div><div class="coverage-ring"><strong>{{ inventory.matched_feed_count }}</strong><span>of {{ inventory.discovered|length }} feed items<br>matched locally</span></div></section>
+
+<section class="stat-grid">
+  <article class="stat"><span>RSS / WordPress</span><strong>{{ inventory.discovered|length }}</strong><small>current feed records</small></article>
+  <article class="stat"><span>Matched locally</span><strong>{{ inventory.matched_feed_count if inventory.local_root_exists else '—' }}</strong><small>high-confidence matches</small></article>
+  <article class="stat accent"><span>RSS-only audio</span><strong>{{ inventory.feed_only_audio|length if inventory.local_root_exists else '—' }}</strong><small>available to download</small></article>
+  <article class="stat warning"><span>Archive-only</span><strong>{{ inventory.unmatched_local_audio|length if inventory.local_root_exists else '—' }}</strong><small>possible missing episodes</small></article>
 </section>
-<section class="two-column inventory-columns">
-  <div class="panel"><div class="section-heading"><div><span class="eyebrow">Repository coverage</span><h2>Not processed yet</h2></div><span class="count">{{ inventory.missing_from_repository|length }}</span></div>
-    <div class="scroll-list">{% for episode in inventory.missing_from_repository[:40] %}<article><span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span><span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date|pretty_date }}</small></span><i class="status neutral">RSS only</i></article>{% endfor %}</div>
-  </div>
-  <div class="panel"><div class="section-heading"><div><span class="eyebrow">Local-file scan</span><h2>Potential missing stock</h2></div></div>
-    {% if not inventory.local_root_configured %}<div class="empty action-empty"><strong>No local archive path configured</strong><p>Add a read-only folder path under Sources & providers. The future matcher will use episode numbers, titles, dates, duration, and audio fingerprints—never filename alone.</p><a class="button secondary" href="/settings">Configure archive path</a></div>
-    {% elif inventory.unmatched_local_audio %}<div class="scroll-list">{% for item in inventory.unmatched_local_audio[:40] %}<article><span class="episode-number">{{ item.guessed_episode_number or '?' }}</span><span><strong>{{ item.filename }}</strong><small>{{ item.size_mb }} MB</small></span><i class="status warning">Unmatched</i></article>{% endfor %}</div>
-    {% else %}<div class="empty">No unmatched local recordings found.</div>{% endif %}
-  </div>
-</section>
-<section class="panel"><div class="section-heading"><div><span class="eyebrow">Planned matching logic</span><h2>How reconciliation will work</h2></div></div>
-  <div class="reconcile-steps"><article><b>1</b><strong>Scan read-only</strong><p>Inventory audio filenames, sizes, duration, and technical metadata.</p></article><article><b>2</b><strong>Candidate matching</strong><p>Compare episode number, normalized title, dates, duration, and optional fingerprints.</p></article><article><b>3</b><strong>Human confirmation</strong><p>Review uncertain matches before creating any new canonical episode.</p></article><article><b>4</b><strong>Fill the public gap</strong><p>Transcribe, analyze, review, and create WordPress drafts for truly missing stock.</p></article></div>
-</section>
+
+{% if not inventory.local_root_configured or not inventory.local_root_exists %}
+<section class="panel empty action-empty"><strong>{{ 'Archive folder not found' if inventory.local_root_configured else 'No archive folder configured' }}</strong><p>Enter the existing Windows folder under Sources & providers. Saved source preferences now take effect immediately.</p><a class="button secondary" href="/settings">Configure archive path</a></section>
+{% else %}
+  {% if sync_job %}<section class="panel sync-status"><div class="section-heading"><div><span class="eyebrow">Latest archive job</span><h2>{{ sync_job.status|replace('-', ' ')|title }}</h2></div><a href="/inventory">Refresh status</a></div><div class="progress-track"><span style="width: {{ (((sync_job.completed + sync_job.skipped + sync_job.failed) / sync_job.total * 100) if sync_job.total else 0)|round|int }}%"></span></div><p class="muted">{{ sync_job.completed }} downloaded · {{ sync_job.skipped }} already present · {{ sync_job.failed }} failed · {{ sync_job.total }} total</p>{% if sync_job.failed %}<details><summary>Show failed files</summary><ul class="flag-list">{% for item in sync_job['items'] if item.status == 'failed' %}<li>{{ item.title }} — {{ item.message }}</li>{% endfor %}</ul></details>{% endif %}</section>{% endif %}
+
+  <section class="two-column inventory-columns">
+    <div class="panel"><div class="section-heading"><div><span class="eyebrow">Step one</span><h2>RSS audio missing locally</h2></div><span class="count">{{ inventory.feed_only_audio|length }}</span></div>
+      {% if inventory.feed_only_audio %}<form method="post" action="/inventory/sync"><div class="scroll-list selectable-list">{% for episode in inventory.feed_only_audio %}<label class="select-row"><input type="checkbox" name="episode_ids" value="{{ episode.episode_id }}"><span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span><span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date|pretty_date }}</small></span></label>{% endfor %}</div><div class="inline-actions sync-actions"><button class="button" type="submit" name="action" value="selected">Download selected</button><button class="button secondary" type="submit" name="action" value="all" onclick="return confirm('Download all {{ inventory.feed_only_audio|length }} RSS-only episodes to the archive?')">Download all RSS-only</button></div></form>{% else %}<div class="empty">The local archive contains every RSS episode.</div>{% endif %}
+    </div>
+    <div class="panel"><div class="section-heading"><div><span class="eyebrow">Step two</span><h2>Archive-only candidates</h2></div><span class="count">{{ inventory.unmatched_local_audio|length }}</span></div>
+      {% if inventory.unmatched_local_audio %}<div class="scroll-list">{% for item in inventory.unmatched_local_audio %}<article><span class="episode-number">{{ item.guessed_episode_number or '?' }}</span><span><strong>{{ item.filename }}</strong><small>{{ item.size_mb }} MB</small></span><i class="status warning">Archive only</i></article>{% endfor %}</div>{% else %}<div class="empty">No clearly unmatched local recordings.</div>{% endif %}
+    </div>
+  </section>
+
+  {% if inventory.uncertain_local_audio %}<section class="panel"><div class="section-heading"><div><span class="eyebrow">Manual check</span><h2>Uncertain matches</h2></div><span class="count">{{ inventory.uncertain_local_audio|length }}</span></div><div class="scroll-list">{% for item in inventory.uncertain_local_audio %}<article><span class="episode-number">?</span><span><strong>{{ item.filename }}</strong><small>Possible match: {{ item.match_episode_id }} · {{ (item.match_confidence * 100)|round|int }}%</small></span><i class="status warning">Review</i></article>{% endfor %}</div></section>{% endif %}
+{% endif %}
+
+<section class="panel"><div class="section-heading"><div><span class="eyebrow">Controlled sequence</span><h2>Reconciliation workflow</h2></div></div><div class="reconcile-steps"><article><b>1</b><strong>Refresh RSS</strong><p>Capture the current public episode inventory.</p></article><article><b>2</b><strong>Rescan archive</strong><p>Match numbers and normalized titles without changing files.</p></article><article><b>3</b><strong>Fill RSS gaps locally</strong><p>Preview and download feed audio missing from the archive.</p></article><article><b>4</b><strong>Reconstruct archive-only shows</strong><p>Review, transcribe, and create WordPress drafts later.</p></article></div></section>
 {% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Transcription lab · LFTP Knowledge{% endblock %}
+{% block heading %}Transcription lab{% endblock %}
+{% block top_action %}<a class="button secondary" href="/transcription-lab">Refresh status</a>{% endblock %}
+{% block content %}
+<section class="two-column lab-columns">
+  <div class="panel">
+    <span class="eyebrow">Local benchmark</span><h2>Test one excerpt first</h2>
+    <p class="muted">Runs faster-whisper on this computer using CPU INT8. The first run downloads the selected model and will take longer.</p>
+    <form method="post" action="/transcription-lab/run" class="form-stack">
+      <label>Audio file path<input type="text" name="audio_path" required placeholder="C:\Podcast\Episode 24.mp3"></label>
+      <small>{% if local_audio_root %}Configured archive: {{ local_audio_root }}{% else %}Paste the complete Windows path to an MP3, WAV, M4A, FLAC, AAC, OGG, WMA, or MP4 file.{% endif %}</small>
+      <label>Model<select name="model"><option value="small.en">small.en — recommended first test</option><option value="medium.en">medium.en — slower quality comparison</option><option value="base.en">base.en — faster baseline</option><option value="tiny.en">tiny.en — speed test</option></select></label>
+      <label>Excerpt length<select name="sample_minutes"><option value="10">First 10 minutes</option><option value="5">First 5 minutes</option><option value="15">First 15 minutes</option><option value="30">First 30 minutes</option></select></label>
+      <button class="button" type="submit">Start local benchmark</button>
+    </form>
+  </div>
+  <div class="panel">
+    <span class="eyebrow">Speaker control</span><h2>Words first, identities second</h2>
+    <p>These runs deliberately leave speakers unnamed. Whisper does not identify people, and similar twin voices make automatic assignment especially risky.</p>
+    <ol class="plain-steps"><li>Measure transcript and timestamp quality.</li><li>Add diarization as a separate provider stage.</li><li>Map anonymous speakers to names using verified voice samples.</li><li>Flag uncertain turns for manual review.</li></ol>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="section-heading"><div><span class="eyebrow">Comparable runs</span><h2>Benchmark history</h2></div><small>Run the same excerpt with small.en, medium.en, and later Muse.</small></div>
+  <div class="benchmark-table">
+    <div class="benchmark-row head"><span>Run</span><span>Provider / model</span><span>Status</span><span>Elapsed</span><span>Speed</span><span>Words</span></div>
+    {% for run in runs %}<a class="benchmark-row" href="/transcription-lab?run_id={{ run.run_id }}"><span><strong>{{ run.audio_name }}</strong><small>{{ run.created_at[:19]|replace('T', ' ') }} UTC</small></span><span>{{ run.provider }}<small>{{ run.model }} · {{ run.compute_type }}</small></span><span><i class="status {{ 'ok' if run.status == 'complete' else 'warning' if run.status == 'failed' else 'neutral' }}">{{ run.status }}</i></span><span>{{ run.elapsed_seconds ~ ' sec' if run.elapsed_seconds is not none else '—' }}</span><span>{{ run.realtime_factor ~ '× realtime' if run.realtime_factor is not none else '—' }}</span><span>{{ run.word_count if run.word_count is not none else '—' }}</span></a>
+    {% else %}<div class="empty">No benchmark runs yet.</div>{% endfor %}
+  </div>
+</section>
+
+{% if selected %}<section class="panel benchmark-detail">
+  <div class="section-heading"><div><span class="eyebrow">Selected run</span><h2>{{ selected.audio_name }} · {{ selected.model }}</h2></div><i class="status {{ 'ok' if selected.status == 'complete' else 'warning' if selected.status == 'failed' else 'neutral' }}">{{ selected.status }}</i></div>
+  {% if selected.status in ['queued', 'running'] %}<p class="notice">Transcription is running in the background. Use “Refresh status” in a few minutes. You may leave this page.</p>{% endif %}
+  {% if selected.error %}<p class="error-box">{{ selected.error }}</p>{% endif %}
+  {% if transcript %}<div class="transcript"><article><span class="timecode">Full text</span><p>{{ transcript.text }}</p><small>{{ selected.word_count }} words</small></article>{% for segment in transcript.segments %}<article><span class="timecode">{{ segment.start_seconds|timestamp }}</span><p>{{ segment.text }}</p><small>{{ ((segment.confidence or 0) * 100)|round|int }}% hint</small></article>{% endfor %}</div>{% endif %}
+</section>{% endif %}
+{% endblock %}

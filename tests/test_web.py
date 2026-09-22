@@ -30,6 +30,7 @@ def test_orientation_pages_render():
         "/topics": "Controlled vocabulary",
         "/inventory": "Full-stock reconciliation",
         "/settings": "Provider capability matrix",
+        "/transcription-lab": "Test one excerpt first",
     }
     for path, marker in expected.items():
         response = web.get(path)
@@ -54,3 +55,10 @@ def test_date_format_is_cross_platform():
     value = datetime(2026, 9, 2, tzinfo=UTC)
     assert pretty_date(value) == "Sep 2, 2026"
     assert pretty_date(value, "long") == "September 2, 2026"
+
+
+def test_benchmark_rejects_missing_audio():
+    response = client().post("/transcription-lab/run", data={
+        "audio_path": "Z:/not-here.mp3", "model": "small.en", "sample_minutes": "10",
+    })
+    assert response.status_code == 400

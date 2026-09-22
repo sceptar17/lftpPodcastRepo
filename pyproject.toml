@@ -19,6 +19,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.8"]
+local-transcription = ["faster-whisper>=1.2,<2"]
 
 [project.scripts]
 lftp-kb = "lftp_kb.cli:main"

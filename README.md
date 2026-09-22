@@ -9,6 +9,7 @@ Markdown, review reports, topic records, and **WordPress drafts only**.
 - atomic audio caching and deterministic file naming
 - provider-neutral transcription contract
 - OpenAI timestamped transcription adapter plus fixture adapter
+- local faster-whisper CPU/GPU adapter and background benchmark screen
 - provider-neutral analysis contract
 - schema-constrained OpenAI analysis plus conservative deterministic test adapter
 - evidence enforcement: unsupported AI conclusions fail canonical validation
@@ -94,14 +95,48 @@ Open `http://127.0.0.1:8080`. The initial application includes:
 - review notes, guarded approval, and deterministic output regeneration;
 - canonical topic browser;
 - RSS/repository/local-audio inventory reconciliation;
+- operational RSS/archive reconciliation with previewed, resumable audio downloads;
 - transcription-provider capability and cost-planning matrix;
 - non-secret source preferences and connection-status checks;
 - direct access to canonical JSON, Markdown, QA reports, and WordPress-ready HTML.
 
-Set `LFTP_LOCAL_AUDIO_ROOT` to a read-only audio folder to inventory local recordings. The current
-matcher uses episode numbers only and deliberately labels matches as provisional. Production
-reconciliation should also compare normalized titles, dates, duration, and audio fingerprints before
-creating missing episodes.
+### Run the local transcription benchmark on Windows
+
+Stop the web server with `Ctrl+C`, then install the optional local provider and restart:
+
+```powershell
+python -m pip install -e ".[dev,local-transcription]"
+python -m uvicorn lftp_kb.web:app --host 127.0.0.1 --port 8080
+```
+
+Open **Transcription lab**, paste the complete path to an episode audio file, and begin with a
+10-minute `small.en` run. The work continues in the background; refresh the page to see status.
+Run `medium.en` against the same file and length only after the first run completes. Models download
+on first use. Speaker names remain unset by design: diarization and identity assignment are separate
+review stages, especially important when two hosts have similar voices.
+
+## Updating the app without replacement ZIP files
+
+The project is a Git repository. Once it is connected to a private remote repository, future updates
+are ordinary commits. On Windows, stop the server and run:
+
+```powershell
+git pull --ff-only
+python -m pip install -e ".[dev,local-transcription]"
+python -m pytest -q
+python -m uvicorn lftp_kb.web:app --host 127.0.0.1 --port 8080
+```
+
+The first remote setup requires Git for Windows and a private GitHub (or similar) repository. Do not
+commit `.env`, WordPress credentials, downloaded audio, or benchmark outputs.
+
+Set `LFTP_LOCAL_AUDIO_ROOT` or save the archive path under Sources & providers. Saved source
+preferences take effect immediately. Archive reconciliation separates feed/local matches, RSS-only
+audio, archive-only candidates, and uncertain matches. Downloads are opt-in, never overwrite existing
+files, retain resumable `.part` files after interruption, and record progress under
+`state/archive-sync/`. Matching currently uses unique episode numbers and conservative normalized
+titles; duration and audio fingerprints remain a hardening step before creating episodes from
+archive-only files.
 
 ## Run 3 live episodes
 

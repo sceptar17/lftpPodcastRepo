@@ -160,6 +160,27 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .provider-row.head { color: var(--muted); border: 0; font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .provider-row strong, .provider-row small { display: block; }
 .empty { padding: 24px; color: var(--muted); background: #f5f1e9; border-radius: 8px; }
+.hero-path { display: block; margin-top: 18px; color: #a9c4bc; overflow-wrap: anywhere; }
+.selectable-list { border: 1px solid var(--line); border-radius: 8px; }
+.select-row { display: grid; grid-template-columns: 20px 38px 1fr; gap: 11px; align-items: center; padding: 10px; border-top: 1px solid #eae5db; cursor: pointer; }
+.select-row:first-child { border: 0; }
+.select-row:hover { background: #f7f3eb; }
+.select-row input { width: auto; }
+.select-row strong, .select-row small { display: block; }
+.sync-actions { margin-top: 14px; }
+.sync-status { margin: 18px 0; }
+.progress-track { height: 9px; overflow: hidden; background: #e9e5dc; border-radius: 999px; }
+.progress-track span { display: block; height: 100%; background: var(--forest-2); transition: width .2s; }
+.lab-columns { grid-template-columns: 1.15fr .85fr; }
+.plain-steps { padding-left: 20px; color: var(--muted); }
+.plain-steps li { margin: 9px 0; }
+.benchmark-table { overflow-x: auto; }
+.benchmark-row { min-width: 900px; display: grid; grid-template-columns: 2fr 1.2fr .7fr .7fr .8fr .5fr; align-items: center; gap: 14px; padding: 13px 5px; border-top: 1px solid #e8e3d9; color: var(--ink); }
+.benchmark-row.head { color: var(--muted); border: 0; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.benchmark-row strong, .benchmark-row small { display: block; }
+.benchmark-detail { margin-top: 18px; }
+.notice { padding: 12px; color: #795314; background: var(--warning-bg); border-radius: 7px; }
+.error-box { padding: 12px; color: #832e27; background: #f7ded9; border-radius: 7px; white-space: pre-wrap; }
 @media (max-width: 1050px) {
   .provider-strip, .reconcile-steps, .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }

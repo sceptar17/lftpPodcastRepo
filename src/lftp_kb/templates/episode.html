@@ -5,7 +5,7 @@
 {% block content %}
 <section class="episode-meta panel compact">
   <div><span class="episode-number large">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span></div>
-  <div><span class="eyebrow">{{ episode.publication_date.strftime('%B %-d, %Y') }}</span><p>{{ episode.original_rss_description }}</p></div>
+  <div><span class="eyebrow">{{ episode.publication_date|pretty_date('long') }}</span><p>{{ episode.original_rss_description }}</p></div>
   <div><span class="status {{ 'warning' if episode.status.value == 'needs-review' else 'ok' }}">{{ episode.status.value }}</span><small>{{ episode.transcript.provider }} · {{ episode.transcript.model }}</small></div>
 </section>
 

@@ -18,7 +18,7 @@
     {% for episode in episodes %}
     <div class="table-row">
       <span class="title-cell"><b>{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</b><span><strong>{{ episode.title }}</strong><small>{{ episode.episode_id }}</small></span></span>
-      <span>{{ episode.publication_date.strftime('%b %-d, %Y') }}</span>
+      <span>{{ episode.publication_date|pretty_date }}</span>
       <span>{{ episode.primary_topics|map(attribute='text')|join(', ') or '—' }}</span>
       <span><i class="status {{ 'warning' if episode.status.value == 'needs-review' else 'ok' }}">{{ episode.status.value }}</i></span>
       <span><a href="/episodes/{{ episode.episode_id }}">Review →</a></span>

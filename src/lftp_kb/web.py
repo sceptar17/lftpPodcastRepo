@@ -24,6 +24,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     repository = Repository(settings.root)
     templates = Jinja2Templates(directory=str(PACKAGE_ROOT / "templates"))
     templates.env.filters["timestamp"] = timestamp
+    templates.env.filters["pretty_date"] = pretty_date
     app = FastAPI(title="LFTP Knowledge Repository", version="0.2.0")
     app.mount("/static", StaticFiles(directory=str(PACKAGE_ROOT / "static")), name="static")
     app.state.settings = settings
@@ -159,6 +160,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "feed_items": len(load_discovered(repository))}
 
     return app
+
+
+def pretty_date(value, style: str = "short") -> str:
+    """Format dates without platform-specific strftime flags such as %-d."""
+    month = value.strftime("%B" if style == "long" else "%b")
+    return f"{month} {value.day}, {value.year}"
 
 
 def _episode_or_404(repository: Repository, episode_id: str) -> Episode:

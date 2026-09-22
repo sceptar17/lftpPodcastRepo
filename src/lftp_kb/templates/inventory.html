@@ -11,7 +11,7 @@
 </section>
 <section class="two-column inventory-columns">
   <div class="panel"><div class="section-heading"><div><span class="eyebrow">Repository coverage</span><h2>Not processed yet</h2></div><span class="count">{{ inventory.missing_from_repository|length }}</span></div>
-    <div class="scroll-list">{% for episode in inventory.missing_from_repository[:40] %}<article><span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span><span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date.strftime('%b %-d, %Y') }}</small></span><i class="status neutral">RSS only</i></article>{% endfor %}</div>
+    <div class="scroll-list">{% for episode in inventory.missing_from_repository[:40] %}<article><span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span><span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date|pretty_date }}</small></span><i class="status neutral">RSS only</i></article>{% endfor %}</div>
   </div>
   <div class="panel"><div class="section-heading"><div><span class="eyebrow">Local-file scan</span><h2>Potential missing stock</h2></div></div>
     {% if not inventory.local_root_configured %}<div class="empty action-empty"><strong>No local archive path configured</strong><p>Add a read-only folder path under Sources & providers. The future matcher will use episode numbers, titles, dates, duration, and audio fingerprints—never filename alone.</p><a class="button secondary" href="/settings">Configure archive path</a></div>

@@ -1,9 +1,10 @@
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from lftp_kb.config import Settings
-from lftp_kb.web import create_app
+from lftp_kb.web import create_app, pretty_date
 
 PROJECT = Path(__file__).resolve().parents[1]
 
@@ -47,3 +48,9 @@ def test_episode_review_and_outputs_render():
 
 def test_missing_episode_is_404():
     assert client().get("/episodes/not-real").status_code == 404
+
+
+def test_date_format_is_cross_platform():
+    value = datetime(2026, 9, 2, tzinfo=UTC)
+    assert pretty_date(value) == "Sep 2, 2026"
+    assert pretty_date(value, "long") == "September 2, 2026"

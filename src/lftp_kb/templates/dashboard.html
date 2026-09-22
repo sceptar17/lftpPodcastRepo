@@ -28,7 +28,7 @@
       {% for episode in review %}
         <a class="episode-row" href="/episodes/{{ episode.episode_id }}">
           <span class="episode-number">{{ '%02d'|format(episode.episode_number) if episode.episode_number else '—' }}</span>
-          <span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date.strftime('%b %-d, %Y') }} · {{ episode.qa.manual_review_flags|length }} flags</small></span>
+          <span><strong>{{ episode.title }}</strong><small>{{ episode.publication_date|pretty_date }} · {{ episode.qa.manual_review_flags|length }} flags</small></span>
           <span class="status warning">Needs review</span>
         </a>
       {% endfor %}

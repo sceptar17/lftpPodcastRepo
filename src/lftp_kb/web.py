@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
@@ -17,6 +18,7 @@ from .archive_sync import (
     latest_sync_job,
 )
 from .benchmark import create_run, execute_run, load_runs, load_transcript
+from .catalog import build_episode_ledger, load_ledger
 from .config import Settings
 from .inventory import (
     AUDIO_EXTENSIONS,
@@ -121,6 +123,52 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         for path in sorted((repository.root / "topics").glob("*.json")):
             records.append(json.loads(path.read_text(encoding="utf-8")))
         return templates.TemplateResponse(request, "topics.html", context(request, topics=records))
+
+    @app.get("/catalog", response_class=HTMLResponse)
+    def catalog_page(request: Request, year: str | None = None):
+        ledger = load_ledger(repository)
+        state_path = repository.root / "state" / "catalog-build.json"
+        build_state = (
+            json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else None
+        )
+        candidates = ledger.candidates if ledger else []
+        selected_year = int(year) if year and year.isdigit() else None
+        show_unknown = year == "unknown"
+        if selected_year is not None:
+            candidates = [item for item in candidates
+                          if item.publication_date and item.publication_date.startswith(str(selected_year))]
+        elif show_unknown:
+            candidates = [item for item in candidates if not item.publication_date]
+        return templates.TemplateResponse(request, "catalog.html", context(request,
+            ledger=ledger, candidates=candidates, selected_year=year,
+            build_state=build_state,
+        ))
+
+    @app.post("/catalog/rebuild")
+    def rebuild_catalog(background_tasks: BackgroundTasks):
+        effective = _effective_inputs(repository.root, settings)
+        archive_root = effective["local_audio_root"]
+        if archive_root is None or not archive_root.exists() or not archive_root.is_dir():
+            raise HTTPException(400, "Configure an existing local archive folder first")
+        state_path = repository.root / "state" / "catalog-build.json"
+        current = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+        if current.get("status") in {"queued", "running"}:
+            raise HTTPException(409, "A catalog scan is already running")
+        repository.atomic_json("state/catalog-build.json", {
+            "status": "queued", "started_at": datetime.now(UTC).isoformat(),
+        })
+        background_tasks.add_task(_execute_catalog_build, repository, archive_root)
+        return RedirectResponse("/catalog", status_code=303)
+
+    @app.get("/catalog/output/{kind}")
+    def catalog_output(kind: str):
+        choices = {
+            "json": repository.root / "catalog" / "master-ledger.json",
+            "csv": repository.root / "catalog" / "master-ledger.csv",
+        }
+        if kind not in choices or not choices[kind].exists():
+            raise HTTPException(404, "Catalog output not found")
+        return FileResponse(choices[kind])
 
     @app.get("/inventory", response_class=HTMLResponse)
     def inventory(request: Request):
@@ -309,6 +357,27 @@ def _metadata_candidates(
         if episode:
             candidates.append((path, episode, item.match_reason or "High-confidence match"))
     return candidates
+
+
+def _execute_catalog_build(repository: Repository, archive_root: Path) -> None:
+    started = datetime.now(UTC)
+    repository.atomic_json("state/catalog-build.json", {
+        "status": "running", "started_at": started.isoformat(),
+    })
+    try:
+        snapshot = build_inventory(repository, archive_root)
+        ledger = build_episode_ledger(repository, snapshot, archive_root)
+        repository.atomic_json("state/catalog-build.json", {
+            "status": "complete", "started_at": started.isoformat(),
+            "finished_at": datetime.now(UTC).isoformat(),
+            "candidate_count": ledger.candidate_count,
+        })
+    except Exception as error:  # noqa: BLE001 - state must retain background failures
+        repository.atomic_json("state/catalog-build.json", {
+            "status": "failed", "started_at": started.isoformat(),
+            "finished_at": datetime.now(UTC).isoformat(),
+            "error": f"{type(error).__name__}: {error}",
+        })
 
 
 app = create_app()

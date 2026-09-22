@@ -96,6 +96,7 @@ Open `http://127.0.0.1:8080`. The initial application includes:
 - canonical topic browser;
 - RSS/repository/local-audio inventory reconciliation;
 - operational RSS/archive reconciliation with previewed, resumable audio downloads;
+- non-destructive catalog reconstruction from RSS, filenames, folders, and embedded audio tags;
 - transcription-provider capability and cost-planning matrix;
 - non-secret source preferences and connection-status checks;
 - direct access to canonical JSON, Markdown, QA reports, and WordPress-ready HTML.
@@ -143,6 +144,19 @@ download receives a neighboring `.rss.json` sidecar containing the complete disc
 portable relative path, byte size, and SHA-256 checksum. The inventory screen can create equivalent
 sidecars for confidently matched existing files without moving or renaming them. Sidecars regenerate
 the root `archive-manifest.json`; the manifest is an index, while the sidecars preserve source metadata.
+
+### Build the master episode ledger
+
+Open **Catalog reconstruction** and choose **Build reference list**. The scan reads the configured
+archive recursively and combines it with the latest RSS discovery data. It does not move, rename,
+or edit audio. Embedded episode numbers are retained as high-confidence historical evidence; RSS
+episode numbers remain confirmed evidence. The separate `known_sequence_in_year` field is always
+provisional and never overwrites a historical episode number.
+
+Canonical results are written to `catalog/master-ledger.json`, with a generated
+`catalog/master-ledger.csv` for sorting and review. Raw RSS and local-file observations remain under
+`catalog/observations/`, and each candidate also has an individual JSON record. A four-digit year
+folder is used only as medium-confidence year evidence when an audio file has no embedded date.
 
 ## Run 3 live episodes
 

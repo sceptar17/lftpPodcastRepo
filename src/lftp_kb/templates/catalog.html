@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Catalog reconstruction · LFTP Knowledge{% endblock %}
+{% block heading %}Catalog reconstruction{% endblock %}
+{% block top_action %}
+<form method="post" action="/catalog/rebuild"><button class="button" type="submit">Build reference list</button></form>
+{% endblock %}
+{% block content %}
+<section class="hero catalog-hero">
+  <div>
+    <span class="eyebrow">Evidence before numbering</span>
+    <h2>One reference list for everything currently known.</h2>
+    <p>This scan combines the RSS feed with local audio and its embedded metadata. It reads files without moving, renaming, or changing them.</p>
+  </div>
+  <div class="pipeline-mini">
+    <span>RSS evidence</span><b>+</b><span>Local tags</span><b>→</b><span>Master ledger</span>
+  </div>
+</section>
+
+{% if build_state %}
+<section class="panel sync-status">
+  <div class="section-heading"><div><span class="eyebrow">Latest scan</span><h2>{{ build_state.status|replace('-', ' ')|title }}</h2></div>
+    {% if build_state.candidate_count is defined %}<span class="badge ok">{{ build_state.candidate_count }} candidates</span>{% endif %}</div>
+  {% if build_state.error %}<p class="error-box">{{ build_state.error }}</p>{% endif %}
+  {% if build_state.status in ['queued', 'running'] %}<p class="notice">The scan is running in the background. Refresh this page in a moment.</p>{% endif %}
+</section>
+{% endif %}
+
+{% if ledger %}
+<section class="panel year-summary-panel">
+  <div class="section-heading">
+    <div><span class="eyebrow">Coverage by year</span><h2>{{ ledger.candidate_count }} episode candidates</h2></div>
+    <div class="inline-actions"><a class="button secondary" href="/catalog/output/csv">Download CSV</a><a class="button secondary" href="/catalog/output/json">Download JSON</a></div>
+  </div>
+  <div class="year-grid">
+    {% for summary in ledger.years %}
+    <a class="year-card {{ 'selected' if selected_year == (summary.year|string if summary.year else 'unknown') else '' }}" href="/catalog?year={{ summary.year or 'unknown' }}">
+      <strong>{{ summary.year or 'Unknown year' }}</strong><span>{{ summary.candidate_count }} candidates</span>
+      <small>{{ summary.local_file_count }} local · {{ summary.rss_count }} RSS · {{ summary.numbered_count }} numbered{% if summary.conflict_count %} · {{ summary.conflict_count }} conflicts{% endif %}</small>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel ledger-panel">
+  <div class="section-heading"><div><span class="eyebrow">Master episode ledger</span><h2>{% if selected_year %}{{ selected_year|replace('unknown', 'Unknown year') }}{% else %}All known candidates{% endif %}</h2></div><span class="count">{{ candidates|length }} rows</span></div>
+  <div class="ledger-table">
+    <div class="ledger-row table-head"><span>Order</span><span>Historical #</span><span>Date</span><span>Episode candidate</span><span>Status</span><span>Evidence</span></div>
+    {% for item in candidates %}
+    <article class="ledger-row">
+      <span><b>{{ item.known_sequence_in_year or '—' }}</b><small>provisional</small></span>
+      <span><b>{{ item.episode_number or '—' }}</b><small>{{ item.episode_number_confidence }}</small></span>
+      <span><b>{{ item.publication_date or 'Unknown' }}</b><small>{{ item.date_precision }} precision</small></span>
+      <span><strong>{{ item.title or (item.sources.local_files[0] if item.sources.local_files else 'Untitled candidate') }}</strong><small>{% if item.sources.rss_episode_id %}RSS{% endif %}{% if item.sources.rss_episode_id and item.sources.local_files %} + {% endif %}{% if item.sources.local_files %}{{ item.sources.local_files|length }} local file{% if item.sources.local_files|length != 1 %}s{% endif %}{% endif %}</small>{% for conflict in item.conflicts %}<em class="ledger-warning">{{ conflict }}</em>{% endfor %}</span>
+      <span><span class="badge {{ 'warning' if item.status in ['uncertain', 'conflict'] else 'ok' }}">{{ item.status }}</span></span>
+      <span><b>{{ item.evidence|length }}</b><small>{{ item.overall_confidence }} confidence</small></span>
+    </article>
+    {% else %}<p class="empty">No candidates match this filter.</p>{% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="panel action-empty"><span class="eyebrow">Start here</span><h2>Build the first reference list</h2><p>The first scan will read your configured archive and the current RSS discovery file, then create canonical JSON and a spreadsheet-friendly CSV.</p><form method="post" action="/catalog/rebuild"><button class="button" type="submit">Build reference list</button></form></section>
+{% endif %}
+{% endblock %}

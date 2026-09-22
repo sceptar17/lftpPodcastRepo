@@ -14,6 +14,7 @@ class Repository:
     DIRECTORIES = (
         "episodes", "topics", "raw/transcripts", "raw/provider-output",
         "raw/rss", "logs", "reports", "audio-cache", "state",
+        "catalog/observations", "catalog/candidates",
     )
 
     def __init__(self, root: Path):

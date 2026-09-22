@@ -182,6 +182,17 @@ textarea { resize: vertical; margin-bottom: 10px; }
 .benchmark-detail { margin-top: 18px; }
 .notice { padding: 12px; color: #795314; background: var(--warning-bg); border-radius: 7px; }
 .error-box { padding: 12px; color: #832e27; background: #f7ded9; border-radius: 7px; white-space: pre-wrap; }
+.catalog-hero { min-height: 190px; }
+.year-summary-panel, .ledger-panel { margin-top: 18px; }
+.year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 9px; }
+.year-card { display: grid; gap: 3px; padding: 13px; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; }
+.year-card:hover, .year-card.selected { border-color: var(--forest-2); background: var(--ok-bg); }
+.year-card strong { font: 600 20px Georgia, serif; }
+.year-card span, .year-card small, .ledger-row small { display: block; color: var(--muted); }
+.ledger-table { overflow-x: auto; }
+.ledger-row { min-width: 1040px; display: grid; grid-template-columns: .55fr .7fr 1fr 2.6fr .9fr .8fr; gap: 14px; align-items: center; padding: 13px 5px; border-top: 1px solid #e8e3d9; }
+.ledger-row.table-head { border-top: 0; }
+.ledger-warning { display: block; margin-top: 5px; color: #8a5416; font-size: 11px; font-style: normal; }
 @media (max-width: 1050px) {
   .provider-strip, .reconcile-steps, .activity-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }

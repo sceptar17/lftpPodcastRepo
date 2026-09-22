@@ -226,3 +226,59 @@ class AnalysisResult(StrictModel):
     qa_issues: list[str] = []
     low_confidence_items: list[str] = []
     model_runs: list[ModelRun]
+
+
+class CatalogEvidence(StrictModel):
+    source: str
+    field: str
+    value: str
+    confidence: Literal["confirmed", "high", "medium", "low"]
+    locator: str
+
+
+class CatalogSources(StrictModel):
+    local_files: list[str] = []
+    rss_guid: str | None = None
+    rss_episode_id: str | None = None
+    r2_object_key: str | None = None
+    wordpress_post_id: int | None = None
+
+
+class EpisodeCandidate(StrictModel):
+    schema_version: str = "1.0.0"
+    candidate_id: str
+    title: str | None = None
+    episode_number: int | None = None
+    episode_number_confidence: Literal["confirmed", "high", "medium", "low", "unknown"] = "unknown"
+    publication_date: str | None = None
+    date_precision: Literal["day", "month", "year", "unknown"] = "unknown"
+    known_sequence_in_year: int | None = None
+    sequence_is_provisional: bool = True
+    duration_seconds: float | None = None
+    file_size_bytes: int | None = None
+    sources: CatalogSources = CatalogSources()
+    evidence: list[CatalogEvidence] = []
+    status: Literal["confirmed", "rss-only", "local-only", "uncertain", "conflict"]
+    overall_confidence: Literal["confirmed", "high", "medium", "low"]
+    possible_rss_episode_id: str | None = None
+    conflicts: list[str] = []
+    manual_review_flags: list[str] = []
+
+
+class CatalogYearSummary(StrictModel):
+    year: int | None
+    candidate_count: int
+    local_file_count: int
+    rss_count: int
+    numbered_count: int
+    exact_date_count: int
+    conflict_count: int
+
+
+class EpisodeLedger(StrictModel):
+    schema_version: str = "1.0.0"
+    generated_at: datetime
+    local_archive_root: str
+    candidate_count: int
+    candidates: list[EpisodeCandidate]
+    years: list[CatalogYearSummary]

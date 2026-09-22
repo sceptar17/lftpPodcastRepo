@@ -29,6 +29,7 @@ def test_orientation_pages_render():
         "/episodes": "3 records",
         "/topics": "Controlled vocabulary",
         "/inventory": "Full-stock reconciliation",
+        "/catalog": "One reference list",
         "/settings": "Provider capability matrix",
         "/transcription-lab": "Test one excerpt first",
     }

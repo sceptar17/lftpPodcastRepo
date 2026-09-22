@@ -1,17 +1,23 @@
 $ErrorActionPreference = "Stop"
+$ProjectRoot = $PSScriptRoot
+Set-Location $ProjectRoot
 
 if (-not (Test-Path ".git")) {
-    throw "Run this script from the lftp-knowledge folder."
+    throw "The launcher could not find the lftp-knowledge Git repository."
 }
 
 git pull --ff-only
 if ($LASTEXITCODE -ne 0) { throw "Git update failed. Local files were not overwritten." }
 
-python -m pip install -e ".[dev,local-transcription]"
+$ProjectPython = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
+if (-not (Test-Path $ProjectPython)) {
+    throw "The project virtual environment is missing. Expected: $ProjectPython"
+}
+
+& $ProjectPython -m pip install -e ".[dev,local-transcription]"
 if ($LASTEXITCODE -ne 0) { throw "Dependency update failed." }
 
-python -m pytest -q
+& $ProjectPython -m pytest -q
 if ($LASTEXITCODE -ne 0) { throw "Tests failed. Review the output before restarting the app." }
 
-Write-Host "Update complete. Start the app with:" -ForegroundColor Green
-Write-Host "python -m uvicorn lftp_kb.web:app --host 127.0.0.1 --port 8080"
+Write-Host "Update and safety checks complete." -ForegroundColor Green

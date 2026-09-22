@@ -118,6 +118,12 @@ review stages, especially important when two hosts have similar voices.
 
 ## Updating the app without replacement ZIP files
 
+On Windows, double-click `Start LFTP Knowledge.cmd` in the project folder. The launcher pulls the
+latest version, uses `.venv`, installs changed dependencies, runs the test suite, starts the server,
+and opens the application in the default browser. Leave its command window open while using the app;
+press `Ctrl+C` in that window to stop it. The launcher applies PowerShell's execution-policy bypass
+only to the repository's checked-in update script.
+
 The project is a Git repository. Once it is connected to a private remote repository, future updates
 are ordinary commits. On Windows, stop the server and run:
 

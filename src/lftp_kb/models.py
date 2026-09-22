@@ -305,6 +305,7 @@ class CatalogAsset(StrictModel):
     size_bytes: int
     duration_seconds: float | None = None
     sha256: str | None = None
+    hash_status: Literal["complete", "not-required", "failed"] = "not-required"
     format: str
     embedded_title: str | None = None
     embedded_track_number: int | None = None

@@ -139,6 +139,7 @@ def _asset_from_observation(item: dict) -> CatalogAsset:
         size_bytes=item["size_bytes"],
         duration_seconds=item.get("duration_seconds"),
         sha256=item["sha256"],
+        hash_status=item.get("hash_status", "not-required"),
         format=item["format"],
         embedded_title=item.get("title"),
         embedded_track_number=item.get("episode_number"),

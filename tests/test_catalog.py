@@ -24,7 +24,7 @@ def test_embedded_episode_number_is_high_confidence(tmp_path, monkeypatch):
     path.write_bytes(b"audio placeholder")
     monkeypatch.setattr(catalog, "MutagenFile", lambda *_args, **_kwargs: _Media())
 
-    result = inspect_audio_file(path, archive)
+    result = inspect_audio_file(path, archive, compute_hash=True)
 
     assert result["episode_number"] == 47
     assert result["title"] == "A trustworthy old episode"
@@ -38,7 +38,7 @@ def test_folder_year_is_retained_when_tags_have_no_date(tmp_path, monkeypatch):
     path.write_bytes(b"audio placeholder")
     monkeypatch.setattr(catalog, "MutagenFile", lambda *_args, **_kwargs: None)
 
-    result = inspect_audio_file(path, archive)
+    result = inspect_audio_file(path, archive, compute_hash=True)
 
     assert result["date"] == "2010"
     assert result["date_precision"] == "year"
@@ -57,10 +57,24 @@ def test_unreadable_file_becomes_auditable_issue(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(catalog, "MutagenFile", lambda *_args, **_kwargs: None)
 
-    result = inspect_audio_file(path, archive)
+    result = inspect_audio_file(path, archive, compute_hash=True)
 
     assert result["sha256"] is None
+    assert result["hash_status"] == "failed"
     assert "Invalid argument" in result["file_errors"][0]
+
+
+def test_only_same_size_files_require_complete_hashes():
+    observations = [
+        {"filename": "a.mp3", "size_bytes": 100},
+        {"filename": "b.mp3", "size_bytes": 200},
+        {"filename": "copy-of-b.mp3", "size_bytes": 200},
+        {"filename": "empty.mp3", "size_bytes": 0},
+    ]
+
+    candidates = catalog._hash_candidate_observations(observations)
+
+    assert [item["filename"] for item in candidates] == ["b.mp3", "copy-of-b.mp3"]
 
 
 def test_ledger_keeps_embedded_track_number_as_evidence(tmp_path, monkeypatch):

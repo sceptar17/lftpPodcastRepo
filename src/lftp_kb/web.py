@@ -584,8 +584,8 @@ def _execute_catalog_build(repository: Repository, archive_root: Path) -> None:
                 "finished_at": datetime.now(UTC).isoformat(),
                 "stage": "Catalog complete",
                 "current_label": None,
-                "total": len(snapshot.local_audio) + 3,
-                "processed": len(snapshot.local_audio) + 3,
+                "total": last_progress["total"],
+                "processed": last_progress["total"],
                 "candidate_count": ledger.candidate_count,
             },
         )

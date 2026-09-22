@@ -38,17 +38,40 @@ def build_episode_ledger(
     total_steps = len(snapshot.local_audio) + 3
     local_observations = []
     if progress:
-        progress(0, total_steps, "Hashing files and reading metadata", None)
+        progress(0, total_steps, "Reading file sizes and audio metadata", None)
     for index, item in enumerate(snapshot.local_audio, start=1):
         if progress:
-            progress(index - 1, total_steps, "Hashing files and reading metadata", item.filename)
+            progress(index - 1, total_steps, "Reading file sizes and audio metadata", item.filename)
         local_observations.append(
             inspect_audio_file(Path(item.path), archive_root, item.guessed_episode_number)
         )
         if progress and (index % 5 == 0 or index == len(snapshot.local_audio)):
-            progress(index, total_steps, "Hashing files and reading metadata", item.filename)
+            progress(index, total_steps, "Reading file sizes and audio metadata", item.filename)
+    hash_candidates = _hash_candidate_observations(local_observations)
+    total_steps += len(hash_candidates)
+    for hash_index, observation in enumerate(hash_candidates, start=1):
+        if progress:
+            progress(
+                len(local_observations) + hash_index - 1,
+                total_steps,
+                "Hashing possible exact duplicates",
+                observation["filename"],
+            )
+        try:
+            observation["sha256"] = _sha256_file(archive_root / observation["relative_path"])
+            observation["hash_status"] = "complete"
+        except OSError as error:
+            observation["hash_status"] = "failed"
+            observation["file_errors"].append(
+                f"Content hash failed: {type(error).__name__}: {error}"
+            )
     if progress:
-        progress(len(local_observations) + 1, total_steps, "Combining RSS and local evidence", None)
+        progress(
+            len(local_observations) + len(hash_candidates) + 1,
+            total_steps,
+            "Combining RSS and local evidence",
+            None,
+        )
     reconstruction = build_reconstruction_report(local_observations, snapshot.discovered)
     decisions = _load_reconstruction_decisions(repository)
     observations_by_path = {item["relative_path"]: item for item in local_observations}
@@ -146,9 +169,7 @@ def build_episode_ledger(
         candidates.append(candidate)
 
     if progress:
-        progress(
-            len(local_observations) + 2, total_steps, "Assigning provisional year sequence", None
-        )
+        progress(total_steps - 1, total_steps, "Assigning provisional year sequence", None)
     _assign_provisional_sequence(candidates)
     candidates.sort(key=_candidate_sort_key)
     years = _year_summaries(candidates)
@@ -168,7 +189,10 @@ def build_episode_ledger(
 
 
 def inspect_audio_file(
-    path: Path, archive_root: Path, filename_episode_number: int | None = None
+    path: Path,
+    archive_root: Path,
+    filename_episode_number: int | None = None,
+    compute_hash: bool = False,
 ) -> dict:
     relative = path.relative_to(archive_root).as_posix()
     file_errors = []
@@ -177,11 +201,15 @@ def inspect_audio_file(
     except OSError as error:
         size_bytes = 0
         file_errors.append(f"File stat failed: {type(error).__name__}: {error}")
-    try:
-        digest = _sha256_file(path)
-    except OSError as error:
-        digest = None
-        file_errors.append(f"Content hash failed: {type(error).__name__}: {error}")
+    digest = None
+    hash_status = "not-required"
+    if compute_hash:
+        try:
+            digest = _sha256_file(path)
+            hash_status = "complete"
+        except OSError as error:
+            hash_status = "failed"
+            file_errors.append(f"Content hash failed: {type(error).__name__}: {error}")
     observation = {
         "source": "local-file",
         "relative_path": relative,
@@ -200,6 +228,7 @@ def inspect_audio_file(
         "filename_episode_number": filename_episode_number,
         "embedded_track_raw": None,
         "sha256": digest,
+        "hash_status": hash_status,
         "file_errors": file_errors,
     }
     try:
@@ -577,6 +606,14 @@ def _sha256_file(path: Path) -> str:
         while chunk := handle.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _hash_candidate_observations(observations: list[dict]) -> list[dict]:
+    by_size: dict[int, list[dict]] = defaultdict(list)
+    for observation in observations:
+        if observation["size_bytes"] > 0:
+            by_size[observation["size_bytes"]].append(observation)
+    return [observation for group in by_size.values() if len(group) > 1 for observation in group]
 
 
 def _load_reconstruction_decisions(repository: Repository) -> dict:

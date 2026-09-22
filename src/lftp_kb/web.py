@@ -36,9 +36,31 @@ from .rss import fetch_rss
 PACKAGE_ROOT = Path(__file__).parent
 
 
+def _recover_interrupted_catalog_job(repository: Repository) -> None:
+    path = repository.root / "state" / "catalog-build.json"
+    if not path.exists():
+        return
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return
+    if payload.get("status") not in ACTIVE_STATUSES:
+        return
+    now = datetime.now(UTC).isoformat()
+    payload.update(
+        status="interrupted",
+        stage="Previous catalog scan was interrupted",
+        updated_at=now,
+        finished_at=now,
+        error="The app stopped before this catalog scan completed. It is safe to rebuild.",
+    )
+    repository.atomic_json("state/catalog-build.json", payload)
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     repository = Repository(settings.root)
+    _recover_interrupted_catalog_job(repository)
     templates = Jinja2Templates(directory=str(PACKAGE_ROOT / "templates"))
     templates.env.filters["timestamp"] = timestamp
     templates.env.filters["pretty_date"] = pretty_date

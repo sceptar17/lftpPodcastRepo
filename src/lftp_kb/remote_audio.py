@@ -46,7 +46,10 @@ def verify_remote_audio(
         if decisions.get(proposal.proposal_id, {}).get("decision") not in {"confirmed", "rejected"}
         and proposal.verification_status
         not in {"exact-file", "same-recording", "different-recording"}
-        and (proposal.verification_status != "metadata-only" or acoustic_available)
+        and (
+            proposal.verification_status != "metadata-only"
+            or (acoustic_available and proposal.verification_method != "chromaprint")
+        )
     ]
     total = len(candidates)
     for index, proposal in enumerate(candidates, start=1):

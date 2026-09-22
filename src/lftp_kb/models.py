@@ -304,7 +304,7 @@ class CatalogAsset(StrictModel):
     filename: str
     size_bytes: int
     duration_seconds: float | None = None
-    sha256: str
+    sha256: str | None = None
     format: str
     embedded_title: str | None = None
     embedded_track_number: int | None = None

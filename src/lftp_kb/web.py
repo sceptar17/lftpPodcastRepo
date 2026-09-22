@@ -57,22 +57,41 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         effective = _effective_inputs(repository.root, settings)
         inventory = build_inventory(repository, effective["local_audio_root"])
         episodes = sorted(inventory.processed, key=lambda item: item.publication_date, reverse=True)
-        review = [episode for episode in episodes if episode.status == ProcessingStatus.NEEDS_REVIEW]
+        review = [
+            episode for episode in episodes if episode.status == ProcessingStatus.NEEDS_REVIEW
+        ]
         states = _load_states(repository.root / "state")
         jobs = _operation_jobs(repository)
-        return templates.TemplateResponse(request, "dashboard.html", context(request,
-            inventory=inventory, episodes=episodes[:6], review=review[:6], states=states,
-            providers=provider_profiles(), jobs=jobs,
-        ))
+        return templates.TemplateResponse(
+            request,
+            "dashboard.html",
+            context(
+                request,
+                inventory=inventory,
+                episodes=episodes[:6],
+                review=review[:6],
+                states=states,
+                providers=provider_profiles(),
+                jobs=jobs,
+            ),
+        )
 
     @app.get("/episodes", response_class=HTMLResponse)
     def episode_list(request: Request, status: str | None = None):
-        episodes = sorted(repository.episodes(), key=lambda item: item.publication_date, reverse=True)
+        episodes = sorted(
+            repository.episodes(), key=lambda item: item.publication_date, reverse=True
+        )
         if status:
             episodes = [episode for episode in episodes if episode.status.value == status]
-        return templates.TemplateResponse(request, "episodes.html", context(request,
-            episodes=episodes, selected_status=status,
-        ))
+        return templates.TemplateResponse(
+            request,
+            "episodes.html",
+            context(
+                request,
+                episodes=episodes,
+                selected_status=status,
+            ),
+        )
 
     @app.get("/episodes/{episode_id}", response_class=HTMLResponse)
     def episode_detail(request: Request, episode_id: str):
@@ -83,9 +102,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if note_path.exists()
             else ""
         )
-        return templates.TemplateResponse(request, "episode.html", context(request,
-            episode=episode, notes=notes,
-        ))
+        return templates.TemplateResponse(
+            request,
+            "episode.html",
+            context(
+                request,
+                episode=episode,
+                notes=notes,
+            ),
+        )
 
     @app.post("/episodes/{episode_id}/notes")
     def save_notes(episode_id: str, notes: str = Form("")):
@@ -98,9 +123,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         episode = _episode_or_404(repository, episode_id)
         if action == "approve":
             if not episode.transcript.is_complete:
-                repository.atomic_json(f"state/review-notes/{episode_id}.json", {
-                    "notes": "Approval blocked: the transcript is marked incomplete."
-                })
+                repository.atomic_json(
+                    f"state/review-notes/{episode_id}.json",
+                    {"notes": "Approval blocked: the transcript is marked incomplete."},
+                )
             else:
                 episode.status = ProcessingStatus.COMPLETE
                 episode.qa.manual_review_flags = []
@@ -142,18 +168,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         selected_year = int(year) if year and year.isdigit() else None
         show_unknown = year == "unknown"
         if selected_year is not None:
-            candidates = [item for item in candidates
-                          if item.publication_date and item.publication_date.startswith(str(selected_year))]
+            candidates = [
+                item
+                for item in candidates
+                if item.publication_date and item.publication_date.startswith(str(selected_year))
+            ]
         elif show_unknown:
             candidates = [item for item in candidates if not item.publication_date]
-        return templates.TemplateResponse(request, "catalog.html", context(request,
-            ledger=ledger, candidates=candidates, selected_year=year,
-            build_state=build_state, reconstruction=reconstruction,
-            assets=({asset.asset_id: asset for asset in reconstruction.assets}
-                    if reconstruction else {}),
-            decisions=decision_payload.get("decisions", {}),
-            rss_records={episode.episode_id: episode for episode in load_discovered(repository)},
-        ))
+        return templates.TemplateResponse(
+            request,
+            "catalog.html",
+            context(
+                request,
+                ledger=ledger,
+                candidates=candidates,
+                selected_year=year,
+                build_state=build_state,
+                reconstruction=reconstruction,
+                assets=(
+                    {asset.asset_id: asset for asset in reconstruction.assets}
+                    if reconstruction
+                    else {}
+                ),
+                decisions=decision_payload.get("decisions", {}),
+                rss_records={
+                    episode.episode_id: episode for episode in load_discovered(repository)
+                },
+            ),
+        )
 
     @app.post("/catalog/rebuild")
     def rebuild_catalog(background_tasks: BackgroundTasks):
@@ -166,11 +208,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if current.get("status") in {"queued", "running"}:
             raise HTTPException(409, "A catalog scan is already running")
         created = datetime.now(UTC).isoformat()
-        repository.atomic_json("state/catalog-build.json", {
-            "status": "queued", "stage": "Waiting to scan archive",
-            "created_at": created, "started_at": None, "updated_at": created,
-            "finished_at": None, "total": 0, "processed": 0, "current_label": None,
-        })
+        repository.atomic_json(
+            "state/catalog-build.json",
+            {
+                "status": "queued",
+                "stage": "Waiting to scan archive",
+                "created_at": created,
+                "started_at": None,
+                "updated_at": created,
+                "finished_at": None,
+                "total": 0,
+                "processed": 0,
+                "current_label": None,
+            },
+        )
         background_tasks.add_task(_execute_catalog_build, repository, archive_root)
         return RedirectResponse("/catalog", status_code=303)
 
@@ -190,8 +241,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         reconstruction = load_reconstruction(repository)
         effective = _effective_inputs(repository.root, settings)
         archive_root = effective["local_audio_root"]
-        asset = next((item for item in reconstruction.assets if item.asset_id == asset_id), None) \
-            if reconstruction else None
+        asset = (
+            next((item for item in reconstruction.assets if item.asset_id == asset_id), None)
+            if reconstruction
+            else None
+        )
         if asset is None or archive_root is None:
             raise HTTPException(404, "Audio asset not found")
         target = (archive_root / asset.relative_path).resolve()
@@ -202,9 +256,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/catalog/proposals/{proposal_id}")
     def decide_catalog_proposal(proposal_id: str, action: str = Form(...), notes: str = Form("")):
         reconstruction = load_reconstruction(repository)
-        valid_ids = ({item.proposal_id for item in reconstruction.duplicate_proposals} |
-                     {item.proposal_id for item in reconstruction.match_proposals}) \
-            if reconstruction else set()
+        valid_ids = (
+            (
+                {item.proposal_id for item in reconstruction.duplicate_proposals}
+                | {item.proposal_id for item in reconstruction.match_proposals}
+            )
+            if reconstruction
+            else set()
+        )
         if proposal_id not in valid_ids:
             raise HTTPException(404, "Reconstruction proposal not found")
         if action not in {"confirmed", "rejected", "clear"}:
@@ -215,7 +274,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             payload["decisions"].pop(proposal_id, None)
         else:
             payload["decisions"][proposal_id] = {
-                "decision": action, "notes": notes.strip(),
+                "decision": action,
+                "notes": notes.strip(),
                 "decided_at": datetime.now(UTC).isoformat(),
             }
         payload["updated_at"] = datetime.now(UTC).isoformat()
@@ -227,12 +287,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         effective = _effective_inputs(repository.root, settings)
         snapshot = build_inventory(repository, effective["local_audio_root"])
         metadata_candidates = _metadata_candidates(snapshot)
-        return templates.TemplateResponse(request, "inventory.html", context(request,
-            inventory=snapshot, providers=provider_profiles(), settings=settings,
-            effective=effective, sync_job=job_view(latest_sync_job(repository)),
-            rss_job=job_view(_load_json(repository.root / "state" / "rss-refresh.json")),
-            metadata_candidate_count=len(metadata_candidates),
-        ))
+        return templates.TemplateResponse(
+            request,
+            "inventory.html",
+            context(
+                request,
+                inventory=snapshot,
+                providers=provider_profiles(),
+                settings=settings,
+                effective=effective,
+                sync_job=job_view(latest_sync_job(repository)),
+                rss_job=job_view(_load_json(repository.root / "state" / "rss-refresh.json")),
+                metadata_candidate_count=len(metadata_candidates),
+            ),
+        )
 
     @app.post("/inventory/refresh")
     def refresh_inventory(background_tasks: BackgroundTasks):
@@ -243,28 +311,41 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         current = _load_json(state_path) or {}
         if current.get("status") in ACTIVE_STATUSES:
             raise HTTPException(409, "An RSS refresh is already running")
-        repository.atomic_json("state/rss-refresh.json", {
-            "status": "queued", "stage": "Waiting to contact RSS feed",
-            "created_at": datetime.now(UTC).isoformat(), "started_at": None,
-            "updated_at": None, "finished_at": None, "total": 1, "processed": 0,
-        })
+        repository.atomic_json(
+            "state/rss-refresh.json",
+            {
+                "status": "queued",
+                "stage": "Waiting to contact RSS feed",
+                "created_at": datetime.now(UTC).isoformat(),
+                "started_at": None,
+                "updated_at": None,
+                "finished_at": None,
+                "total": 1,
+                "processed": 0,
+            },
+        )
         background_tasks.add_task(
             _execute_rss_refresh, repository, effective["rss_url"], settings.http_timeout_seconds
         )
         return RedirectResponse("/inventory", status_code=303)
 
     @app.post("/inventory/sync")
-    def sync_archive(background_tasks: BackgroundTasks, action: str = Form("selected"),
-                     episode_ids: list[str] = Form(default=[])):  # noqa: B008
+    def sync_archive(
+        background_tasks: BackgroundTasks,
+        action: str = Form("selected"),
+        episode_ids: list[str] = Form(default=[]),  # noqa: B008
+    ):
         effective = _effective_inputs(repository.root, settings)
         archive_root = effective["local_audio_root"]
         if archive_root is None or not archive_root.exists() or not archive_root.is_dir():
             raise HTTPException(400, "Configure an existing local archive folder first")
         snapshot = build_inventory(repository, archive_root)
         available = {episode.episode_id: episode for episode in snapshot.feed_only_audio}
-        selected = list(available.values()) if action == "all" else [
-            available[episode_id] for episode_id in episode_ids if episode_id in available
-        ]
+        selected = (
+            list(available.values())
+            if action == "all"
+            else [available[episode_id] for episode_id in episode_ids if episode_id in available]
+        )
         if not selected:
             raise HTTPException(400, "Select at least one RSS-only episode")
         current = latest_sync_job(repository)
@@ -295,19 +376,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/settings", response_class=HTMLResponse)
     def settings_page(request: Request):
         overrides = _load_overrides(repository.root)
-        return templates.TemplateResponse(request, "settings.html", context(request,
-            settings=settings, overrides=overrides, providers=provider_profiles(),
-        ))
+        return templates.TemplateResponse(
+            request,
+            "settings.html",
+            context(
+                request,
+                settings=settings,
+                overrides=overrides,
+                providers=provider_profiles(),
+            ),
+        )
 
     @app.post("/settings")
-    def save_settings(rss_url: str = Form(""), local_audio_root: str = Form(""),
-                      transcription_provider: str = Form(""), analysis_provider: str = Form("")):
-        repository.atomic_json("state/app-settings.json", {
-            "rss_url": rss_url.strip(), "local_audio_root": local_audio_root.strip(),
-            "transcription_provider": transcription_provider.strip(),
-            "analysis_provider": analysis_provider.strip(),
-            "notice": "Non-secret UI preferences. Environment variables remain authoritative at startup.",
-        })
+    def save_settings(
+        rss_url: str = Form(""),
+        local_audio_root: str = Form(""),
+        transcription_provider: str = Form(""),
+        analysis_provider: str = Form(""),
+    ):
+        repository.atomic_json(
+            "state/app-settings.json",
+            {
+                "rss_url": rss_url.strip(),
+                "local_audio_root": local_audio_root.strip(),
+                "transcription_provider": transcription_provider.strip(),
+                "analysis_provider": analysis_provider.strip(),
+                "notice": "Non-secret UI preferences. Environment variables remain authoritative at startup.",
+            },
+        )
         return RedirectResponse("/settings?saved=1", status_code=303)
 
     @app.get("/transcription-lab", response_class=HTMLResponse)
@@ -315,15 +411,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         runs = [job_view(run) for run in load_runs(repository)]
         selected = next((run for run in runs if run["run_id"] == run_id), None)
         transcript = load_transcript(repository, selected) if selected else None
-        return templates.TemplateResponse(request, "transcription_lab.html", context(request,
-            runs=runs, selected=selected, transcript=transcript,
-            local_audio_root=settings.local_audio_root,
-        ))
+        return templates.TemplateResponse(
+            request,
+            "transcription_lab.html",
+            context(
+                request,
+                runs=runs,
+                selected=selected,
+                transcript=transcript,
+                local_audio_root=settings.local_audio_root,
+            ),
+        )
 
     @app.post("/transcription-lab/run")
-    def run_local_benchmark(background_tasks: BackgroundTasks,
-                            audio_path: str = Form(...), model: str = Form("small.en"),
-                            sample_minutes: int = Form(10)):
+    def run_local_benchmark(
+        background_tasks: BackgroundTasks,
+        audio_path: str = Form(...),
+        model: str = Form("small.en"),
+        sample_minutes: int = Form(10),
+    ):
         source = Path(audio_path.strip().strip('"')).expanduser().resolve()
         if not source.is_file() or source.suffix.lower() not in AUDIO_EXTENSIONS:
             raise HTTPException(400, "Choose an existing audio or video file")
@@ -333,9 +439,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise HTTPException(400, "Sample length must be between 1 and 30 minutes")
         run = create_run(repository, source, model, sample_minutes * 60)
         background_tasks.add_task(execute_run, repository, run["run_id"])
-        return RedirectResponse(
-            f"/transcription-lab?run_id={run['run_id']}", status_code=303
-        )
+        return RedirectResponse(f"/transcription-lab?run_id={run['run_id']}", status_code=303)
 
     @app.get("/outputs/{episode_id}/{kind}")
     def output_file(episode_id: str, kind: str):
@@ -352,8 +456,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "episodes": len(list(repository.episodes())),
-                "feed_items": len(load_discovered(repository))}
+        return {
+            "status": "ok",
+            "episodes": len(list(repository.episodes())),
+            "feed_items": len(load_discovered(repository)),
+        }
 
     return app
 
@@ -402,7 +509,9 @@ def _load_json(path: Path) -> dict | None:
 def _effective_inputs(root: Path, settings: Settings) -> dict:
     overrides = _load_overrides(root)
     local_value = overrides.get("local_audio_root")
-    local_root = Path(local_value).expanduser().resolve() if local_value else settings.local_audio_root
+    local_root = (
+        Path(local_value).expanduser().resolve() if local_value else settings.local_audio_root
+    )
     return {
         "rss_url": overrides.get("rss_url") or settings.rss_url,
         "local_audio_root": local_root,
@@ -429,72 +538,126 @@ def _metadata_candidates(
 def _execute_catalog_build(repository: Repository, archive_root: Path) -> None:
     started = datetime.now(UTC)
     relative = "state/catalog-build.json"
-    repository.atomic_json(relative, {
-        "status": "running", "stage": "Scanning local filenames",
-        "created_at": started.isoformat(), "started_at": started.isoformat(),
-        "updated_at": started.isoformat(), "finished_at": None,
-        "total": 0, "processed": 0, "current_label": None,
-    })
+    last_progress = {"total": 0, "processed": 0, "current_label": None}
+    repository.atomic_json(
+        relative,
+        {
+            "status": "running",
+            "stage": "Scanning local filenames",
+            "created_at": started.isoformat(),
+            "started_at": started.isoformat(),
+            "updated_at": started.isoformat(),
+            "finished_at": None,
+            "total": 0,
+            "processed": 0,
+            "current_label": None,
+        },
+    )
     try:
         snapshot = build_inventory(repository, archive_root)
+
         def report(processed: int, total: int, stage: str, label: str | None) -> None:
-            repository.atomic_json(relative, {
-                "status": "running", "stage": stage,
-                "created_at": started.isoformat(), "started_at": started.isoformat(),
-                "updated_at": datetime.now(UTC).isoformat(), "finished_at": None,
-                "total": total, "processed": processed, "current_label": label,
-            })
+            last_progress.update(total=total, processed=processed, current_label=label)
+            repository.atomic_json(
+                relative,
+                {
+                    "status": "running",
+                    "stage": stage,
+                    "created_at": started.isoformat(),
+                    "started_at": started.isoformat(),
+                    "updated_at": datetime.now(UTC).isoformat(),
+                    "finished_at": None,
+                    "total": total,
+                    "processed": processed,
+                    "current_label": label,
+                },
+            )
 
         ledger = build_episode_ledger(repository, snapshot, archive_root, progress=report)
-        repository.atomic_json(relative, {
-            "status": "complete", "started_at": started.isoformat(),
-            "created_at": started.isoformat(), "updated_at": datetime.now(UTC).isoformat(),
-            "finished_at": datetime.now(UTC).isoformat(),
-            "stage": "Catalog complete", "current_label": None,
-            "total": len(snapshot.local_audio) + 3,
-            "processed": len(snapshot.local_audio) + 3,
-            "candidate_count": ledger.candidate_count,
-        })
+        repository.atomic_json(
+            relative,
+            {
+                "status": "complete",
+                "started_at": started.isoformat(),
+                "created_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "stage": "Catalog complete",
+                "current_label": None,
+                "total": len(snapshot.local_audio) + 3,
+                "processed": len(snapshot.local_audio) + 3,
+                "candidate_count": ledger.candidate_count,
+            },
+        )
     except Exception as error:  # noqa: BLE001 - state must retain background failures
-        repository.atomic_json(relative, {
-            "status": "failed", "started_at": started.isoformat(),
-            "created_at": started.isoformat(), "updated_at": datetime.now(UTC).isoformat(),
-            "finished_at": datetime.now(UTC).isoformat(),
-            "stage": "Catalog scan failed", "total": 0, "processed": 0,
-            "error": f"{type(error).__name__}: {error}",
-        })
+        repository.atomic_json(
+            relative,
+            {
+                "status": "failed",
+                "started_at": started.isoformat(),
+                "created_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "stage": "Catalog scan failed",
+                "total": last_progress["total"],
+                "processed": last_progress["processed"],
+                "current_label": last_progress["current_label"],
+                "error": f"{type(error).__name__}: {error}",
+            },
+        )
 
 
 def _execute_rss_refresh(repository: Repository, rss_url: str, timeout: int) -> None:
     relative = "state/rss-refresh.json"
     started = datetime.now(UTC)
-    repository.atomic_json(relative, {
-        "status": "running", "stage": "Fetching and parsing RSS feed",
-        "created_at": started.isoformat(), "started_at": started.isoformat(),
-        "updated_at": started.isoformat(), "finished_at": None,
-        "total": 1, "processed": 0,
-    })
+    repository.atomic_json(
+        relative,
+        {
+            "status": "running",
+            "stage": "Fetching and parsing RSS feed",
+            "created_at": started.isoformat(),
+            "started_at": started.isoformat(),
+            "updated_at": started.isoformat(),
+            "finished_at": None,
+            "total": 1,
+            "processed": 0,
+        },
+    )
     try:
         body, episodes = fetch_rss(rss_url, timeout)
         repository.atomic_text("raw/rss/latest.xml", body.decode(errors="replace"))
         repository.atomic_json(
             "state/discovered.json", [episode.model_dump(mode="json") for episode in episodes]
         )
-        repository.atomic_json(relative, {
-            "status": "complete", "stage": "RSS inventory updated",
-            "created_at": started.isoformat(), "started_at": started.isoformat(),
-            "updated_at": datetime.now(UTC).isoformat(),
-            "finished_at": datetime.now(UTC).isoformat(), "total": 1, "processed": 1,
-            "episode_count": len(episodes),
-        })
+        repository.atomic_json(
+            relative,
+            {
+                "status": "complete",
+                "stage": "RSS inventory updated",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": 1,
+                "processed": 1,
+                "episode_count": len(episodes),
+            },
+        )
     except Exception as error:  # noqa: BLE001 - state must retain network/parser failures
-        repository.atomic_json(relative, {
-            "status": "failed", "stage": "RSS refresh failed",
-            "created_at": started.isoformat(), "started_at": started.isoformat(),
-            "updated_at": datetime.now(UTC).isoformat(),
-            "finished_at": datetime.now(UTC).isoformat(), "total": 1, "processed": 0,
-            "error": f"{type(error).__name__}: {error}",
-        })
+        repository.atomic_json(
+            relative,
+            {
+                "status": "failed",
+                "stage": "RSS refresh failed",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": 1,
+                "processed": 0,
+                "error": f"{type(error).__name__}: {error}",
+            },
+        )
 
 
 def _operation_jobs(repository: Repository) -> list[dict]:
@@ -505,15 +668,20 @@ def _operation_jobs(repository: Repository) -> list[dict]:
     ]
     runs = load_runs(repository)
     if runs:
-        records.append(("Transcription test", f"/transcription-lab?run_id={runs[0]['run_id']}", runs[0]))
+        records.append(
+            ("Transcription test", f"/transcription-lab?run_id={runs[0]['run_id']}", runs[0])
+        )
     result = []
     for name, href, record in records:
         if record:
             view = job_view(record)
             view.update(name=name, href=href)
             result.append(view)
-    return sorted(result, key=lambda item: item.get("updated_at") or item.get("created_at") or "",
-                  reverse=True)[:4]
+    return sorted(
+        result,
+        key=lambda item: item.get("updated_at") or item.get("created_at") or "",
+        reverse=True,
+    )[:4]
 
 
 app = create_app()
@@ -521,5 +689,10 @@ app = create_app()
 
 def run() -> None:
     import uvicorn
-    uvicorn.run("lftp_kb.web:app", host=os.getenv("LFTP_WEB_HOST", "127.0.0.1"),
-                port=int(os.getenv("LFTP_WEB_PORT", "8080")), reload=False)
+
+    uvicorn.run(
+        "lftp_kb.web:app",
+        host=os.getenv("LFTP_WEB_HOST", "127.0.0.1"),
+        port=int(os.getenv("LFTP_WEB_PORT", "8080")),
+        reload=False,
+    )

@@ -45,6 +45,24 @@ def test_folder_year_is_retained_when_tags_have_no_date(tmp_path, monkeypatch):
     assert result["date_source"] == "folder-name"
 
 
+def test_unreadable_file_becomes_auditable_issue(tmp_path, monkeypatch):
+    archive = tmp_path / "archive"
+    path = archive / "2010" / "unreadable.mp3"
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"audio placeholder")
+    monkeypatch.setattr(
+        catalog,
+        "_sha256_file",
+        lambda _path: (_ for _ in ()).throw(OSError(22, "Invalid argument")),
+    )
+    monkeypatch.setattr(catalog, "MutagenFile", lambda *_args, **_kwargs: None)
+
+    result = inspect_audio_file(path, archive)
+
+    assert result["sha256"] is None
+    assert "Invalid argument" in result["file_errors"][0]
+
+
 def test_ledger_keeps_embedded_track_number_as_evidence(tmp_path, monkeypatch):
     repository = Repository(tmp_path / "repo")
     archive = tmp_path / "archive"

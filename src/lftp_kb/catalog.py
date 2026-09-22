@@ -40,6 +40,8 @@ def build_episode_ledger(
     if progress:
         progress(0, total_steps, "Hashing files and reading metadata", None)
     for index, item in enumerate(snapshot.local_audio, start=1):
+        if progress:
+            progress(index - 1, total_steps, "Hashing files and reading metadata", item.filename)
         local_observations.append(
             inspect_audio_file(Path(item.path), archive_root, item.guessed_episode_number)
         )
@@ -169,11 +171,22 @@ def inspect_audio_file(
     path: Path, archive_root: Path, filename_episode_number: int | None = None
 ) -> dict:
     relative = path.relative_to(archive_root).as_posix()
+    file_errors = []
+    try:
+        size_bytes = path.stat().st_size
+    except OSError as error:
+        size_bytes = 0
+        file_errors.append(f"File stat failed: {type(error).__name__}: {error}")
+    try:
+        digest = _sha256_file(path)
+    except OSError as error:
+        digest = None
+        file_errors.append(f"Content hash failed: {type(error).__name__}: {error}")
     observation = {
         "source": "local-file",
         "relative_path": relative,
         "filename": path.name,
-        "size_bytes": path.stat().st_size,
+        "size_bytes": size_bytes,
         "format": path.suffix.lower().lstrip("."),
         "duration_seconds": None,
         "title": None,
@@ -186,7 +199,8 @@ def inspect_audio_file(
         "metadata_error": None,
         "filename_episode_number": filename_episode_number,
         "embedded_track_raw": None,
-        "sha256": _sha256_file(path),
+        "sha256": digest,
+        "file_errors": file_errors,
     }
     try:
         media = MutagenFile(path, easy=True)

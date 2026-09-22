@@ -130,6 +130,7 @@ def _asset_from_observation(item: dict) -> CatalogAsset:
         )
     if item.get("metadata_error"):
         issues.append(item["metadata_error"])
+    issues.extend(item.get("file_errors", []))
     identifier = hashlib.sha256(relative.lower().encode()).hexdigest()[:12]
     return CatalogAsset(
         asset_id=f"asset-{identifier}",
@@ -155,7 +156,8 @@ def _duplicate_proposals(assets: list[CatalogAsset]) -> list[DuplicateProposal]:
     result: list[DuplicateProposal] = []
     exact: dict[str, list[CatalogAsset]] = defaultdict(list)
     for asset in assets:
-        exact[asset.sha256].append(asset)
+        if asset.sha256:
+            exact[asset.sha256].append(asset)
     exact_pairs: set[frozenset[str]] = set()
     for digest, group in exact.items():
         if len(group) < 2:

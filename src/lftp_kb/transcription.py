@@ -18,9 +18,7 @@ class FixtureTranscriptionProvider(TranscriptionProvider):
         self.fixture_dir = fixture_dir
 
     def transcribe(self, audio_path: Path, episode_id: str) -> TranscriptionResult:
-        payload = json.loads(
-            (self.fixture_dir / f"{episode_id}.json").read_text(encoding="utf-8")
-        )
+        payload = json.loads((self.fixture_dir / f"{episode_id}.json").read_text(encoding="utf-8"))
         return TranscriptionResult.model_validate(payload)
 
 
@@ -29,6 +27,7 @@ class OpenAITranscriptionProvider(TranscriptionProvider):
 
     def __init__(self, model: str = "whisper-1"):
         from openai import OpenAI
+
         self.client = OpenAI()
         self.model = model
 
@@ -41,22 +40,38 @@ class OpenAITranscriptionProvider(TranscriptionProvider):
                 timestamp_granularities=["segment"],
             )
         raw = response.model_dump(mode="json")
-        segments = [TranscriptSegment(
-            segment_id=f"seg-{index:05d}", start_seconds=float(segment["start"]),
-            end_seconds=float(segment["end"]), text=segment["text"].strip(),
-            confidence=None,
-        ) for index, segment in enumerate(raw.get("segments", []), start=1)]
+        segments = [
+            TranscriptSegment(
+                segment_id=f"seg-{index:05d}",
+                start_seconds=float(segment["start"]),
+                end_seconds=float(segment["end"]),
+                text=segment["text"].strip(),
+                confidence=None,
+            )
+            for index, segment in enumerate(raw.get("segments", []), start=1)
+        ]
         return TranscriptionResult(
-            text=raw.get("text", ""), segments=segments, provider="openai",
-            model=self.model, provider_version=None, raw=raw, is_complete=True,
+            text=raw.get("text", ""),
+            segments=segments,
+            provider="openai",
+            model=self.model,
+            provider_version=None,
+            raw=raw,
+            is_complete=True,
         )
 
 
 class FasterWhisperTranscriptionProvider(TranscriptionProvider):
     """Local CPU/GPU transcription with no per-minute API charge."""
 
-    def __init__(self, model: str = "small.en", device: str = "cpu",
-                 compute_type: str = "int8", sample_seconds: int | None = None):
+    def __init__(
+        self,
+        model: str = "small.en",
+        device: str = "cpu",
+        compute_type: str = "int8",
+        sample_seconds: int | None = None,
+        sample_start_seconds: int = 0,
+    ):
         try:
             from faster_whisper import WhisperModel
         except ImportError as error:
@@ -68,6 +83,7 @@ class FasterWhisperTranscriptionProvider(TranscriptionProvider):
         self.device = device
         self.compute_type = compute_type
         self.sample_seconds = sample_seconds
+        self.sample_start_seconds = sample_start_seconds
         self._model = WhisperModel(model, device=device, compute_type=compute_type)
 
     def transcribe(self, audio_path: Path, episode_id: str) -> TranscriptionResult:
@@ -77,7 +93,8 @@ class FasterWhisperTranscriptionProvider(TranscriptionProvider):
             "word_timestamps": True,
         }
         if self.sample_seconds:
-            options["clip_timestamps"] = f"0,{self.sample_seconds}"
+            sample_end = self.sample_start_seconds + self.sample_seconds
+            options["clip_timestamps"] = f"{self.sample_start_seconds},{sample_end}"
         generated, info = self._model.transcribe(str(audio_path), **options)
         provider_segments = list(generated)
         segments = [
@@ -101,6 +118,7 @@ class FasterWhisperTranscriptionProvider(TranscriptionProvider):
             "device": self.device,
             "compute_type": self.compute_type,
             "sample_seconds": self.sample_seconds,
+            "sample_start_seconds": self.sample_start_seconds,
             "segments": [
                 {
                     "start": segment.start,
@@ -110,8 +128,10 @@ class FasterWhisperTranscriptionProvider(TranscriptionProvider):
                     "no_speech_prob": segment.no_speech_prob,
                     "words": [
                         {
-                            "start": word.start, "end": word.end,
-                            "word": word.word, "probability": word.probability,
+                            "start": word.start,
+                            "end": word.end,
+                            "word": word.word,
+                            "probability": word.probability,
                         }
                         for word in (segment.words or [])
                     ],
@@ -124,8 +144,12 @@ class FasterWhisperTranscriptionProvider(TranscriptionProvider):
         except importlib.metadata.PackageNotFoundError:
             version = None
         return TranscriptionResult(
-            text=text, segments=segments, provider="faster-whisper",
-            model=self.model_name, provider_version=version, raw=raw,
+            text=text,
+            segments=segments,
+            provider="faster-whisper",
+            model=self.model_name,
+            provider_version=version,
+            raw=raw,
             is_complete=self.sample_seconds is None,
         )
 
@@ -135,4 +159,5 @@ def _confidence(avg_logprob: float | None) -> float | None:
     if avg_logprob is None:
         return None
     import math
+
     return round(max(0.0, min(1.0, math.exp(avg_logprob))), 4)

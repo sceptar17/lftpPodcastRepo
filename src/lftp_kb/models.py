@@ -364,6 +364,13 @@ class EpisodeMatchProposal(StrictModel):
     remote_duration_seconds: float | None = None
     acoustic_similarity: Annotated[float | None, Field(ge=0, le=1)] = None
     verified_at: datetime | None = None
+    content_check_status: Literal[
+        "not-checked", "strong-match", "different", "ambiguous", "failed"
+    ] = "not-checked"
+    content_similarity: Annotated[float | None, Field(ge=0, le=1)] = None
+    local_sample_text: str | None = None
+    remote_sample_text: str | None = None
+    content_check_details: list[str] = []
 
 
 class RemoteAudioObservation(StrictModel):

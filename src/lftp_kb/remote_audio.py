@@ -103,13 +103,21 @@ def apply_cached_verification(repository: Repository, report: ReconstructionRepo
             "remote_duration_seconds",
             "acoustic_similarity",
             "verified_at",
+            "content_check_status",
+            "content_similarity",
+            "local_sample_text",
+            "remote_sample_text",
+            "content_check_details",
         ):
             if field in record:
                 value = record[field]
                 if field == "verified_at" and isinstance(value, str):
                     value = datetime.fromisoformat(value)
                 setattr(proposal, field, value)
-        if proposal.verification_status in {"exact-file", "same-recording"}:
+        if (
+            proposal.verification_status in {"exact-file", "same-recording"}
+            or proposal.content_check_status == "strong-match"
+        ):
             proposal.recommendation = "auto-link"
 
 
@@ -317,6 +325,11 @@ def _save_verification(repository: Repository, report: ReconstructionReport) -> 
                     "verified_at": (
                         proposal.verified_at.isoformat() if proposal.verified_at else None
                     ),
+                    "content_check_status": proposal.content_check_status,
+                    "content_similarity": proposal.content_similarity,
+                    "local_sample_text": proposal.local_sample_text,
+                    "remote_sample_text": proposal.remote_sample_text,
+                    "content_check_details": proposal.content_check_details,
                 }
                 for proposal in report.match_proposals
                 if proposal.verification_status != "not-checked"

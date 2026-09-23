@@ -189,6 +189,13 @@ is deleted after each comparison; the evidence and result remain in `catalog/aud
 Failures are isolated to one proposal and can be retried safely. Rebuild the catalog after verification
 to apply verified links to the master ledger.
 
+For the remaining identity proposals, **Quick content check** runs the local `tiny.en` model against
+only 2:00–5:00 of each local and RSS recording. It caches the rough sample transcripts under
+`catalog/content-samples/`, calculates an auditable word-and-phrase overlap score, and classifies each
+pair as a strong content match, clearly different, or still ambiguous. This is a low-cost identity
+check, not a canonical transcript. Strong matches can be linked; ambiguous pairs remain in review with
+both rough excerpts. Each player also has a **Play from 2:00** control for fast manual confirmation.
+
 ## Run 3 live episodes
 
 ```bash

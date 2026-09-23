@@ -102,6 +102,7 @@ def build_episode_ledger(
             (
                 proposal.recommendation == "auto-link"
                 or proposal.verification_status in {"exact-file", "same-recording"}
+                or proposal.content_check_status == "strong-match"
             )
             and decision != "rejected"
         )

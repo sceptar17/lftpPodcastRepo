@@ -21,6 +21,7 @@ from .archive_sync import (
 from .benchmark import create_run, execute_run, load_runs, load_transcript
 from .catalog import build_episode_ledger, load_ledger, load_reconstruction
 from .config import Settings
+from .content_check import run_content_checks
 from .inventory import (
     AUDIO_EXTENSIONS,
     InventorySnapshot,
@@ -82,6 +83,7 @@ def _match_review_queue(
         for proposal in reconstruction.match_proposals
         if proposal.recommendation == "auto-link"
         or proposal.verification_status in {"exact-file", "same-recording", "different-recording"}
+        or proposal.content_check_status in {"strong-match", "different"}
     )
     proposals = (
         reconstruction.match_proposals
@@ -99,6 +101,7 @@ def _recover_interrupted_catalog_job(repository: Repository) -> None:
     jobs = {
         "catalog-build.json": ("catalog scan", "rebuild"),
         "audio-verification.json": ("audio verification", "run verification again"),
+        "content-check.json": ("quick content check", "run the content check again"),
     }
     for filename, (label, retry) in jobs.items():
         path = repository.root / "state" / filename
@@ -265,6 +268,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         verification_state = job_view(
             _load_json(repository.root / "state" / "audio-verification.json")
         )
+        content_check_state = job_view(_load_json(repository.root / "state" / "content-check.json"))
         candidates = ledger.candidates if ledger else []
         selected_year = int(year) if year and year.isdigit() else None
         show_unknown = year == "unknown"
@@ -286,6 +290,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 selected_year=year,
                 build_state=build_state,
                 verification_state=verification_state,
+                content_check_state=content_check_state,
                 reconstruction=reconstruction,
                 duplicate_proposals=duplicate_proposals,
                 reviewed_duplicate_count=reviewed_duplicate_count,
@@ -368,6 +373,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             },
         )
         background_tasks.add_task(_execute_audio_verification, repository, archive_root)
+        return RedirectResponse("/catalog#reconstruction", status_code=303)
+
+    @app.post("/catalog/check-content")
+    def check_catalog_content(background_tasks: BackgroundTasks):
+        effective = _effective_inputs(repository.root, settings)
+        archive_root = effective["local_audio_root"]
+        if archive_root is None or not archive_root.exists() or not archive_root.is_dir():
+            raise HTTPException(400, "Configure an existing local archive folder first")
+        if load_reconstruction(repository) is None:
+            raise HTTPException(400, "Build the catalog before checking content")
+        current = _load_json(repository.root / "state" / "content-check.json") or {}
+        if current.get("status") in ACTIVE_STATUSES:
+            raise HTTPException(409, "A quick content check is already running")
+        created = datetime.now(UTC).isoformat()
+        repository.atomic_json(
+            "state/content-check.json",
+            {
+                "status": "queued",
+                "stage": "Waiting to check short audio samples",
+                "created_at": created,
+                "started_at": None,
+                "updated_at": created,
+                "finished_at": None,
+                "total": 0,
+                "processed": 0,
+                "current_label": None,
+            },
+        )
+        background_tasks.add_task(_execute_content_check, repository, archive_root)
         return RedirectResponse("/catalog#reconstruction", status_code=303)
 
     @app.get("/catalog/output/{kind}")
@@ -852,6 +886,81 @@ def _execute_audio_verification(repository: Repository, archive_root: Path) -> N
         )
 
 
+def _execute_content_check(repository: Repository, archive_root: Path) -> None:
+    started = datetime.now(UTC)
+    relative = "state/content-check.json"
+    last_progress = {"total": 0, "processed": 0, "current_label": None}
+
+    def report(processed: int, total: int, stage: str, label: str | None) -> None:
+        last_progress.update(total=total, processed=processed, current_label=label)
+        repository.atomic_json(
+            relative,
+            {
+                "status": "running",
+                "stage": stage,
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": None,
+                "total": total,
+                "processed": processed,
+                "current_label": label,
+            },
+        )
+
+    try:
+        report(0, 0, "Loading unresolved identity proposals", None)
+        reconstruction = load_reconstruction(repository)
+        if reconstruction is None:
+            raise ValueError("Catalog reconstruction report is missing")
+        decisions = _load_json(repository.root / "catalog" / "reconstruction-decisions.json") or {
+            "decisions": {}
+        }
+        run_content_checks(
+            repository,
+            archive_root,
+            reconstruction,
+            load_discovered(repository),
+            decisions.get("decisions", {}),
+            progress=report,
+        )
+        counts: dict[str, int] = {}
+        for proposal in reconstruction.match_proposals:
+            status = proposal.content_check_status
+            counts[status] = counts.get(status, 0) + 1
+        repository.atomic_json(
+            relative,
+            {
+                "status": "complete",
+                "stage": "Quick content check complete",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": last_progress["total"],
+                "processed": last_progress["total"],
+                "current_label": None,
+                "content_check_counts": counts,
+            },
+        )
+    except Exception as error:  # noqa: BLE001 - background failure must remain visible
+        repository.atomic_json(
+            relative,
+            {
+                "status": "failed",
+                "stage": "Quick content check failed",
+                "created_at": started.isoformat(),
+                "started_at": started.isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "finished_at": datetime.now(UTC).isoformat(),
+                "total": last_progress["total"],
+                "processed": last_progress["processed"],
+                "current_label": last_progress["current_label"],
+                "error": f"{type(error).__name__}: {error}",
+            },
+        )
+
+
 def _execute_rss_refresh(repository: Repository, rss_url: str, timeout: int) -> None:
     relative = "state/rss-refresh.json"
     started = datetime.now(UTC)
@@ -912,6 +1021,11 @@ def _operation_jobs(repository: Repository) -> list[dict]:
             "RSS audio verification",
             "/catalog",
             _load_json(repository.root / "state/audio-verification.json"),
+        ),
+        (
+            "Quick content check",
+            "/catalog",
+            _load_json(repository.root / "state/content-check.json"),
         ),
         ("RSS inventory", "/inventory", _load_json(repository.root / "state/rss-refresh.json")),
         ("Archive operation", "/inventory", latest_sync_job(repository)),

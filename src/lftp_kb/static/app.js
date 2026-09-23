@@ -10,4 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   });
+
+  document.querySelectorAll("[data-audio-jump]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const audio = button.parentElement.querySelector("audio");
+      if (!audio) return;
+      const start = Number(button.dataset.audioJump || 0);
+      const begin = () => {
+        audio.currentTime = Math.min(start, Number.isFinite(audio.duration) ? audio.duration : start);
+        audio.play();
+      };
+      if (audio.readyState >= 1) begin();
+      else {
+        audio.addEventListener("loadedmetadata", begin, { once: true });
+        audio.load();
+      }
+    });
+  });
 });

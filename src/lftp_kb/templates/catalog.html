@@ -23,6 +23,9 @@
 {% if verification_state %}
 {% with job=verification_state, job_eyebrow='Remote evidence job', job_title='RSS audio verification' %}{% include '_job_status.html' %}{% endwith %}
 {% endif %}
+{% if content_check_state %}
+{% with job=content_check_state, job_eyebrow='Content comparison job', job_title='Quick content check' %}{% include '_job_status.html' %}{% endwith %}
+{% endif %}
 
 {% if ledger %}
 {% if reconstruction %}
@@ -80,6 +83,14 @@
       </form>
       {% if verification_state and verification_state.status == 'complete' %}<small>Verified links are saved now. Rebuild the master catalog once to apply them to the ledger.</small>{% endif %}
     </div>
+    <div class="match-evidence">
+      <b>Compare what the shows are about</b>
+      <small>The quick content check locally transcribes only 2:00–5:00 using tiny.en, then compares the rough wording. Samples and results are cached. Strong matches and clearly different shows leave the active queue; ambiguous pairs remain for review.</small>
+      <form method="post" action="/catalog/check-content" data-job-form="true" class="inline-actions">
+        <button class="button" type="submit" data-working-label="Starting content check…" {{ 'disabled' if content_check_state and content_check_state.status in ['queued', 'running'] else '' }}>Quick content check</button>
+      </form>
+      {% if content_check_state and content_check_state.status == 'complete' %}<small>Rebuild the master catalog once after reviewing the remaining ambiguous pairs.</small>{% endif %}
+    </div>
     <div class="scroll-list reconstruction-list">
       {% for proposal in match_proposals %}
       {% set local = assets[proposal.asset_id] %}{% set rss = rss_records[proposal.rss_episode_id] %}
@@ -96,6 +107,7 @@
               <small>Embedded title: {{ local.embedded_title or 'none' }}</small>
               <small>{{ (local.size_bytes / 1048576)|round(1) }} MB{% if local.duration_seconds is not none %} · {{ local.duration_seconds|timestamp }}{% endif %}</small>
               <audio controls preload="none" src="/catalog/assets/{{ proposal.asset_id }}/audio"></audio>
+              <button class="button secondary audio-jump" type="button" data-audio-jump="120">Play from 2:00</button>
             </section>
             <section>
               <b>RSS episode</b>
@@ -105,14 +117,16 @@
               <small>RSS title: {{ rss.title }}</small>
               <small>{% if proposal.remote_size_bytes %}{{ (proposal.remote_size_bytes / 1048576)|round(1) }} MB (verified remotely){% elif rss.audio_size_bytes %}{{ (rss.audio_size_bytes / 1048576)|round(1) }} MB (RSS){% else %}size not checked{% endif %}{% if proposal.remote_duration_seconds is not none %} · {{ proposal.remote_duration_seconds|timestamp }} (measured){% elif rss.audio_duration_seconds is not none %} · {{ rss.audio_duration_seconds|timestamp }} (RSS){% endif %}</small>
               <audio controls preload="none" src="{{ rss.audio_url }}"></audio>
+              <button class="button secondary audio-jump" type="button" data-audio-jump="120">Play from 2:00</button>
               <a href="{{ rss.audio_url }}" target="_blank" rel="noopener">Open RSS audio</a>
             </section>
           </div>
           <div class="match-evidence"><b>Why this was proposed</b><small>Evidence score: {{ (proposal.confidence * 100)|round|int }} — not a calibrated probability.</small><small>{{ proposal.reasons|join(' ') }}</small>{% if proposal.competing_rss_episode_id %}<small>Runner-up: {{ rss_records[proposal.competing_rss_episode_id].title }} ({{ (proposal.competing_confidence * 100)|round|int }})</small>{% endif %}</div>
           {% if proposal.verification_status != 'not-checked' %}<div class="match-evidence"><b>Audio verification: {{ proposal.verification_status|replace('-', ' ')|title }}</b>{% for detail in proposal.verification_details %}<small>{{ detail }}</small>{% endfor %}</div>{% endif %}
+          {% if proposal.content_check_status != 'not-checked' %}<div class="match-evidence"><b>Quick content check: {{ proposal.content_check_status|replace('-', ' ')|title }}</b>{% for detail in proposal.content_check_details %}<small>{{ detail }}</small>{% endfor %}{% if proposal.local_sample_text %}<details><summary>Local rough excerpt</summary><small>{{ proposal.local_sample_text }}</small></details>{% endif %}{% if proposal.remote_sample_text %}<details><summary>RSS rough excerpt</summary><small>{{ proposal.remote_sample_text }}</small></details>{% endif %}</div>{% endif %}
           {% if proposal.recommendation != 'auto-link' or show_reviewed_links %}<form method="post" action="/catalog/proposals/{{ proposal.proposal_id }}" class="inline-actions proposal-actions"><button class="button" name="action" value="confirmed">Same episode — link</button><button class="button secondary" name="action" value="rejected">Not the same episode</button>{% if decisions.get(proposal.proposal_id) %}<button class="button secondary" name="action" value="clear">Clear decision</button>{% endif %}</form>{% endif %}
         </span>
-        <i class="status {{ 'ok' if proposal.recommendation == 'auto-link' or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('exact file' if proposal.verification_status == 'exact-file' else 'same recording' if proposal.verification_status == 'same-recording' else 'different recording' if proposal.verification_status == 'different-recording' else 'auto-linked' if proposal.recommendation == 'auto-link' else 'review') }}</i>
+        <i class="status {{ 'ok' if proposal.recommendation == 'auto-link' or decisions.get(proposal.proposal_id, {}).get('decision') == 'confirmed' else 'warning' }}">{{ decisions.get(proposal.proposal_id, {}).get('decision') or ('content match' if proposal.content_check_status == 'strong-match' else 'different content' if proposal.content_check_status == 'different' else 'exact file' if proposal.verification_status == 'exact-file' else 'same recording' if proposal.verification_status == 'same-recording' else 'different recording' if proposal.verification_status == 'different-recording' else 'auto-linked' if proposal.recommendation == 'auto-link' else 'review') }}</i>
       </article>
       {% else %}<div class="empty">All identity proposals have been linked or reviewed. Use “Show reviewed/automatic” to inspect them.</div>{% endfor %}
     </div>

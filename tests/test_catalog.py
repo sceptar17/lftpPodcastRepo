@@ -2,9 +2,19 @@ from datetime import UTC, datetime
 from typing import ClassVar
 
 from lftp_kb import catalog
-from lftp_kb.catalog import build_episode_ledger, inspect_audio_file
+from lftp_kb.catalog import (
+    _apply_audio_source_decisions,
+    build_episode_ledger,
+    inspect_audio_file,
+)
 from lftp_kb.inventory import InventorySnapshot, LocalAudioItem
-from lftp_kb.models import DiscoveredEpisode
+from lftp_kb.models import (
+    CatalogSources,
+    DiscoveredEpisode,
+    EpisodeCandidate,
+    EpisodeMatchProposal,
+    ReconstructionReport,
+)
 from lftp_kb.repository import Repository
 
 
@@ -15,6 +25,50 @@ class _Media:
         "date": ["2011-04-03"],
     }
     info = None
+
+
+def test_local_recovery_decision_is_preserved_in_ledger_source():
+    candidate = EpisodeCandidate(
+        candidate_id="candidate-rss-one",
+        title="Known episode",
+        sources=CatalogSources(
+            local_files=["2012/known.mp3"],
+            rss_episode_id="rss-one",
+            preferred_audio_source="rss",
+        ),
+        status="confirmed",
+        overall_confidence="confirmed",
+    )
+    report = ReconstructionReport(
+        generated_at=datetime.now(UTC),
+        assets=[],
+        duplicate_proposals=[],
+        match_proposals=[
+            EpisodeMatchProposal(
+                proposal_id="match-one",
+                asset_id="asset-one",
+                rss_episode_id="rss-one",
+                confidence=0.8,
+                reasons=["Metadata agrees"],
+                recommendation="review",
+            )
+        ],
+    )
+
+    _apply_audio_source_decisions(
+        [candidate],
+        report,
+        {
+            "match-one": {
+                "decision": "confirmed",
+                "audio_source_preference": "local-recovery",
+            }
+        },
+    )
+
+    assert candidate.sources.preferred_audio_source == "local"
+    assert candidate.sources.rss_audio_status == "unavailable"
+    assert "R2 recovery" in candidate.manual_review_flags[0]
 
 
 def test_embedded_episode_number_is_high_confidence(tmp_path, monkeypatch):

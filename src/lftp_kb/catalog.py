@@ -200,6 +200,7 @@ def build_episode_ledger(
             )
         candidates.append(candidate)
 
+    _apply_audio_source_decisions(candidates, reconstruction, decisions)
     _apply_asset_dispositions(candidates, reconstruction, decisions)
 
     if progress:
@@ -375,6 +376,7 @@ def _rss_candidate(episode: DiscoveredEpisode, observations: list[dict]) -> Epis
             local_files=[item["relative_path"] for item in observations],
             rss_guid=episode.guid,
             rss_episode_id=episode.episode_id,
+            preferred_audio_source="rss",
         ),
         evidence=evidence,
         status="confirmed" if observations else "rss-only",
@@ -561,6 +563,8 @@ def _ledger_csv(ledger: EpisodeLedger) -> str:
             "preferred_local_file",
             "superseded_local_files",
             "rss_episode_id",
+            "preferred_audio_source",
+            "rss_audio_status",
             "conflicts",
             "review_flags",
         ]
@@ -584,6 +588,8 @@ def _ledger_csv(ledger: EpisodeLedger) -> str:
                 item.sources.preferred_local_file,
                 " | ".join(item.sources.superseded_local_files),
                 item.sources.rss_episode_id,
+                item.sources.preferred_audio_source,
+                item.sources.rss_audio_status,
                 " | ".join(item.conflicts),
                 " | ".join(item.manual_review_flags),
             ]
@@ -692,6 +698,44 @@ def _duplicate_components(reconstruction: ReconstructionReport, decisions: dict)
             unseen.difference_update(additions)
         components.append(component)
     return components
+
+
+def _apply_audio_source_decisions(
+    candidates: list[EpisodeCandidate],
+    reconstruction: ReconstructionReport,
+    decisions: dict,
+) -> None:
+    by_rss_id = {
+        candidate.sources.rss_episode_id: candidate
+        for candidate in candidates
+        if candidate.sources.rss_episode_id
+    }
+    for proposal in reconstruction.match_proposals:
+        decision = decisions.get(proposal.proposal_id, {})
+        if decision.get("decision") != "confirmed":
+            continue
+        candidate = by_rss_id.get(proposal.rss_episode_id)
+        if candidate is None:
+            continue
+        preference = decision.get("audio_source_preference")
+        if preference == "local-recovery":
+            candidate.sources.preferred_audio_source = "local"
+            candidate.sources.rss_audio_status = "unavailable"
+            candidate.manual_review_flags.append(
+                "RSS enclosure unavailable; use the preferred local file for R2 recovery."
+            )
+            candidate.evidence.append(
+                CatalogEvidence(
+                    source="manual-review",
+                    field="audio_source_preference",
+                    value="local-recovery",
+                    confidence="confirmed",
+                    locator=proposal.proposal_id,
+                )
+            )
+        elif preference == "rss":
+            candidate.sources.preferred_audio_source = "rss"
+            candidate.sources.rss_audio_status = "available"
 
 
 def _apply_asset_dispositions(

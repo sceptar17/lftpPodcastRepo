@@ -438,6 +438,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         action: str = Form(...),
         notes: str = Form(""),
         preferred_asset_id: str = Form(""),
+        audio_source_preference: str = Form(""),
     ):
         reconstruction = load_reconstruction(repository)
         duplicate = (
@@ -477,10 +478,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 duplicate is None or preferred_asset_id not in duplicate.asset_ids
             ):
                 raise HTTPException(400, "Preferred asset is not part of this proposal")
+            if audio_source_preference not in {"", "rss", "local-recovery"}:
+                raise HTTPException(400, "Unknown audio source preference")
+            if audio_source_preference and (match is None or action != "confirmed"):
+                raise HTTPException(400, "Audio source preference requires a confirmed RSS link")
             payload["decisions"][proposal_id] = {
                 "decision": action,
                 "notes": notes.strip(),
                 "preferred_asset_id": preferred_asset_id or None,
+                "audio_source_preference": audio_source_preference or None,
                 "decided_at": datetime.now(UTC).isoformat(),
             }
         payload["updated_at"] = datetime.now(UTC).isoformat()

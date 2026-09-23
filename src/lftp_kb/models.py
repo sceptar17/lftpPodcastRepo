@@ -246,6 +246,8 @@ class CatalogSources(StrictModel):
     superseded_local_files: list[str] = []
     rss_guid: str | None = None
     rss_episode_id: str | None = None
+    preferred_audio_source: Literal["rss", "local"] | None = None
+    rss_audio_status: Literal["unknown", "available", "unavailable"] = "unknown"
     r2_object_key: str | None = None
     wordpress_post_id: int | None = None
 

@@ -181,3 +181,38 @@ def test_identity_queue_hides_automatic_and_completed_links():
     )
     assert pending == []
     assert completed_count == 3
+
+
+def test_identity_decision_records_local_recovery_preference(tmp_path):
+    repository = Repository(tmp_path)
+    report = ReconstructionReport(
+        generated_at=datetime.now(UTC),
+        assets=[],
+        duplicate_proposals=[],
+        match_proposals=[
+            EpisodeMatchProposal(
+                proposal_id="match-recovery",
+                asset_id="asset-local",
+                rss_episode_id="rss-broken",
+                confidence=0.8,
+                reasons=["Metadata agrees"],
+                recommendation="review",
+                verification_status="failed",
+                verification_method="http-probe",
+            )
+        ],
+    )
+    repository.atomic_json("catalog/reconstruction-report.json", report.model_dump(mode="json"))
+    web = TestClient(create_app(Settings(root=tmp_path, rss_url="https://example.com/feed")))
+
+    response = web.post(
+        "/catalog/proposals/match-recovery",
+        data={"action": "confirmed", "audio_source_preference": "local-recovery"},
+        follow_redirects=False,
+    )
+
+    decisions = json.loads(
+        (tmp_path / "catalog" / "reconstruction-decisions.json").read_text(encoding="utf-8")
+    )
+    assert response.status_code == 303
+    assert decisions["decisions"]["match-recovery"]["audio_source_preference"] == "local-recovery"

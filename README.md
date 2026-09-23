@@ -196,6 +196,11 @@ pair as a strong content match, clearly different, or still ambiguous. This is a
 check, not a canonical transcript. Strong matches can be linked; ambiguous pairs remain in review with
 both rough excerpts. Each player also has a **Play from 2:00** control for fast manual confirmation.
 
+An HTTP verification failure describes the RSS enclosure, not episode identity. Failed-source cards
+therefore separate **RSS audio works** from **RSS missing; use local**. The latter records the episode
+link while setting `sources.preferred_audio_source` to `local`, marking the RSS audio unavailable, and
+adding an explicit R2-recovery review flag to the canonical ledger and CSV.
+
 ## Run 3 live episodes
 
 ```bash

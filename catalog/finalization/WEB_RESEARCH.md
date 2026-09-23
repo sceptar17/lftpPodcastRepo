@@ -46,6 +46,10 @@ YouTube upload. These are corroborating fragments, not separate episodes.
 - Targeted searches for Pathway Church, Blip.tv, Des Moines Amplified, and the
   Internet Archive. No independent, enumerated legacy episode archive was
   discoverable through indexed search results in this pass.
+- Targeted Vimeo searches for the show name, Des Moines Amplified, and Pathway
+  Church returned no attributable result. Vimeo remains a historical lead; this
+  is not an absence finding because old videos may be unindexed, retitled, or
+  attached to an account name we have not recovered.
 
 ## Legacy source map for the next archive pass
 
@@ -56,6 +60,7 @@ YouTube upload. These are corroborating fragments, not separate episodes.
 | Blip.tv | Show/channel pages, video IDs, descriptions, upload dates | User previously found Wayback evidence; query archived Blip show and user pages |
 | Pathway Church | Program pages, announcements, embedded players, host names | Lead; exact historical domain/path unresolved |
 | Official YouTube | Video IDs, exact publication dates, descriptions, durations, transcript availability | Confirmed, public, roughly 2,000 videos |
+| Vimeo | Video IDs, account identity, exact publication dates, descriptions, durations | User-confirmed possible host; no indexed LFTP result yet |
 | Current WordPress/RSS | 2013–present feed records and current enclosure references | Already inventoried |
 
 Wayback's CDX endpoint was not reachable from the current research environment,
@@ -77,11 +82,34 @@ legacy index:
 These dates are leads only. Scheduled breaks, special events, and multi-part
 recordings can create the same pattern.
 
-## Recommended next evidence source
+## Completed public-media inventory
 
-Export the official YouTube channel's video metadata (video ID, title,
-publication date, duration, description, live status, and transcript
-availability). Compare that export against the master plan by date and title.
-Long-form uploads absent from both the RSS and local inventory become recovery
-candidates; short segments should attach as supporting sources to an existing
-episode rather than become new episodes.
+The official YouTube export recovered 862 public video records with durations.
+Conservative matching currently classifies 355 as likely existing/supporting
+sources, 488 as short supporting clips, 15 as long-form records needing better
+date evidence, and 4 as possible missing long-form media items. The last group
+represents as many as three broadcasts: two parts from the same 2011 Judgment
+Day show, plus full-length 2017 and 2018 shows. These are recovery candidates,
+not automatic catalog additions; see
+`research/MEDIA_RECONCILIATION.md`.
+
+The Des Moines Amplified snapshot recovered 34 named broadcasts from March 20
+through November 15, 2010. Twenty-two match one current master by date, one maps
+to multiple local candidates, and 11 are source-only candidates. Ten of those
+are clear early/gap records; `Tyson vs. Holyfield` (October 11) must first be
+compared with the oddly dated October 15 local recording. See
+`research/DES_MOINES_RECONCILIATION.md`.
+
+The user-provided Des Moines Amplified snapshot is now a fixed research seed:
+`2010-11-23 / show.asp?showid=56`. Run `Run Legacy Research.cmd` from the project
+folder to preserve that page, query archive indexes, inventory YouTube and
+Vimeo, and write `catalog/finalization/research/media-candidates.csv`. The
+result is evidence for reconciliation, not an automatic change to the master
+catalog.
+
+`research/master-catalog-proposal.json` applies the 22 unambiguous historical
+matches, preserves the one-to-many July match for review, adds all 11
+source-confirmed episodes with missing/unmatched audio, and renumbers the annual
+sequence. It contains 677 episode candidates versus the 666-record audio/RSS
+baseline; it does not collapse the unresolved July files or the October 11/15
+possibility.

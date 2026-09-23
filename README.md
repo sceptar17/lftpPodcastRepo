@@ -101,6 +101,19 @@ Open `http://127.0.0.1:8080`. The initial application includes:
 - non-secret source preferences and connection-status checks;
 - direct access to canonical JSON, Markdown, QA reports, and WordPress-ready HTML.
 
+### One-time legacy archive research
+
+Double-click `Run Legacy Research.cmd` to collect the user-confirmed Des Moines
+Amplified Wayback page, archive-index results, the official YouTube inventory,
+and Vimeo search results. It installs `yt-dlp` inside the project virtual
+environment, preserves raw provider output, and opens the candidate CSV when it
+finishes. It does not move audio or alter the master catalog.
+
+The pass also writes a non-destructive `master-catalog-proposal.json` beside the
+research reports. It enriches matched records with historical titles and dates,
+adds source-confirmed shows whose audio has not been recovered, and leaves
+ambiguous matches flagged for review.
+
 ### Run the local transcription benchmark on Windows
 
 Stop the web server with `Ctrl+C`, then install the optional local provider and restart:

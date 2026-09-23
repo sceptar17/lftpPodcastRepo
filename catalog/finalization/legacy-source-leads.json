@@ -37,6 +37,12 @@
       "channel": "https://www.youtube.com/@livefromthepath",
       "status": "confirmed",
       "recover": ["video IDs", "titles", "publication dates", "durations", "descriptions", "transcript availability"]
+    },
+    {
+      "source_id": "vimeo",
+      "domains": ["vimeo.com"],
+      "status": "user-confirmed-historical-lead-unverified",
+      "recover": ["video IDs", "titles", "publication dates", "durations", "descriptions", "account/channel identity"]
     }
   ]
 }

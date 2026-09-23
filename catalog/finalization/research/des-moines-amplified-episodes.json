@@ -1,0 +1,1228 @@
+{
+  "schema_version": "1.0.0",
+  "source_snapshot": "https://web.archive.org/web/20101123145012/http://www.desmoinesamplified.com/show.asp?showid=56",
+  "episode_count": 34,
+  "episodes": [
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "43",
+      "broadcast_date": "2010-03-20",
+      "title": "Might As Well Get Started",
+      "description": "",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=43",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "47",
+      "broadcast_date": "2010-03-27",
+      "title": "Round II",
+      "description": "Could be anything, really. Swing by for the chat.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=47",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "52",
+      "broadcast_date": "2010-04-05",
+      "title": "Ragu or Walgu?",
+      "description": "",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=52",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "59",
+      "broadcast_date": "2010-04-12",
+      "title": "Fast Food, the Holy Spirit, and Kidney Stones",
+      "description": "",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=59",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "62",
+      "broadcast_date": "2010-04-19",
+      "title": "Something Different",
+      "description": "Well, maybe not something different. Matt Cassidy guest hosts this week and we'll be Skyping ol' Pants and maybe Dan. We'll be talking about...um, probably food and Jesus again.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=62",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "63",
+      "broadcast_date": "2010-04-26",
+      "title": "Who's Nelson?",
+      "description": "The normal crew is back again. Pants Skype-fest Round II, plus your chat.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=63",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "78",
+      "broadcast_date": "2010-05-03",
+      "title": "Series of Firsts",
+      "description": "Live music from the Path as well as why the eye doctor and dentist are a sham.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=78",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "105",
+      "broadcast_date": "2010-05-10",
+      "title": "Peanut Butter and Whiskey",
+      "description": "Full studio, special musical guest Danielle Hudson, and the revelation that Pastor Dan uses an armpit toupee'",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=105",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "116",
+      "broadcast_date": "2010-05-17",
+      "title": "Clean Van With Nowhere To Go",
+      "description": "Danielle Hudson will be our musical guest this week. No telling what the discussion will be, but a friend from last week may make an appearance.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=116",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": []
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "142",
+      "broadcast_date": "2010-05-24",
+      "title": "Clear With A Chance Of Cookies",
+      "description": "Hopefully some food will show up.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=142",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-f8a848b94796",
+          "day_delta": 1,
+          "canonical_date": "2010-05-25",
+          "title": "",
+          "preferred_local_file": "2010/20100525-04(songs Dan Doesn't know, cookies, and lots of illegal things such as theft).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-f8a848b94796",
+          "day_delta": 1,
+          "canonical_date": "2010-05-25",
+          "title": "",
+          "preferred_local_file": "2010/20100525-04(songs Dan Doesn't know, cookies, and lots of illegal things such as theft).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "143",
+      "broadcast_date": "2010-05-31",
+      "title": "Clearly The Buick Was The Winner",
+      "description": "We've booked Burl Ives for this week. What? What do you mean Burl Ives is dead? Boy, his publicist sure puts a happy spin on it. In his place, candidate for Congress in Iowa's 3rd District Dave Funk will be in studio.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=143",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-f8a848b94796",
+          "day_delta": 6,
+          "canonical_date": "2010-05-25",
+          "title": "",
+          "preferred_local_file": "2010/20100525-04(songs Dan Doesn't know, cookies, and lots of illegal things such as theft).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "156",
+      "broadcast_date": "2010-06-07",
+      "title": "Of Moose and Men",
+      "description": "Invasive Ants, fallout from the last show and, you know, Jesus stuff.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=156",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-2a1900397db5",
+          "day_delta": 1,
+          "canonical_date": "2010-06-08",
+          "title": "",
+          "preferred_local_file": "2010/20100608-05.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-2a1900397db5",
+          "day_delta": 1,
+          "canonical_date": "2010-06-08",
+          "title": "",
+          "preferred_local_file": "2010/20100608-05.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "165",
+      "broadcast_date": "2010-06-14",
+      "title": "Homemade Fig Newtons",
+      "description": "Facebook diving, adventures in babysitting, and discussion with the man that lives in the shadows of the spice master, Mr. Dash.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=165",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-19a706240e52",
+          "day_delta": 1,
+          "canonical_date": "2010-06-15",
+          "title": "",
+          "preferred_local_file": "2010/20100615-09.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-19a706240e52",
+          "day_delta": 1,
+          "canonical_date": "2010-06-15",
+          "title": "",
+          "preferred_local_file": "2010/20100615-09.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-2a1900397db5",
+          "day_delta": 6,
+          "canonical_date": "2010-06-08",
+          "title": "",
+          "preferred_local_file": "2010/20100608-05.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "181",
+      "broadcast_date": "2010-06-21",
+      "title": "Fable of the Used Donkey Dealer",
+      "description": "Full studio tonight. John Stamos will be watching (but won't admit to it) and debate as to what potentially scandalous nickname Methuselah went by.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=181",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-1acda2958351",
+          "day_delta": 1,
+          "canonical_date": "2010-06-22",
+          "title": "",
+          "preferred_local_file": "2010/20100622-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-1acda2958351",
+          "day_delta": 1,
+          "canonical_date": "2010-06-22",
+          "title": "",
+          "preferred_local_file": "2010/20100622-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-19a706240e52",
+          "day_delta": 6,
+          "canonical_date": "2010-06-15",
+          "title": "",
+          "preferred_local_file": "2010/20100615-09.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "200",
+      "broadcast_date": "2010-06-28",
+      "title": "Sampson: The Biblical Vuvuzela?",
+      "description": "We'll review YouTube submissions from last week's question, hit Q&A; in the last hour, and discuss why Spiro Agnew Peanut Spread is only sold in Ecuador. Also on tap, guest Tim Johnson.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=200",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-906ffbd95bcc",
+          "day_delta": 1,
+          "canonical_date": "2010-06-29",
+          "title": "",
+          "preferred_local_file": "2010/20100629-04.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-906ffbd95bcc",
+          "day_delta": 1,
+          "canonical_date": "2010-06-29",
+          "title": "",
+          "preferred_local_file": "2010/20100629-04.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-1acda2958351",
+          "day_delta": 6,
+          "canonical_date": "2010-06-22",
+          "title": "",
+          "preferred_local_file": "2010/20100622-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "218",
+      "broadcast_date": "2010-07-05",
+      "title": "Zacchaeus Had A Thin Moustache",
+      "description": "After a weekend of brats, booze, and regrettable tan lines, come join us for some of that Jesus talk you know you've been hankering for. (Our perspective may be slightly different from that of your great Uncle Willie, who is close to dying and might be laying it on a little thick. Or he might be dead on, who's to say?)",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=218",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-a07d72c80f0b",
+          "day_delta": 1,
+          "canonical_date": "2010-07-06",
+          "title": "",
+          "preferred_local_file": "2010/20100706-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-a07d72c80f0b",
+          "day_delta": 1,
+          "canonical_date": "2010-07-06",
+          "title": "",
+          "preferred_local_file": "2010/20100706-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-906ffbd95bcc",
+          "day_delta": 6,
+          "canonical_date": "2010-06-29",
+          "title": "",
+          "preferred_local_file": "2010/20100629-04.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-31f63e8b670d",
+          "day_delta": 7,
+          "canonical_date": "2010-07-12",
+          "title": "",
+          "preferred_local_file": "2010/07122010.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "235",
+      "broadcast_date": "2010-07-12",
+      "title": "Prayer for the Winking Pirate or Jesus Never Played the West End",
+      "description": "Ted Danson is slated to guest host as we talk about prayer, pompous displays of prayer-like behavior, and why it's best to buy Cherries local and organic. (Hint: Maraschino doesn't mean the same thing in all languages.)",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=235",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-31f63e8b670d",
+          "day_delta": 0,
+          "canonical_date": "2010-07-12",
+          "title": "",
+          "preferred_local_file": "2010/07122010.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-31f63e8b670d",
+          "day_delta": 0,
+          "canonical_date": "2010-07-12",
+          "title": "",
+          "preferred_local_file": "2010/07122010.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-a07d72c80f0b",
+          "day_delta": 6,
+          "canonical_date": "2010-07-06",
+          "title": "",
+          "preferred_local_file": "2010/20100706-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "259",
+      "broadcast_date": "2010-07-19",
+      "title": "Tattoos, Fistacuffs, and Milk Duds: Guaranteed Regrets",
+      "description": "This week bands On This Rock and Next Crossing will be in the studio. Plus we'll continue last week's discussion about prayer, the consistency of God, and the plain fact that \"Trotsky\" spelled backwards is \"ykstort\", which is Romanian for \"shoe horn\" and English for \"I just lacerated my pinkie toe with the edge of the air register.\"",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=259",
+      "disposition": "matched-multiple-masters-review",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-ff67bb1320ad",
+          "day_delta": 1,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-ecf16a15ce1e",
+          "day_delta": 1,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-ff67bb1320ad",
+          "day_delta": 1,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-ecf16a15ce1e",
+          "day_delta": 1,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-31f63e8b670d",
+          "day_delta": 7,
+          "canonical_date": "2010-07-12",
+          "title": "",
+          "preferred_local_file": "2010/07122010.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "293",
+      "broadcast_date": "2010-07-26",
+      "title": "Jesus as the Janitor",
+      "description": "Bands Certainty and Saved on Sunday will be in the studio.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=293",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-3e6ffcdaa584",
+          "day_delta": 1,
+          "canonical_date": "2010-07-27",
+          "title": "",
+          "preferred_local_file": "2010/20100727-06.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-3e6ffcdaa584",
+          "day_delta": 1,
+          "canonical_date": "2010-07-27",
+          "title": "",
+          "preferred_local_file": "2010/20100727-06.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-ff67bb1320ad",
+          "day_delta": 6,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720-03.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-ecf16a15ce1e",
+          "day_delta": 6,
+          "canonical_date": "2010-07-20",
+          "title": "",
+          "preferred_local_file": "2010/20100720.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "351",
+      "broadcast_date": "2010-08-02",
+      "title": "Identity Crisis of the Bad Samaritan",
+      "description": "Tim Cooper and Friends and Vance Lambert perform!",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=351",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-0fb74ea91fef",
+          "day_delta": 1,
+          "canonical_date": "2010-08-03",
+          "title": "",
+          "preferred_local_file": "2010/20100803.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-0fb74ea91fef",
+          "day_delta": 1,
+          "canonical_date": "2010-08-03",
+          "title": "",
+          "preferred_local_file": "2010/20100803.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-3e6ffcdaa584",
+          "day_delta": 6,
+          "canonical_date": "2010-07-27",
+          "title": "",
+          "preferred_local_file": "2010/20100727-06.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "399",
+      "broadcast_date": "2010-08-09",
+      "title": "Jehosaphat Wasn't Really a Jumper",
+      "description": "Mike Demastus and Troy \"The Situation\" Engeldinger will be in studio.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=399",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-bb30eef7515b",
+          "day_delta": 1,
+          "canonical_date": "2010-08-10",
+          "title": "",
+          "preferred_local_file": "2010/20100810.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-bb30eef7515b",
+          "day_delta": 1,
+          "canonical_date": "2010-08-10",
+          "title": "",
+          "preferred_local_file": "2010/20100810.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-0fb74ea91fef",
+          "day_delta": 6,
+          "canonical_date": "2010-08-03",
+          "title": "",
+          "preferred_local_file": "2010/20100803.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "439",
+      "broadcast_date": "2010-08-16",
+      "title": "Lot and Too Much Sodium",
+      "description": "3 person panel on how to turn your empty can or Aqua Net into a formal and functional means of drug trafficking. Plus, a clerk with sharp incisors at the blood bank and how the concept of \"popping a wheelie\" on a unicycle falls flat.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=439",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-1e9f6601ce44",
+          "day_delta": 1,
+          "canonical_date": "2010-08-17",
+          "title": "",
+          "preferred_local_file": "2010/20100817.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-1e9f6601ce44",
+          "day_delta": 1,
+          "canonical_date": "2010-08-17",
+          "title": "",
+          "preferred_local_file": "2010/20100817.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-bb30eef7515b",
+          "day_delta": 6,
+          "canonical_date": "2010-08-10",
+          "title": "",
+          "preferred_local_file": "2010/20100810.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "468",
+      "broadcast_date": "2010-08-23",
+      "title": "From Saul to Paul: God will step in if He has to",
+      "description": "Band By Its Right Name will be in studio promoting their new album \"Hearsay\" which drops on Wednesday 8/25. Also, the phones are live and you should be to, your calls on Monday night.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=468",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-37b76c16dc5f",
+          "day_delta": 1,
+          "canonical_date": "2010-08-24",
+          "title": "",
+          "preferred_local_file": "2010/20100824.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-37b76c16dc5f",
+          "day_delta": 1,
+          "canonical_date": "2010-08-24",
+          "title": "",
+          "preferred_local_file": "2010/20100824.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-1e9f6601ce44",
+          "day_delta": 6,
+          "canonical_date": "2010-08-17",
+          "title": "",
+          "preferred_local_file": "2010/20100817.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-f555c51c5610",
+          "day_delta": 7,
+          "canonical_date": "2010-08-30",
+          "title": "",
+          "preferred_local_file": "2010/20100830.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "515",
+      "broadcast_date": "2010-08-30",
+      "title": "Sittin' In Your Own Pew (And Doin' Nothing Else)",
+      "description": "Special guest Rick Lee will be in the studio and we'll be talking about taking action for God. If Jesus ran a gas station, it would be called the Grab and Go, not the Sit and Soak.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=515",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-f555c51c5610",
+          "day_delta": 0,
+          "canonical_date": "2010-08-30",
+          "title": "",
+          "preferred_local_file": "2010/20100830.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-f555c51c5610",
+          "day_delta": 0,
+          "canonical_date": "2010-08-30",
+          "title": "",
+          "preferred_local_file": "2010/20100830.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-37b76c16dc5f",
+          "day_delta": 6,
+          "canonical_date": "2010-08-24",
+          "title": "",
+          "preferred_local_file": "2010/20100824.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-741db9e804ce",
+          "day_delta": 7,
+          "canonical_date": "2010-09-06",
+          "title": "",
+          "preferred_local_file": "2010/20100906.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "560",
+      "broadcast_date": "2010-09-06",
+      "title": "Potiphar, Hosea, and Winnie the Pooh",
+      "description": "We discuss the chapter in the Bible that requires Bible pages be semi opaque and have gold leaf on side of them. Also, musician Jim Scott joins us in the studio for some live music.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=560",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-741db9e804ce",
+          "day_delta": 0,
+          "canonical_date": "2010-09-06",
+          "title": "",
+          "preferred_local_file": "2010/20100906.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-741db9e804ce",
+          "day_delta": 0,
+          "canonical_date": "2010-09-06",
+          "title": "",
+          "preferred_local_file": "2010/20100906.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-f555c51c5610",
+          "day_delta": 7,
+          "canonical_date": "2010-08-30",
+          "title": "",
+          "preferred_local_file": "2010/20100830.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-999a0f6a0683",
+          "day_delta": 7,
+          "canonical_date": "2010-09-13",
+          "title": "",
+          "preferred_local_file": "2010/20100913.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "588",
+      "broadcast_date": "2010-09-13",
+      "title": "Syndrome of Fire In Studio",
+      "description": "Syndrome of Fire is Cassie Goetzke (vocals), Ryan McMahan (guitar), Jamin Schrader (bass), Sonny Cutler (guitar, keys) and Tim Denner (drums). Static, their first EP debut, was released July 25, 2010 and is still available for purchase. After finishing their West Coast tour in November, SOF will devote much time to the making of their first full length album, Fast Train. The expected release date is spring of 2011.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=588",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-999a0f6a0683",
+          "day_delta": 0,
+          "canonical_date": "2010-09-13",
+          "title": "",
+          "preferred_local_file": "2010/20100913.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-999a0f6a0683",
+          "day_delta": 0,
+          "canonical_date": "2010-09-13",
+          "title": "",
+          "preferred_local_file": "2010/20100913.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-741db9e804ce",
+          "day_delta": 7,
+          "canonical_date": "2010-09-06",
+          "title": "",
+          "preferred_local_file": "2010/20100906.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-e568d68433a7",
+          "day_delta": 7,
+          "canonical_date": "2010-09-20",
+          "title": "",
+          "preferred_local_file": "2010/20100920 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "634",
+      "broadcast_date": "2010-09-20",
+      "title": "The Man Show",
+      "description": "Where did the men go? Seriously, our culture seems to be trading out real men for flimsy, dufusy, malleable types that tread lightly, dream softly, and have ambitions of \"achieving\" the middle ground and doing whatever it takes not to embarass themselves. Enough! Our September 20th show will be focused on men. We'll be talking about the characteristics of some of the more notable Biblical men (some lessons in what not to do), where men are at in our culture, and ways to improve our impact as husbands, fathers, workers, and disciples.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=634",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-e568d68433a7",
+          "day_delta": 0,
+          "canonical_date": "2010-09-20",
+          "title": "",
+          "preferred_local_file": "2010/20100920 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-e568d68433a7",
+          "day_delta": 0,
+          "canonical_date": "2010-09-20",
+          "title": "",
+          "preferred_local_file": "2010/20100920 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-999a0f6a0683",
+          "day_delta": 7,
+          "canonical_date": "2010-09-13",
+          "title": "",
+          "preferred_local_file": "2010/20100913.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-0779866aa5f0",
+          "day_delta": 7,
+          "canonical_date": "2010-09-27",
+          "title": "",
+          "preferred_local_file": "2010/20100927 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "694",
+      "broadcast_date": "2010-09-27",
+      "title": "Godo Telefono - Prayer vs. Pancakes",
+      "description": "Prayer vs. Pancakes, Charity vs. Fishing, and witnessing at the atheist convention.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=694",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-0779866aa5f0",
+          "day_delta": 0,
+          "canonical_date": "2010-09-27",
+          "title": "",
+          "preferred_local_file": "2010/20100927 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-0779866aa5f0",
+          "day_delta": 0,
+          "canonical_date": "2010-09-27",
+          "title": "",
+          "preferred_local_file": "2010/20100927 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-e568d68433a7",
+          "day_delta": 7,
+          "canonical_date": "2010-09-20",
+          "title": "",
+          "preferred_local_file": "2010/20100920 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-4d0b57be2cb7",
+          "day_delta": 7,
+          "canonical_date": "2010-10-04",
+          "title": "",
+          "preferred_local_file": "2010/20101004 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "752",
+      "broadcast_date": "2010-10-04",
+      "title": "Why Bad Things Happen To, Uh, People",
+      "description": "Century Music Group artist Jeff Arrandale will be in studio as we discuss the difference between being a servant vs. being a slave. Also, we'll tackle the age old question of why bad things happen to good people.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=752",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-4d0b57be2cb7",
+          "day_delta": 0,
+          "canonical_date": "2010-10-04",
+          "title": "",
+          "preferred_local_file": "2010/20101004 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-4d0b57be2cb7",
+          "day_delta": 0,
+          "canonical_date": "2010-10-04",
+          "title": "",
+          "preferred_local_file": "2010/20101004 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-0779866aa5f0",
+          "day_delta": 7,
+          "canonical_date": "2010-09-27",
+          "title": "",
+          "preferred_local_file": "2010/20100927 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "798",
+      "broadcast_date": "2010-10-11",
+      "title": "Tyson vs. Holyfield",
+      "description": "",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=798",
+      "disposition": "source-only-candidate",
+      "matched_masters": [],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-b0ef84b3d04b",
+          "day_delta": 4,
+          "canonical_date": "2010-10-15",
+          "title": "",
+          "preferred_local_file": "2010/20101015.mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-4d0b57be2cb7",
+          "day_delta": 7,
+          "canonical_date": "2010-10-04",
+          "title": "",
+          "preferred_local_file": "2010/20101004 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-250639c88451",
+          "day_delta": 7,
+          "canonical_date": "2010-10-18",
+          "title": "",
+          "preferred_local_file": "2010/20101018 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "966",
+      "broadcast_date": "2010-10-25",
+      "title": "Why Do I Need To Go To Church?",
+      "description": "The church is full of hypocrites, liars, swindlers, and cheats. They only want me to come so they can take my money and control my life. Jesus is cool, though. I can follow him without having to hang around all those jokers in the church. Do you ever feel that way? Is it possible to follow Christ without being part of a church body? We'll see what the Bible says about this, what steps you can and should take if you're in an unhealthy church situation, and how to reconcile the sometimes errant behavior of God's people within the church with how God himself sees the church.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=966",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-d6d070bd2710",
+          "day_delta": 0,
+          "canonical_date": "2010-10-25",
+          "title": "",
+          "preferred_local_file": "2010/20101025 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-d6d070bd2710",
+          "day_delta": 0,
+          "canonical_date": "2010-10-25",
+          "title": "",
+          "preferred_local_file": "2010/20101025 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-250639c88451",
+          "day_delta": 7,
+          "canonical_date": "2010-10-18",
+          "title": "",
+          "preferred_local_file": "2010/20101018 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-355b736f97af",
+          "day_delta": 7,
+          "canonical_date": "2010-11-01",
+          "title": "",
+          "preferred_local_file": "2010/20101101 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "1009",
+      "broadcast_date": "2010-11-01",
+      "title": "Where Do I Start?",
+      "description": "Let's say you or someone you know is God curious. You feel like He might exist or you're interested in a closer relationship with Him and you don't quite know what to do from there. Well, we're here to help. Now, let's be clear, this is a personal relationship with God we're talking about so no amount of effort on our end will make a lick of difference as to how close you are to God. Anyone of this earth that puts themselves as an intermediary between you and God is a charlatan. That being said, as Christ followers, we can share our experiences with you, provide relevant Biblical passages about having a relationship with Christ, and be encouraging and there to answer questions. This will be \"I'm Christ Curious 101 - Where Do I Start?\" and we would invite you to come along with us and pass the invitation on to anyone you know that is thinking about starting or renewing a relationship with Jesus. I'm excited about this one, folks, and look forward to seeing you there.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=1009",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-355b736f97af",
+          "day_delta": 0,
+          "canonical_date": "2010-11-01",
+          "title": "",
+          "preferred_local_file": "2010/20101101 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-355b736f97af",
+          "day_delta": 0,
+          "canonical_date": "2010-11-01",
+          "title": "",
+          "preferred_local_file": "2010/20101101 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-d6d070bd2710",
+          "day_delta": 7,
+          "canonical_date": "2010-10-25",
+          "title": "",
+          "preferred_local_file": "2010/20101025 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-9f5b64ddbb18",
+          "day_delta": 7,
+          "canonical_date": "2010-11-08",
+          "title": "",
+          "preferred_local_file": "2010/20101108 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "1087",
+      "broadcast_date": "2010-11-08",
+      "title": "Suicide",
+      "description": "",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=1087",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-9f5b64ddbb18",
+          "day_delta": 0,
+          "canonical_date": "2010-11-08",
+          "title": "",
+          "preferred_local_file": "2010/20101108 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-9f5b64ddbb18",
+          "day_delta": 0,
+          "canonical_date": "2010-11-08",
+          "title": "",
+          "preferred_local_file": "2010/20101108 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-355b736f97af",
+          "day_delta": 7,
+          "canonical_date": "2010-11-01",
+          "title": "",
+          "preferred_local_file": "2010/20101101 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-ce9581d312ae",
+          "day_delta": 7,
+          "canonical_date": "2010-11-15",
+          "title": "",
+          "preferred_local_file": "2010/20101115 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    },
+    {
+      "source": "des-moines-amplified",
+      "source_show_id": "56",
+      "source_episode_id": "1126",
+      "broadcast_date": "2010-11-15",
+      "title": "Stop Crying! Loving God Without Weeping.",
+      "description": "Sometimes you turn on the TV and you see all of these people being portrayed as \"on fire\" for Christ weeping and laughing with hands in the air and bodies convulsing around like there's a fish in their BVDs. Now, I'm in no position to say that ain't the deal. But, I don't do that. Last time I convulsed involuntarily was in reaction to the tuna spring roll from the local sushi/laundromat/bait shop. So, am I missing out on following Christ correctly because I'm not a cryer? What does the Bible say about showing love for God? We're talking about it on this episode of Live From The Path.",
+      "source_url": "https://web.archive.org/web/20101123145012/http:/www.desmoinesamplified.com/show_date.asp?showid=56&id=1126",
+      "disposition": "matched-one-master",
+      "matched_masters": [
+        {
+          "candidate_id": "candidate-local-ce9581d312ae",
+          "day_delta": 0,
+          "canonical_date": "2010-11-15",
+          "title": "",
+          "preferred_local_file": "2010/20101115 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ],
+      "nearest_masters_within_7_days": [
+        {
+          "candidate_id": "candidate-local-ce9581d312ae",
+          "day_delta": 0,
+          "canonical_date": "2010-11-15",
+          "title": "",
+          "preferred_local_file": "2010/20101115 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-9f5b64ddbb18",
+          "day_delta": 7,
+          "canonical_date": "2010-11-08",
+          "title": "",
+          "preferred_local_file": "2010/20101108 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        },
+        {
+          "candidate_id": "candidate-local-2377dc13c953",
+          "day_delta": 7,
+          "canonical_date": "2010-11-22",
+          "title": "",
+          "preferred_local_file": "2010/20101122 (1).mp3",
+          "rss_episode_id": "",
+          "status": "local-only"
+        }
+      ]
+    }
+  ]
+}

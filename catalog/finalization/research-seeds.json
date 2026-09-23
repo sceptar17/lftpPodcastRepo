@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "wayback_pages": [
+    {
+      "source_id": "des-moines-amplified",
+      "url": "https://web.archive.org/web/20101123145012/http://www.desmoinesamplified.com/show.asp?showid=56",
+      "note": "User-provided Live From The Path show page; showid=56 is a confirmed historical anchor."
+    }
+  ],
+  "archive_domains": [
+    {
+      "source_id": "des-moines-amplified",
+      "domain": "desmoinesamplified.com",
+      "from": "2010",
+      "to": "2013"
+    }
+  ],
+  "youtube_channels": [
+    {
+      "source_id": "official-youtube",
+      "url": "https://www.youtube.com/@livefromthepath/videos"
+    }
+  ],
+  "vimeo_searches": [
+    "Live From The Path",
+    "Live From The Path Des Moines",
+    "desmoinesamplified",
+    "Pathway Church Live From The Path"
+  ]
+}

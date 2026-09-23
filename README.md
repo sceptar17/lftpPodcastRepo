@@ -114,6 +114,15 @@ research reports. It enriches matched records with historical titles and dates,
 adds source-confirmed shows whose audio has not been recovered, and leaves
 ambiguous matches flagged for review.
 
+After that report exists, double-click `Verify Recovery Candidates.cmd`. This is a focused,
+non-destructive pass over only the two ambiguous 2010 historical associations and four possible
+YouTube recoveries. It compares duration, Chromaprint audio when `fpcalc` is available, and rough
+three-minute local `tiny.en` transcripts when acoustic evidence is inconclusive. For split or
+re-edited public videos, it checks several positions in the likely local recording rather than
+assuming both files begin at the same moment. It writes and opens
+`catalog/finalization/recovery-verification/RECOVERY_VERIFICATION.md`. Cached public-source audio is
+kept outside Git so failed comparisons can be retried without redownloading successful sources.
+
 ### Run the local transcription benchmark on Windows
 
 Stop the web server with `Ctrl+C`, then install the optional local provider and restart:

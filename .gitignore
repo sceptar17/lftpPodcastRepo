@@ -11,3 +11,4 @@ state/transcription-benchmarks/
 raw/provider-output/benchmarks/
 state/archive-sync/
 state/app-settings.json
+raw/recovery-cache/

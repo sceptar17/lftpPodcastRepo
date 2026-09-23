@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "research_date": "2026-09-23",
+  "sources": [
+    {
+      "source_id": "des-moines-amplified",
+      "domains": ["desmoinesamplified.com", "www.desmoinesamplified.com"],
+      "date_range": {"from": "2010", "to": "2013"},
+      "status": "confirmed-original-broadcaster",
+      "evidence": "Official 2010 YouTube description says the show aired on desmoinesamplified.com Mondays from 10 p.m. to midnight.",
+      "recover": ["show pages", "schedule pages", "audio URLs", "player embeds", "feed links"]
+    },
+    {
+      "source_id": "feedburner",
+      "domains": ["feeds.feedburner.com"],
+      "date_range": {"from": "2010", "to": "2016"},
+      "status": "user-confirmed-slug-unresolved",
+      "recover": ["feed XML", "original feed URL", "GUIDs", "enclosure URLs", "titles", "publication dates"]
+    },
+    {
+      "source_id": "blip-tv",
+      "domains": ["blip.tv", "a.blip.tv", "api.blip.tv"],
+      "date_range": {"from": "2010", "to": "2015"},
+      "status": "user-confirmed-wayback-lead",
+      "recover": ["show pages", "user pages", "episode IDs", "video/audio URLs", "descriptions", "dates"]
+    },
+    {
+      "source_id": "pathway-church",
+      "domains": [],
+      "date_range": {"from": "2010", "to": "2015"},
+      "status": "lead-domain-unresolved",
+      "recover": ["show announcements", "host names", "embedded players", "episode links"]
+    },
+    {
+      "source_id": "youtube",
+      "domains": ["youtube.com"],
+      "channel": "https://www.youtube.com/@livefromthepath",
+      "status": "confirmed",
+      "recover": ["video IDs", "titles", "publication dates", "durations", "descriptions", "transcript availability"]
+    }
+  ]
+}
